@@ -1,0 +1,71 @@
+{
+    "regions": [
+      {
+        "regionName": "karachi_cloud",
+        "services": [
+          {
+            "serviceName": "ECS",
+            "instances": [
+              {
+                "id": "6279ae92-94bf-498f-9f3c-64dcf404eeb5",
+                "memory": 16,
+                "memoryUnit": "GB",
+                "vCPUs": 4,
+                "resourceName": "ECS_3-0001",
+                "meteringMetric": "ECS-4vCPUs 16 GB",
+                "meteringValue": 744,
+                "usage": 1,
+                "usageDuration": 744.0,
+                "meterBeginTime": "Tue, 01 Oct 2024 00:00:00 GMT",
+                "meterEndTime": "Thu, 31 Oct 2024 23:59:59 GMT"
+              },
+              {
+                "id": "974279ef-2f7f-4d86-a6a0-7291c974729b",
+                "memory": 16,
+                "memoryUnit": "GB",
+                "vCPUs": 4,
+                "resourceName": "ECS_3-0002",
+                "meteringMetric": "ECS-4vCPUs 16 GB",
+                "meteringValue": 744,
+                "usage": 1,
+                "usageDuration": 744.0,
+                "meterBeginTime": "Tue, 01 Oct 2024 00:00:00 GMT",
+                "meterEndTime": "Thu, 31 Oct 2024 23:59:59 GMT"
+              }
+            ]
+          },
+          {
+            "serviceName": "EIP",
+            "instances": [
+              {
+                "id": "285c2821-c58a-401c-8c28-d62b3bcd5811",
+                "resourceName": "103.164.9.225",
+                "meteringMetric": "EIP-Instance",
+                "meteringValue": 744,
+                "usage": 1,
+                "usageDuration": 744.0,
+                "meterBeginTime": "Tue, 01 Oct 2024 00:00:00 GMT",
+                "meterEndTime": "Thu, 31 Oct 2024 23:59:59 GMT"
+              }
+            ]
+          },
+          {
+            "serviceName": "EIP-Bandwidth",
+            "instances": [
+              {
+                "id": "24802289-f6e0-4ddf-b95e-3e2e5f8ad69f",
+                "resourceName": "sabdullah1_bandwidth",
+                "meteringMetric": "EIP-Bandwidth",
+                "meteringValue": 74400,
+                "usage": 100,
+                "usageDuration": 744.0,
+                "meterBeginTime": "Tue, 01 Oct 2024 00:00:00 GMT",
+                "meterEndTime": "Thu, 31 Oct 2024 23:59:59 GMT"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  
