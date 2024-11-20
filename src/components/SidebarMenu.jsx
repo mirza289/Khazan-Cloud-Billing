@@ -58,7 +58,7 @@ const SidebarMenu = (props) => {
         <div style={{ paddingLeft: "10px", color: "#909090", fontSize: "14px" }}>Purchase-order</div>
         <div className="gutter-10x"></div>
         <MenuItem
-          component={<Link to={"/settings/drone-list"} />}
+          component={<Link to={"/settings/po-list"} />}
           className={currentUrlLocaltion.pathname === "/settings/user-profile" ? "menuitem-active" : "menuitme-normal"}
           style={{ textDecoration: "none" }}>
           <i className="las la-cash-register" style={{ fontSize: "30px" }}></i> Purchase-order List

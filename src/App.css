@@ -379,15 +379,16 @@ tr:nth-child(even) {
 }
 
 .btn-primary {
-  background-color: #2887d4 !important;
+  background-color: #cb0007 !important;
   border-radius: 20px;
   padding-right: 10px;
   padding-left: 10px;
+  border-color: #cb0007;
 }
 
 .btn-outline-primary {
-  border-color: #2887d4 !important;
-  color: #2887d4 !important;
+  border-color: #cb0007 !important;
+  color: #cb0007 !important;
   background-color: #ffffff !important;
 }
 

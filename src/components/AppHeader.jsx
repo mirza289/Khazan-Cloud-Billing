@@ -16,7 +16,7 @@ function AppHeader(props) {
     <Navbar
       expand="lg"
       fixed="top"
-      style={{ backgroundColor: "#E9F5FE", height: "60px" }}>
+      style={{ backgroundColor: "#cb0007", height: "60px" }}>
       <Container
         fluid
         style={{ justifyContent: "" }}
@@ -38,7 +38,7 @@ function AppHeader(props) {
              }}
             src={require("../assets/images/cloud-logo.png")}
             alt="Logo" />
-            <span style={{ float:'left',padding: 10, fontWeight:'400'}}> Khazana Cloud Billing</span>
+            <span style={{ float:'left',padding: 10, fontWeight:'400', color:"white"}}> Khazana Cloud </span>
           </Link>
         </Navbar.Brand>
         <Nav.Link eventKey={1}>
@@ -49,7 +49,7 @@ function AppHeader(props) {
           <Gravatar
             style={{ borderRadius: "50%" }}
             size="32"
-            email={"Shahriya" + " " + "Baig"}
+            email={"Shahriyar" + " " + "Baig"}
           />
         </Nav.Link>
       </Container>
