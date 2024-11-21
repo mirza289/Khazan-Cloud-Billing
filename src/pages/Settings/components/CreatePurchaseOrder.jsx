@@ -99,7 +99,11 @@ const CreatePurchaseOrder = (props) => {
     ]
 
 
-    console.log(services)
+    let UserPurchaseOrder ={
+      "user-info":formValues,
+      "services":services
+    }
+    console.log(JSON.stringify(UserPurchaseOrder))
 
     // perform form validation
     const validationErrors = formValidation()
