@@ -48,11 +48,37 @@ const CreatePurchaseOrder = (props) => {
   }
 
   // handle create user
-  const handleCreateUser = (e) => {
+  const handleCreatePurchaseOrder = (e) => {
     e.preventDefault()
     setApiError('')
     setValidationErrors({})
     showSpinner(true)
+
+    let ElasticService ={'elasticService':rows}
+    let StorageService = {"storageService": storageService}
+    let DrService ={"drService": drServices}
+    let ContainerServiceCCE={"containerServices":containerServices}
+    let ContainerServiceWorker={"containerServiceWorker":containerSpecialServices}
+    let SecurityProtection={"securityServices":securityServices}
+    let DatabaseServices={"databaseServices":databaseServices}
+    let NetworkServices={"networkServices":networkServices}
+    let AdditionalServices={"valueAddedServices":valueAddedServices}
+
+
+    let services=[
+      ElasticService,
+      StorageService,
+      DrService,
+      ContainerServiceCCE,
+      ContainerServiceWorker,
+      SecurityProtection,
+      DatabaseServices,
+      NetworkServices,
+      AdditionalServices
+    ]
+
+
+    console.log(services)
 
     // perform form validation
     const validationErrors = formValidation()
@@ -65,45 +91,40 @@ const CreatePurchaseOrder = (props) => {
 
     // continue if no validation errors
     let formData = new FormData()
-    formData.append('company_id', props.companyId)
-    formData.append('first_name', firstName)
-    formData.append('last_name', lastName)
-    formData.append('email', email)
-    formData.append('password', password)
-    formData.append('user_level', userLevel)
-    formData.append('admin_roles', JSON.stringify(selectedRoles))
+    formData.append('purchase-order', "")
 
 
 
-    HttpClient.post('user/create-user', formData)
-      .then(responsePayload => {
-        toast.success("User created successfully")
-        showSpinner(false)
-        // reset the form
-        setFirstName('')
-        setLastName('')
-        setEmail('')
-        setPassword('')
-        passwordRef.current.value = ''
-        props.updateSliderState({
-          isPaneOpen: false,
-        })
 
-      })
-      .catch(error => {
-        showSpinner(false)
-        if (error.response) {
-          setApiError(error.response.data.message)
-        } else if (error.request) {
-          setApiError(error.request)
-        } else {
-          setApiError(error.message)
-        }
+    // HttpClient.post('user/create-user', formData)
+    //   .then(responsePayload => {
+    //     toast.success("User created successfully")
+    //     showSpinner(false)
+    //     // reset the form
+    //     setFirstName('')
+    //     setLastName('')
+    //     setEmail('')
+    //     setPassword('')
+    //     passwordRef.current.value = ''
+    //     props.updateSliderState({
+    //       isPaneOpen: false,
+    //     })
 
-        // reset the password on any error
-        setPassword('')
-        passwordRef.current.value = ''
-      })
+    //   })
+    //   .catch(error => {
+    //     showSpinner(false)
+    //     if (error.response) {
+    //       setApiError(error.response.data.message)
+    //     } else if (error.request) {
+    //       setApiError(error.request)
+    //     } else {
+    //       setApiError(error.message)
+    //     }
+
+    //     // reset the password on any error
+    //     setPassword('')
+    //     passwordRef.current.value = ''
+    //   })
   }
 
 
@@ -322,7 +343,6 @@ const CreatePurchaseOrder = (props) => {
 
 
   ///  database 
-
   const [databaseServices, setDatabaseServices] = useState([
     { serviceName: "", type: "", qty: "", duration: "730", monthlyPrice: "" },
   ]);
@@ -347,7 +367,6 @@ const CreatePurchaseOrder = (props) => {
     const updatedServices = databaseServices.filter((_, i) => i !== index);
     setDatabaseServices(updatedServices);
   }
-
 
   /// network Services 
 
@@ -376,10 +395,7 @@ const CreatePurchaseOrder = (props) => {
     setNetworkServices(updatedServices);
   }
 
-
-
   /// value edit fields 
-
   const [valueAddedServices, setValueAddedServices] = useState({
     elasticLoadBalancer: { selected: false, price: "" },
     natSet: { selected: false, price: "" },
@@ -424,7 +440,7 @@ const CreatePurchaseOrder = (props) => {
           <div className="gutter-10x"></div>
         </>
       }
-      <Form onSubmit={handleCreateUser}>
+      <Form onSubmit={handleCreatePurchaseOrder}>
         <Row><Col><span style={{ font: "16px", fontWeight: 'bold' }}>User Info</span></Col></Row>
         <div className='gutter-20x' ></div>
         <Form.Group className="mb-3" controlId="fgFirstName">
@@ -485,6 +501,7 @@ const CreatePurchaseOrder = (props) => {
             // onChange={e => setEmail(e.target.value)}
             style={{ fontSize: "16px" }} />
         </Form.Group>
+
         {/* -----------------------------------------------------Elastic Cloud Server--------------------------------------------------------*/}
 
 
@@ -1374,8 +1391,8 @@ const CreatePurchaseOrder = (props) => {
                   onChange={(e) => updateNetworkService(index, "type", e.target.value)}
                 >
                   <option>Select Type</option>
-                  <option value="public-static-ip">Elastic (Public static) IP</option>
-                  <option value="bandwidth">Cloud bandwidth for ELB, VPN, ECS, EIP etc</option>
+                  {row.serviceName === "eip" && <option value="public-static-ip">Elastic (Public static) IP</option>}
+                  {row.serviceName === "banwidth" && <option value="bandwidth">Cloud bandwidth for ELB, VPN, ECS, EIP etc</option>}
                 </Form.Select>
               </Form.Group>
             </Col>
@@ -1460,26 +1477,26 @@ const CreatePurchaseOrder = (props) => {
             ].map((service) => (
               <div key={service} style={{ marginBottom: "10px" }}>
                 <Row>
-                    <Col>
-                  <Form.Check
-                    type="checkbox"
-                    label={service
-                      .replace(/([A-Z])/g, " $1")
-                      .replace(/^\w/, (c) => c.toUpperCase())}
-                    checked={valueAddedServices[service].selected}
-                    onChange={() => handleCheckboxChange(service)}
-                  />
+                  <Col>
+                    <Form.Check
+                      type="checkbox"
+                      label={service
+                        .replace(/([A-Z])/g, " $1")
+                        .replace(/^\w/, (c) => c.toUpperCase())}
+                      checked={valueAddedServices[service].selected}
+                      onChange={() => handleCheckboxChange(service)}
+                    />
                   </Col>
                   <Col>
-                  {valueAddedServices[service].selected && (
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter Price"
-                      value={valueAddedServices[service].price}
-                      onChange={(e) => handlePriceChange(service, e.target.value)}
-                      style={{ marginTop: "5px", fontSize: "14px", float: "right" }}
-                    />
-                  )}
+                    {valueAddedServices[service].selected && (
+                      <Form.Control
+                        type="text"
+                        placeholder="Enter Price"
+                        value={valueAddedServices[service].price}
+                        onChange={(e) => handlePriceChange(service, e.target.value)}
+                        style={{ marginTop: "5px", fontSize: "14px", float: "right" }}
+                      />
+                    )}
                   </Col>
                 </Row>
               </div>

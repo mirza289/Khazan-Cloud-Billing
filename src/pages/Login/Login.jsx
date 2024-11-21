@@ -216,7 +216,7 @@ const Login = () => {
             </Form>
             <div className="gutter-20x"></div>
             <div>
-              Do not have an account? <Link to="https://spottrender.com/contact/" style={{ textDecoration: "none", color: "#212529" }}>Contact Us</Link>
+              Do not have an account? <Link to="https://Khazana.com/contact/" style={{ textDecoration: "none", color: "#212529" }}>Contact Us</Link>
             </div>
           </div>
           </div>

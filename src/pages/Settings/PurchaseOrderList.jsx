@@ -37,7 +37,7 @@ const PurchaseOrderList = () => {
 
 
   useEffect(() => {
-    document.title = ("User Manage | Spottrender")
+    document.title = ("User Manage | Khazana")
     // checkUserSession()
   }, [])
 

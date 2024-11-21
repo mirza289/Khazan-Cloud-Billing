@@ -42,7 +42,7 @@ const Auth = () => {
   }, [])
 
   useEffect(() => {
-    document.title = ("Auth | Spottrender")
+    document.title = ("Auth | Khazana")
     checkUserSession()
   }, [])
 
