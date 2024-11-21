@@ -315,7 +315,7 @@ const PurchaseOrderList = () => {
                 overlayClassName="some-custom-overlay-class"
                 isOpen={sliderState.isPaneOpen}
                 title={sliderTitle}
-                width="70%"
+                width="80%"
                 onRequestClose={() => {
                   // triggered on "<" on left top click or on outside click
                   setSliderState({ isPaneOpen: false })

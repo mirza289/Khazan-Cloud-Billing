@@ -158,7 +158,7 @@ const CreatePurchaseOrder = (props) => {
   }
 
   const [rows, setRows] = useState([
-    { serviceName: "", vCPUs: "", ram: "", quantity: "", rate: "" },
+    { serviceName: "", vCPUs: "", ram: "", quantity: "", rate: "", monthly_rate: "" },
   ]);
 
   // Handle input changes for a specific row
@@ -172,7 +172,7 @@ const CreatePurchaseOrder = (props) => {
   const addRow = () => {
     setRows([
       ...rows,
-      { serviceName: "", vCPUs: "", ram: "", quantity: "", rate: "" },
+      { serviceName: "", vCPUs: "", ram: "", quantity: "", rate: "", monthly_rate: "" },
     ]);
   };
 
@@ -211,6 +211,204 @@ const CreatePurchaseOrder = (props) => {
     setStorageService(updatedServices);
   };
 
+
+  //// DR Services 
+
+
+  // State to manage DR services
+  const [drServices, setDrServices] = useState([
+    { serviceName: "", type: "", quantity: "", duration: "730", monthlyPrice: "" },
+  ]);
+
+  // Handle input changes for a specific row
+  const updateDrService = (index, field, value) => {
+    const updatedServices = [...drServices];
+    updatedServices[index][field] = value;
+    setDrServices(updatedServices);
+  };
+
+  // Add a new row
+  const addDrServiceRow = () => {
+    setDrServices([
+      ...drServices,
+      { serviceName: "", type: "", quantity: "", duration: "730", monthlyPrice: "" },
+    ]);
+  };
+
+  // Remove a row
+  const removeDrServiceRow = (index) => {
+    const updatedServices = drServices.filter((_, i) => i !== index);
+    setDrServices(updatedServices);
+  };
+
+
+  // State to manage Container Services
+  const [containerServices, setContainerServices] = useState([
+    { serviceName: "CCE Cluster", description: "CCE Cluster", vcpuQty: "", duration: "730", monthlyPrice: "" },
+  ]);
+
+  // Handle input changes for a specific row
+  const updateContainerService = (index, field, value) => {
+    const updatedServices = [...containerServices];
+    updatedServices[index][field] = value;
+    setContainerServices(updatedServices);
+  };
+
+  // Add a new row
+  const addContainerServiceRow = () => {
+    setContainerServices([
+      ...containerServices,
+      { serviceName: "CCE Cluster", description: "CCE Cluster", vcpuQty: "", duration: "730", monthlyPrice: "" },
+    ]);
+  };
+
+  // Remove a row
+  const removeContainerServiceRow = (index) => {
+    const updatedServices = containerServices.filter((_, i) => i !== index);
+    setContainerServices(updatedServices);
+  };
+
+  const [containerSpecialServices, setContainerSpecialServices] = useState([
+    { serviceName: "", description: "", vcpuQty: "", duration: "730", monthlyPrice: "" },
+  ]);
+
+  // Handle input changes for a specific row
+  const updateContainerSpecialService = (index, field, value) => {
+    const updatedServices = [...containerSpecialServices];
+    updatedServices[index][field] = value;
+    setContainerSpecialServices(updatedServices);
+  };
+
+  // Add a new row
+  const addContainerSpecialServiceRow = () => {
+    setContainerSpecialServices([
+      ...containerSpecialServices,
+      { serviceName: "", description: "", vcpuQty: "", duration: "730", monthlyPrice: "" },
+    ]);
+  };
+
+  // Remove a row
+  const removeContainerSpecialServiceRow = (index) => {
+    const updatedServices = containerSpecialServices.filter((_, i) => i !== index);
+    setContainerSpecialServices(updatedServices);
+  };
+
+  //////////////////////////////////////////////////////////////////////////////
+  // State to manage Security and Protection Services
+  const [securityServices, setSecurityServices] = useState([
+    { serviceName: "", type: "", description: "", duration: "730", monthlyPrice: "" },
+  ]);
+
+  // Handle input changes for a specific row
+  const updateSecurityService = (index, field, value) => {
+    const updatedServices = [...securityServices];
+    updatedServices[index][field] = value;
+    setSecurityServices(updatedServices);
+  };
+
+  // Add a new row
+  const addSecurityServiceRow = () => {
+    setSecurityServices([
+      ...securityServices,
+      { serviceName: "", type: "", description: "", duration: "730", monthlyPrice: "" },
+    ]);
+  };
+
+  // Remove a row
+  const removeSecurityServiceRow = (index) => {
+    const updatedServices = securityServices.filter((_, i) => i !== index);
+    setSecurityServices(updatedServices);
+  };
+
+
+  ///  database 
+
+  const [databaseServices, setDatabaseServices] = useState([
+    { serviceName: "", type: "", qty: "", duration: "730", monthlyPrice: "" },
+  ]);
+
+  // Handle input changes for a specific row
+  const updateDatabaseService = (index, field, value) => {
+    const updatedServices = [...databaseServices];
+    updatedServices[index][field] = value;
+    setDatabaseServices(updatedServices);
+  };
+
+  // Add a new row
+  const addDatabaseServiceRow = () => {
+    setDatabaseServices([
+      ...databaseServices,
+      { serviceName: "", type: "", qty: "", duration: "730", monthlyPrice: "" },
+    ]);
+  };
+
+  // Remove a row
+  const removeDatabaseServiceRow = (index) => {
+    const updatedServices = databaseServices.filter((_, i) => i !== index);
+    setDatabaseServices(updatedServices);
+  }
+
+
+  /// network Services 
+
+  const [networkServices, setNetworkServices] = useState([
+    { serviceName: "", type: "", qty: "", duration: "", monthlyPrice: "" },
+  ]);
+
+  // Handle input changes for a specific row
+  const updateNetworkService = (index, field, value) => {
+    const updatedServices = [...networkServices];
+    updatedServices[index][field] = value;
+    setNetworkServices(updatedServices);
+  };
+
+  // Add a new row
+  const addNetworkServiceRow = () => {
+    setNetworkServices([
+      ...networkServices,
+      { serviceName: "", type: "", qty: "", duration: "", monthlyPrice: "" },
+    ]);
+  };
+
+  // Remove a row
+  const removeNetworkServiceRow = (index) => {
+    const updatedServices = networkServices.filter((_, i) => i !== index);
+    setNetworkServices(updatedServices);
+  }
+
+
+
+  /// value edit fields 
+
+  const [valueAddedServices, setValueAddedServices] = useState({
+    elasticLoadBalancer: { selected: false, price: "" },
+    natSet: { selected: false, price: "" },
+    smnSet: { selected: false, price: "" },
+    autoScaling: { selected: false, price: "" },
+    vpn: { selected: false, price: "" },
+    imageManagementService: { selected: false, price: "" },
+    virtualPrivateCloud: { selected: false, price: "" },
+    dns: { selected: false, price: "" },
+    monitoringService: { selected: false, price: "" },
+    securityGroups: { selected: false, price: "" },
+    accessControlList: { selected: false, price: "" },
+  });
+
+  // Handle checkbox changes
+  const handleCheckboxChange = (service) => {
+    setValueAddedServices((prevState) => ({
+      ...prevState,
+      [service]: { ...prevState[service], selected: !prevState[service].selected },
+    }));
+  };
+
+  // Handle price input changes
+  const handlePriceChange = (service, price) => {
+    setValueAddedServices((prevState) => ({
+      ...prevState,
+      [service]: { ...prevState[service], price },
+    }));
+  };
 
   useEffect(() => {
     console.log(rows)
@@ -270,6 +468,15 @@ const CreatePurchaseOrder = (props) => {
           }
         </Form.Group>
         <Form.Group className="mb-3" controlId="fgAddress">
+          <Form.Label>NTN Number</Form.Label>
+          <Form.Control
+            size="lg"
+            type="text"
+            placeholder="Enter NTN"
+            // onChange={e => setEmail(e.target.value)}
+            style={{ fontSize: "16px" }} />
+        </Form.Group>
+        <Form.Group className="mb-3" controlId="fgAddress">
           <Form.Label>Address</Form.Label>
           <Form.Control
             size="lg"
@@ -278,7 +485,10 @@ const CreatePurchaseOrder = (props) => {
             // onChange={e => setEmail(e.target.value)}
             style={{ fontSize: "16px" }} />
         </Form.Group>
-        <div className='gutter-10x' ></div>
+        {/* -----------------------------------------------------Elastic Cloud Server--------------------------------------------------------*/}
+
+
+        <div className='gutter-40x' ></div>
         <div className='splitter' ></div>
         <div className="gutter-20x"></div>
         <Row><Col><span style={{ font: "16px", fontWeight: 'bold' }}>Elastic Cloud Server/ Virtual Machines</span></Col></Row>
@@ -287,116 +497,141 @@ const CreatePurchaseOrder = (props) => {
           <Col lg={2}>
             <span>Virtual Machine</span>
           </Col>
-          <Col lg={2}>
+          <Col lg={1}>
             <span>vCPUs</span>
           </Col>
-          <Col lg={2}>
+          <Col lg={1}>
             <span>RAM (GB)</span>
           </Col>
-          <Col lg={2}>
+          <Col lg={1}>
             <span>Quantity</span>
           </Col>
-          <Col lg={3}>
+          <Col lg={2}>
             <span>Monthaly Per ECS (unit price)</span>
+          </Col>
+          <Col lg={2}>
+            <span>Monthaly Price</span>
           </Col>
           <Col >
           </Col>
         </Row>
         <div className='gutter-20x' ></div>
         {rows.map((row, index) => (
-          <Row key={index} style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px" }}>
-            <Col lg={2}>
-              <Form.Group className="mb-3" controlId={`fgServiceName-${index}`}>
-                <Form.Control
-                  size="lg"
-                  type="text"
-                  value={row.serviceName}
-                  onChange={(e) => handleInputChange(index, "serviceName", e.target.value)}
-                  placeholder="Service Name"
-                  style={{ fontSize: "16px" }}
-                />
-              </Form.Group>
-            </Col>
-            <Col lg={2}>
-              <Form.Group className="mb-3" controlId={`fgCPUs-${index}`}>
-                <Form.Select
-                  aria-label=""
-                  value={row.vCPUs}
-                  onChange={(e) => handleInputChange(index, "vCPUs", e.target.value)}
+          <>
+            <Row key={index} style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px" }}>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgServiceName-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    value={row.serviceName}
+                    onChange={(e) => handleInputChange(index, "serviceName", e.target.value)}
+                    placeholder="Service Name"
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={1}>
+                <Form.Group className="mb-3" controlId={`fgCPUs-${index}`}>
+                  <Form.Select
+                    aria-label=""
+                    value={row.vCPUs}
+                    onChange={(e) => handleInputChange(index, "vCPUs", e.target.value)}
+                  >
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="4">4</option>
+                    <option value="8">8</option>
+                    <option value="16">16</option>
+                    <option value="32">32</option>
+                    <option value="48">48</option>
+                    <option value="64">64</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col lg={1}>
+                <Form.Group className="mb-3" controlId={`fgRAM-${index}`}>
+                  <Form.Select
+                    aria-label=""
+                    value={row.ram}
+                    onChange={(e) => handleInputChange(index, "ram", e.target.value)}
+                  >
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="4">4</option>
+                    <option value="8">8</option>
+                    <option value="16">16</option>
+                    <option value="32">32</option>
+                    <option value="48">48</option>
+                    <option value="64">64</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col lg={1}>
+                <Form.Group className="mb-3" controlId={`fgQuantity-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    value={row.quantity}
+                    onChange={(e) => handleInputChange(index, "quantity", e.target.value)}
+                    placeholder="0"
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgRate-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    value={row.rate}
+                    onChange={(e) => handleInputChange(index, "rate", e.target.value)}
+                    placeholder="Set Rate"
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgRate-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    value={row.rate * 730}
+                    disabled={true}
+                    onChange={(e) => handleInputChange(index, "monthly_rate", row.rate * 730)}
+                    placeholder="Monthly Rate"
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col>
+                {rows.length > 1 && (
+                  <Button variant="danger" onClick={() => removeRow(index)}>
+                    Remove
+                  </Button>
+                )}
+              </Col>
+            </Row>
+            <div>
+              {index === rows.length - 1 &&
+                <Button
+                  variant="outline-primary"
+                  onClick={addRow}
+                  style={{ marginRight: "5px" }}
+                  disabled={index !== rows.length - 1}
                 >
-                  <option>Select vCPUs</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="4">4</option>
-                  <option value="8">8</option>
-                  <option value="16">16</option>
-                  <option value="32">32</option>
-                  <option value="48">48</option>
-                  <option value="64">64</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
-            <Col lg={2}>
-              <Form.Group className="mb-3" controlId={`fgRAM-${index}`}>
-                <Form.Select
-                  aria-label=""
-                  value={row.ram}
-                  onChange={(e) => handleInputChange(index, "ram", e.target.value)}
-                >
-                  <option>Select RAM</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="4">4</option>
-                  <option value="8">8</option>
-                  <option value="16">16</option>
-                  <option value="32">32</option>
-                  <option value="48">48</option>
-                  <option value="64">64</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
-            <Col lg={2}>
-              <Form.Group className="mb-3" controlId={`fgQuantity-${index}`}>
-                <Form.Control
-                  size="lg"
-                  type="text"
-                  value={row.quantity}
-                  onChange={(e) => handleInputChange(index, "quantity", e.target.value)}
-                  placeholder="Quantity"
-                  style={{ fontSize: "16px" }}
-                />
-              </Form.Group>
-            </Col>
-            <Col lg={2}>
-              <Form.Group className="mb-3" controlId={`fgRate-${index}`}>
-                <Form.Control
-                  size="lg"
-                  type="text"
-                  value={row.rate}
-                  onChange={(e) => handleInputChange(index, "rate", e.target.value)}
-                  placeholder="Set Rate"
-                  style={{ fontSize: "16px" }}
-                />
-              </Form.Group>
-            </Col>
-            <Col>
-              <Button
-                variant="outline-primary"
-                onClick={addRow}
-                style={{ marginRight: "5px" }}
-                disabled={index !== rows.length - 1}
-              >
-                Add
-              </Button>
-              {rows.length > 1 && (
-                <Button variant="danger" onClick={() => removeRow(index)}>
-                  Remove
-                </Button>
-              )}
-            </Col>
-          </Row>
+                  Add
+                </Button>}
+            </div>
+          </>
         ))}
-        <div className='gutter-10x' ></div>
+
+
+        {/* --------------------------------------------------------Storage Services---------------------------------------------------------*/}
+
+        <div className='gutter-40x' ></div>
         <div className='splitter' ></div>
         <div className="gutter-20x"></div>
         <Row><Col><span style={{ font: "16px", fontWeight: 'bold' }}>Storage Services</span></Col></Row>
@@ -408,7 +643,7 @@ const CreatePurchaseOrder = (props) => {
           <Col lg={2}>
             <span>Type</span>
           </Col>
-          <Col lg={2}>
+          <Col lg={1}>
             <span>Size (GB)</span>
           </Col>
           <Col lg={2}>
@@ -420,18 +655,714 @@ const CreatePurchaseOrder = (props) => {
         </Row>
         <div className='gutter-20x' ></div>
         {storageService.map((row, index) => (
+          <>
+            <Row key={index} style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px" }}>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgService-${index}`}>
+                  <Form.Select
+                    aria-label="Select Service"
+                    value={row.service}
+                    onChange={(e) => updateStorageService(index, "service", e.target.value)}
+                  >
+                    <option>Select Service</option>
+                    <option value="elastic">Elastic Volume Services</option>
+                    <option value="obs">Object Storage Service (OBS)</option>
+                    <option value="bv">Backup Vault</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgType-${index}`}>
+                  <Form.Select
+                    aria-label="Select Type"
+                    value={row.type}
+                    onChange={(e) => updateStorageService(index, "type", e.target.value)}
+                  >
+                    {row.service !== "" ?
+                      <option>Select Type</option>
+                      :
+                      <option>Please First Select Service</option>
+                    }
+                    {row.service === "elastic" &&
+                      <>
+                        <option value="SSD">General Purpose SSD (Per GB)</option>
+                        <option value="HHD">HDD (Per GB)</option>
+                      </>
+                    }
+                    {row.service === "obs" && <option value="OBS">OBS for Object Data or IMS (Images)</option>}
+                    {row.service === "bv" && <option value="OBS-Licence">Licence + OBS</option>}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col lg={1}>
+                <Form.Group className="mb-3" controlId={`fgGBs-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="GBs"
+                    value={row.gbs}
+                    onChange={(e) => updateStorageService(index, "gbs", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgDuration-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Duration"
+                    value={row.duration}
+                    onChange={(e) => updateStorageService(index, "duration", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgPrice-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Price"
+                    value={row.price}
+                    onChange={(e) => updateStorageService(index, "price", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col>
+                {storageService.length > 1 && (
+                  <Button variant="danger" onClick={() => removeStorageServiceRow(index)}>
+                    Remove
+                  </Button>
+                )}
+              </Col>
+            </Row>
+            <div>
+              {index === storageService.length - 1 && <Button
+                variant="outline-primary"
+                onClick={addStorageServiceRow}
+                style={{ marginRight: "5px" }}
+              >
+                Add
+              </Button>}
+            </div>
+          </>
+        ))}
+
+        {/* --------------------------------------------------------DR Services---------------------------------------------------------*/}
+
+        <div className='gutter-40x' ></div>
+        <div className='splitter' ></div>
+        <div className="gutter-20x"></div>
+        <Row><Col><span style={{ font: "16px", fontWeight: 'bold' }}>DR Services</span></Col></Row>
+        <div className='gutter-20x' ></div>
+        <Row style={{ fontSize: "14px", fontWeight: "bold" }}>
+          <Col lg={2}>
+            <span>Service Name</span>
+          </Col>
+          <Col lg={2}>
+            <span>Type</span>
+          </Col>
+          <Col lg={1}>
+            <span>Qty </span>
+          </Col>
+          <Col lg={2}>
+            <span>Duration (Hr / Month)</span>
+          </Col>
+          <Col lg={2}>
+            Monthly Price
+          </Col>
+        </Row>
+        <div className='gutter-20x' ></div>
+        {drServices.map((row, index) => (
+          <>
+            <Row key={index} style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px" }}>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgServiceName-${index}`}>
+                  <Form.Select
+                    aria-label="Select Service Name"
+                    value={row.serviceName}
+                    onChange={(e) => updateDrService(index, "serviceName", e.target.value)}
+                  >
+                    <option>Select Service Name</option>
+                    <option value="csdr-licence">CSDR Licence (Without Resources)</option>
+                    <option value="elastic-volume">Elastic Volume Services (Total)</option>
+                    <option value="compute-resources">Compute Resources (Total)</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgType-${index}`}>
+                  <Form.Select
+                    aria-label="Select Type"
+                    value={row.type}
+                    onChange={(e) => updateDrService(index, "type", e.target.value)}
+                  >
+                    <option>Select Type</option>
+                    <option value="non-protected">No of Protected ECS</option>
+                    <option value="g-purpose-ssd">General Purpose SSD (Per GB)</option>
+                    <option value="g-purpose-hhd">General Purpose HHD (Per GB)</option>
+                    <option value="vcpu">vCPU</option>
+                    <option value="memory">Memory</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col lg={1}>
+                <Form.Group className="mb-3" controlId={`fgQuantity-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Qty"
+                    value={row.quantity}
+                    onChange={(e) => updateDrService(index, "quantity", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgDuration-${index}`}>
+                  <Form.Control
+                    value={row.duration}
+                    onChange={(e) => updateDrService(index, "duration", e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgMonthlyPrice-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Monthly Price"
+                    value={row.monthlyPrice}
+                    onChange={(e) => updateDrService(index, "monthlyPrice", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col>
+                {drServices.length > 1 && (
+                  <Button variant="danger" onClick={() => removeDrServiceRow(index)}>
+                    Remove
+                  </Button>
+                )}
+              </Col>
+            </Row>
+            {
+              index === drServices.length - 1 &&
+              <Button
+                variant="outline-primary"
+                onClick={addDrServiceRow}
+                style={{ marginRight: "5px" }}
+                disabled={index !== drServices.length - 1}
+              >
+                Add
+              </Button>
+            }
+          </>
+        ))}
+
+        {/* --------------------------------------------------------Container Services---------------------------------------------------------*/}
+
+
+        <div className='gutter-40x' ></div>
+        <div className='splitter' ></div>
+        <div className="gutter-20x"></div>
+        <Row><Col><span style={{ font: "16px", fontWeight: 'bold' }}>Container Services (CCE Cluster/ Management Platform)</span></Col></Row>
+        <div className='gutter-20x' ></div>
+        <Row style={{ fontSize: "14px", fontWeight: "bold" }}>
+          <Col lg={2}>
+            <span>Service Name</span>
+          </Col>
+          <Col lg={2}>
+            <span>Type</span>
+          </Col>
+          <Col lg={2}>
+            <span>Qty Worker Node vCPUs </span>
+          </Col>
+          <Col lg={2}>
+            <span>Duration (Hr / Month)</span>
+          </Col>
+          <Col>
+            Monthly Price
+          </Col>
+        </Row>
+        <div className='gutter-10x' ></div>
+        {containerServices.map((row, index) => (
+          <>
+            <Row key={index} style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px" }}>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgServiceName-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Service Name"
+                    value={row.serviceName}
+                    onChange={(e) => updateContainerService(index, "serviceName", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgDescription-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Description"
+                    value={row.description}
+                    onChange={(e) => updateContainerService(index, "description", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgVcpuQty-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Worker Node vCPU Qty"
+                    value={row.vcpuQty}
+                    onChange={(e) => updateContainerService(index, "vcpuQty", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgDuration-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Worker Node vCPU Qty"
+                    value={row.duration}
+                    onChange={(e) => updateContainerService(index, "duration", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                  {/* <Form.Select
+                aria-label="Select Duration"
+                value={row.duration}
+                onChange={(e) => updateContainerService(index, "duration", e.target.value)}
+              >
+                <option>Select Duration</option>
+                <option value="hourly">Hourly</option>
+                <option value="monthly">Monthly</option>
+              </Form.Select> */}
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgMonthlyPrice-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Monthly Price"
+                    value={row.monthlyPrice}
+                    onChange={(e) => updateContainerService(index, "monthlyPrice", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col>
+                {containerServices.length > 1 && (
+                  <Button variant="danger" onClick={() => removeContainerServiceRow(index)}>
+                    Remove
+                  </Button>
+                )}
+              </Col>
+            </Row>
+            {(index === containerServices.length - 1) &&
+              <Button
+                variant="outline-primary"
+                onClick={addContainerServiceRow}
+                style={{ marginRight: "5px" }}
+                disabled={index !== containerServices.length - 1}
+              >
+                Add
+              </Button>
+            }
+          </>
+        ))}
+
+        {/* --------------------------------------------------------Container Services (Worker Nodes Details) ---------------------------------------------------------*/}
+
+        <div className="gutter-40x"></div>
+        <div className="splitter"></div>
+        <div className="gutter-20x"></div>
+        <Row>
+          <Col>
+            <span style={{ font: "16px", fontWeight: "bold" }}>
+              Container Services (Worker Nodes Details - If not added above in ECS and Storage service)
+            </span>
+          </Col>
+        </Row>
+        <div className="gutter-20x"></div>
+        <Row style={{ fontSize: "14px", fontWeight: "bold" }}>
+          <Col lg={2}>
+            <span>Service Name</span>
+          </Col>
+          <Col lg={2}>
+            <span>Description</span>
+          </Col>
+          <Col lg={2}>
+            <span>Worker Node vCPU Qty</span>
+          </Col>
+          <Col lg={2}>
+            <span>Duration (Hr / Month)</span>
+          </Col>
+          <Col>Monthly Price</Col>
+        </Row>
+        <div className="gutter-10x"></div>
+        {containerSpecialServices.map((row, index) => (
+          <>
+            <Row key={index} style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px" }}>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgServiceName-${index}`}>
+                  <Form.Select
+                    aria-label="Select Service Name"
+                    value={row.serviceName}
+                    onChange={(e) => updateContainerSpecialService(index, "serviceName", e.target.value)}
+                  >
+                    <option>Select Service Name</option>
+                    <option value="evs">Elastic Volume Services (Total)</option>
+                    <option value="total-worker-nodes">Compute Resources for Worker Nodes (Total)</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgDescription-${index}`}>
+                  <Form.Select
+                    aria-label="Select Service"
+                    value={row.description}
+                    onChange={(e) => updateContainerSpecialService(index, "description", e.target.value)}
+                  >
+                    <option>Select</option>
+                    {
+                      row.serviceName === "evs" &&
+                      <>
+                        <option value="ssd-per-gb">General Purpose SSD (Per GB)</option>
+                        <option value="hdd-per-gb">HDD (Per GB)</option>
+                      </>
+                    }
+                    {
+                      row.serviceName === "total-worker-nodes" &&
+                      <>
+                        <option value="ssd-per-gb">vCPUs</option>
+                        <option value="hdd-per-gb">Memory</option>
+                      </>
+                    }
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgVcpuQty-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Worker Node vCPU Qty"
+                    value={row.vcpuQty}
+                    onChange={(e) => updateContainerSpecialService(index, "vcpuQty", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgDuration-${index}`}>
+                  <Form.Control
+                    value={row.duration}
+                    onChange={(e) => updateContainerSpecialService(index, "duration", e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgMonthlyPrice-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Monthly Price"
+                    value={row.monthlyPrice}
+                    onChange={(e) => updateContainerSpecialService(index, "monthlyPrice", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col>
+                {containerSpecialServices.length > 1 && (
+                  <Button variant="danger" onClick={() => removeContainerSpecialServiceRow(index)}>
+                    Remove
+                  </Button>
+                )}
+              </Col>
+            </Row>
+            {(index === containerSpecialServices.length - 1) && <Button
+              variant="outline-primary"
+              onClick={addContainerSpecialServiceRow}
+              style={{ marginRight: "5px" }}
+              disabled={index !== containerSpecialServices.length - 1}
+            >
+              Add
+            </Button>}
+          </>
+        ))}
+
+        {/* -------------------------------------------------------- Security and Protection Services ---------------------------------------------------------*/}
+
+        <div className='gutter-40x' ></div>
+        <div className='splitter' ></div>
+        <div className="gutter-20x"></div>
+        <Row><Col><span style={{ font: "16px", fontWeight: 'bold' }}>Security and Protection Services</span></Col></Row>
+        <div className='gutter-20x' ></div>
+        <Row style={{ fontSize: "14px", fontWeight: "bold" }}>
+          <Col lg={2}>
+            <span>Service Name</span>
+          </Col>
+          <Col lg={2}>
+            <span>Type</span>
+          </Col>
+          <Col lg={2}>
+            <span>Qty </span>
+          </Col>
+          <Col lg={2}>
+            <span>Duration (Hr / Month)</span>
+          </Col>
+          <Col>
+            Monthly Price
+          </Col>
+        </Row>
+        <div className='gutter-20x'></div>
+        {securityServices.map((row, index) => (
+          <>
+            <Row key={index} style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px" }}>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgServiceName-${index}`}>
+                  <Form.Select
+                    aria-label="Select Service Name"
+                    value={row.serviceName}
+                    onChange={(e) => updateSecurityService(index, "serviceName", e.target.value)}
+                  >
+                    <option>Select Service Name</option>
+                    <option value="hss">Host Security Service - HSS</option>
+                    <option value="waf">WAF</option>
+                    <option value="edge-fw">Edge FW</option>
+                    <option value="cloud-fw">Cloud FW</option>
+                    <option value="hsm-kms">HSM / KMS (Per Key)</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgType-${index}`}>
+                  <Form.Select
+                    aria-label="Select Type"
+                    value={row.type}
+                    onChange={(e) => updateSecurityService(index, "type", e.target.value)}
+                  >
+                    <option>Select Type</option>
+                    {row.serviceName === "hss" && <option value="host-ecs-security">Host Security Service - Per ECS Licence</option>}
+                    {row.serviceName === "waf" && <option value="waf">Web Application Firewall (Per 100 Mbps)</option>}
+                    {row.serviceName === "edge-fw" && <option value="efe-protection">Edge Firewall External Protection from Edge based on vCPU of protected ECS</option>}
+                    {row.serviceName === "cloud-fw" && <option value="cfe-protection">Cloud Firewall for internal Protection based on vCPU of protected ECS</option>}
+                    {row.serviceName === "hsm-kms" && <option value="kms-protection">KMS Encryption (Per Key)</option>}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgDescription-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Description"
+                    value={row.description}
+                    onChange={(e) => updateSecurityService(index, "description", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgDuration-${index}`}>
+                  <Form.Select
+                    aria-label="Select Duration"
+                    value={row.duration}
+                    onChange={(e) => updateSecurityService(index, "duration", e.target.value)}
+                  >
+                    <option>Select Duration</option>
+                    <option value="730">730</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgMonthlyPrice-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Monthly Price"
+                    value={row.monthlyPrice}
+                    onChange={(e) => updateSecurityService(index, "monthlyPrice", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col>
+                {securityServices.length > 1 && (
+                  <Button variant="danger" onClick={() => removeSecurityServiceRow(index)}>
+                    Remove
+                  </Button>
+                )}
+              </Col>
+            </Row>
+            {(index === securityServices.length - 1) && <Button
+              variant="outline-primary"
+              onClick={addSecurityServiceRow}
+              style={{ marginRight: "5px" }}
+
+            >
+              Add
+            </Button>
+            }
+          </>
+        ))}
+
+        {/* -------------------------------------------------------- Database Services ---------------------------------------------------------*/}
+
+        <div className="gutter-40x"></div>
+        <div className="splitter"></div>
+        <div className="gutter-20x"></div>
+        <Row>
+          <Col>
+            <span style={{ font: "16px", fontWeight: "bold" }}>Database as a Service</span>
+          </Col>
+        </Row>
+        <div className="gutter-20x"></div>
+        <Row style={{ fontSize: "14px", fontWeight: "bold" }}>
+          <Col lg={2}>
+            <span>Service Name</span>
+          </Col>
+          <Col lg={2}>
+            <span>Type</span>
+          </Col>
+          <Col lg={2}>
+            <span>Qty</span>
+          </Col>
+          <Col lg={2}>
+            <span>Duration (Hr / Month)</span>
+          </Col>
+          <Col>Monthly Price</Col>
+        </Row>
+        <div className="gutter-10x"></div>
+        {databaseServices.map((row, index) => (
+          <>
+            <Row key={index} style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px" }}>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgServiceName-${index}`}>
+                  <Form.Select
+                    aria-label="Select Service Name"
+                    value={row.serviceName}
+                    onChange={(e) => updateDatabaseService(index, "serviceName", e.target.value)}
+                  >
+                    <option>Select Service Name</option>
+                    <option value="das">Database as a Service (per vCPU Licence)</option>
+
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgType-${index}`}>
+                  <Form.Select
+                    aria-label="Select Type"
+                    value={row.type}
+                    onChange={(e) => updateDatabaseService(index, "type", e.target.value)}
+                  >
+                    <option>Select Type</option>
+                    <option value="das-service">MySQL, Mongo DB, Redis etc</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgQty-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Qty"
+                    value={row.qty}
+                    onChange={(e) => updateDatabaseService(index, "qty", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgDuration-${index}`}>
+                  <Form.Control
+                    aria-label="Select Duration"
+                    value={row.duration}
+                    onChange={(e) => updateDatabaseService(index, "duration", e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col lg={2}>
+                <Form.Group className="mb-3" controlId={`fgMonthlyPrice-${index}`}>
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    placeholder="Monthly Price"
+                    value={row.monthlyPrice}
+                    onChange={(e) => updateDatabaseService(index, "monthlyPrice", e.target.value)}
+                    style={{ fontSize: "16px" }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col>
+                {databaseServices.length > 1 && (
+                  <Button variant="danger" onClick={() => removeDatabaseServiceRow(index)}>
+                    Remove
+                  </Button>
+                )}
+              </Col>
+            </Row>
+            {index === databaseServices.length - 1 && <Button
+              variant="outline-primary"
+              onClick={addDatabaseServiceRow}
+              style={{ marginRight: "5px" }}
+            >
+              Add
+            </Button>}
+          </>
+        ))}
+
+        {/* -------------------------------------------------------- Network Services ---------------------------------------------------------*/}
+
+        <div className="gutter-40x"></div>
+        <div className="splitter"></div>
+        <div className="gutter-20x"></div>
+        <Row>
+          <Col>
+            <span style={{ font: "16px", fontWeight: "bold" }}>Network Services</span>
+          </Col>
+        </Row>
+        <div className="gutter-20x"></div>
+        <Row style={{ fontSize: "14px", fontWeight: "bold" }}>
+          <Col lg={2}>
+            <span>Service Name</span>
+          </Col>
+          <Col lg={2}>
+            <span>Type</span>
+          </Col>
+          <Col lg={2}>
+            <span>Qty</span>
+          </Col>
+          <Col lg={2}>
+            <span>Duration (Hr / Month)</span>
+          </Col>
+          <Col>Monthly Price</Col>
+        </Row>
+        <div className="gutter-10x"></div>
+        {networkServices.map((row, index) => (
           <Row key={index} style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px" }}>
             <Col lg={2}>
-              <Form.Group className="mb-3" controlId={`fgService-${index}`}>
+              <Form.Group className="mb-3" controlId={`fgServiceName-${index}`}>
                 <Form.Select
-                  aria-label="Select Service"
-                  value={row.service}
-                  onChange={(e) => updateStorageService(index, "service", e.target.value)}
+                  aria-label="Select Service Name"
+                  value={row.serviceName}
+                  onChange={(e) => updateNetworkService(index, "serviceName", e.target.value)}
                 >
-                  <option>Select Service</option>
-                  <option value="elastic">Elastic Volume Services</option>
-                  <option value="obs">Object Storage Service (OBS)</option>
-                  <option value="bv">Backup Vault</option>
+                  <option>Select Service Name</option>
+                  <option value="eip">EIP - Per EIP</option>
+                  <option value="banwidth">Bandwith - Per MB</option>
                 </Form.Select>
               </Form.Group>
             </Col>
@@ -440,32 +1371,22 @@ const CreatePurchaseOrder = (props) => {
                 <Form.Select
                   aria-label="Select Type"
                   value={row.type}
-                  onChange={(e) => updateStorageService(index, "type", e.target.value)}
+                  onChange={(e) => updateNetworkService(index, "type", e.target.value)}
                 >
-                  {row.service !== "" ?
-                    <option>Select Type</option>
-                    :
-                    <option>Please First Select Service</option>
-                  }
-                  {row.service === "elastic" &&
-                    <>
-                      <option value="SSD">General Purpose SSD (Per GB)</option>
-                      <option value="HHD">HDD (Per GB)</option>
-                    </>
-                  }
-                  {row.service === "obs" && <option value="OBS">OBS for Object Data or IMS (Images)</option>}
-                  {row.service === "bv" && <option value="OBS-Licence">Licence + OBS</option>}
+                  <option>Select Type</option>
+                  <option value="public-static-ip">Elastic (Public static) IP</option>
+                  <option value="bandwidth">Cloud bandwidth for ELB, VPN, ECS, EIP etc</option>
                 </Form.Select>
               </Form.Group>
             </Col>
             <Col lg={2}>
-              <Form.Group className="mb-3" controlId={`fgGBs-${index}`}>
+              <Form.Group className="mb-3" controlId={`fgQty-${index}`}>
                 <Form.Control
                   size="lg"
                   type="text"
-                  placeholder="GBs"
-                  value={row.gbs}
-                  onChange={(e) => updateStorageService(index, "gbs", e.target.value)}
+                  placeholder="Qty"
+                  value={row.qty}
+                  onChange={(e) => updateNetworkService(index, "qty", e.target.value)}
                   style={{ fontSize: "16px" }}
                 />
               </Form.Group>
@@ -473,44 +1394,129 @@ const CreatePurchaseOrder = (props) => {
             <Col lg={2}>
               <Form.Group className="mb-3" controlId={`fgDuration-${index}`}>
                 <Form.Control
-                  size="lg"
-                  type="text"
-                  placeholder="Duration"
                   value={row.duration}
-                  onChange={(e) => updateStorageService(index, "duration", e.target.value)}
-                  style={{ fontSize: "16px" }}
+                  onChange={(e) => updateNetworkService(index, "duration", e.target.value)}
                 />
               </Form.Group>
             </Col>
             <Col lg={2}>
-              <Form.Group className="mb-3" controlId={`fgPrice-${index}`}>
+              <Form.Group className="mb-3" controlId={`fgMonthlyPrice-${index}`}>
                 <Form.Control
                   size="lg"
                   type="text"
-                  placeholder="Price"
-                  value={row.price}
-                  onChange={(e) => updateStorageService(index, "price", e.target.value)}
+                  placeholder="Monthly Price"
+                  value={row.monthlyPrice}
+                  onChange={(e) => updateNetworkService(index, "monthlyPrice", e.target.value)}
                   style={{ fontSize: "16px" }}
                 />
               </Form.Group>
             </Col>
             <Col>
               <Button
-                variant="success"
-                onClick={addStorageServiceRow}
+                variant="outline-primary"
+                onClick={addNetworkServiceRow}
                 style={{ marginRight: "5px" }}
-                disabled={index !== storageService.length - 1}
+                disabled={index !== networkServices.length - 1}
               >
                 Add
               </Button>
-              {storageService.length > 1 && (
-                <Button variant="danger" onClick={() => removeStorageServiceRow(index)}>
+              {networkServices.length > 1 && (
+                <Button variant="danger" onClick={() => removeNetworkServiceRow(index)}>
                   Remove
                 </Button>
               )}
             </Col>
           </Row>
         ))}
+        <div className="gutter-10x"></div>
+        <div className="splitter"></div>
+        <div className="gutter-20x"></div>
+        <Row>
+          <Col>
+            <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+              Value Added (Free Services)
+            </span>
+          </Col>
+        </Row>
+        <div className="gutter-20x"></div>
+        <div className="gutter-20x"></div>
+        <Row>
+          <Col>
+            <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+              Value Added (Free Services)
+            </span>
+          </Col>
+        </Row>
+        <div className="gutter-20x"></div>
+        <Row style={{ fontSize: "14px", fontWeight: "bold" }}>
+          {/* Column 1 */}
+          <Col lg={6}>
+            {[
+              "elasticLoadBalancer",
+              "natSet",
+              "smnSet",
+              "autoScaling",
+              "vpn",
+            ].map((service) => (
+              <div key={service} style={{ marginBottom: "10px" }}>
+                <Row>
+                    <Col>
+                  <Form.Check
+                    type="checkbox"
+                    label={service
+                      .replace(/([A-Z])/g, " $1")
+                      .replace(/^\w/, (c) => c.toUpperCase())}
+                    checked={valueAddedServices[service].selected}
+                    onChange={() => handleCheckboxChange(service)}
+                  />
+                  </Col>
+                  <Col>
+                  {valueAddedServices[service].selected && (
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter Price"
+                      value={valueAddedServices[service].price}
+                      onChange={(e) => handlePriceChange(service, e.target.value)}
+                      style={{ marginTop: "5px", fontSize: "14px", float: "right" }}
+                    />
+                  )}
+                  </Col>
+                </Row>
+              </div>
+            ))}
+          </Col>
+          {/* Column 2 */}
+          <Col lg={6}>
+            {[
+              "imageManagementService",
+              "virtualPrivateCloud",
+              "dns",
+              "monitoringService",
+              "securityGroups",
+              "accessControlList",
+            ].map((service) => (
+              <div key={service} style={{ marginBottom: "10px" }}>
+                <Form.Check
+                  type="checkbox"
+                  label={service
+                    .replace(/([A-Z])/g, " $1")
+                    .replace(/^\w/, (c) => c.toUpperCase())}
+                  checked={valueAddedServices[service].selected}
+                  onChange={() => handleCheckboxChange(service)}
+                />
+                {valueAddedServices[service].selected && (
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter Price"
+                    value={valueAddedServices[service].price}
+                    onChange={(e) => handlePriceChange(service, e.target.value)}
+                    style={{ marginTop: "5px", fontSize: "14px" }}
+                  />
+                )}
+              </div>
+            ))}
+          </Col>
+        </Row>
         <div className="d-grid gap-2">
           <Button
             size="lg"

@@ -329,7 +329,7 @@ tr:nth-child(even) {
 }
 
 .splitter {
-  border: 1px solid #dfdfdf;
+  border: 1px solid #5b5b5b;
   opacity: 0.3;
 }
 
