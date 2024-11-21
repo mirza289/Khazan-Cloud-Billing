@@ -8,7 +8,7 @@ import Spinner from 'react-bootstrap/Spinner'
 import InputGroup from 'react-bootstrap/InputGroup'
 import Alert from 'react-bootstrap/Alert'
 //
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 //
 import HttpClient from '../../api/HttpClient'
@@ -54,8 +54,8 @@ const Login = () => {
       return
     }
 
-    navigate("/settings/home")
-    
+    navigate("/home")
+
     // // continue if no validation errors
     // let formData = new FormData()
     // formData.append('email', email)
@@ -112,15 +112,16 @@ const Login = () => {
       <Row style={{ backgroundColor: "#E9F5FE" }}>
         <Col style={{ paddingLeft: "20px" }}>
           <div className="gutter-10x"></div>
-          <div style={{paddingBottom:10}}>
-          <img 
-            style={{
-              float:'left',
-              width: '30px',
-            height:"40px"            }}
-            src={require("../../assets/images/cloud-logo.png")}
-            alt="Logo" />
-            <span style={{ float:'left',padding: 10, fontWeight:'400'}}> Khazana Cloud</span>
+          <div style={{ paddingBottom: 10 }}>
+            <img
+              style={{
+                float: 'left',
+                width: '30px',
+                height: "40px"
+              }}
+              src={require("../../assets/images/cloud-logo.png")}
+              alt="Logo" />
+            <span style={{ float: 'left', padding: 10, fontWeight: '400' }}> Khazana Cloud</span>
           </div>
           <div className="gutter-10x"></div>
           <div className="gutter-5x"></div>
@@ -128,53 +129,55 @@ const Login = () => {
       </Row>
       <Row>
         <Col lg="4"></Col>
-        <Col lg="4" style={{ paddingTop: "80px",
-                      paddingLeft: "20px", 
-                      paddingRight: "20px", 
-                      textAlign: "center" }}>
-        <div>
-          <h1 style={{ fontWeight: "800" }}>Login</h1>
-          <div className="gutter-20x"></div>
+        <Col lg="4" style={{
+          paddingTop: "80px",
+          paddingLeft: "20px",
+          paddingRight: "20px",
+          textAlign: "center"
+        }}>
           <div>
-            Login to your account
-          </div>
-          <div className="gutter-20x"></div>
-          <div className="gutter-20x"></div>
-          {
-            apiError && 
+            <h1 style={{ fontWeight: "800" }}>Login</h1>
+            <div className="gutter-20x"></div>
+            <div>
+              Login to your account
+            </div>
+            <div className="gutter-20x"></div>
+            <div className="gutter-20x"></div>
+            {
+              apiError &&
               <Alert className="form-global-error">{apiError}</Alert>
-          }
-          <div className="gutter-10x"></div>
-          <div style={{ textAlign: "left"}}>
-            <Form onSubmit={handleLogin}>
-              <Form.Group className="mb-3" controlId="loginEmail">
-                <Form.Label>Email</Form.Label>
-                <Form.Control 
-                  size="lg" 
-                  type="email" 
-                  placeholder="Email" 
-                  onChange={e => setEmail(e.target.value)}
-                  style={{ fontSize: "16px" }} />
-                {
-                  validationErrors.email && 
-                    <p className="error-msg">{validationErrors.email}</p>
-                }
-              </Form.Group> 
-              <Form.Group className="mb-3" controlId="loginPassword">
-                <Row>
-                  <Col><Form.Label>Password</Form.Label></Col>
-                  <Col style={{ textAlign: "right" }}></Col>
-                </Row>
-                
-                <InputGroup className='passwordGroup'>
-                  <Form.Control 
-                    size="lg" 
-                    ref={ passwordRef }
-                    type={ passwordShown ? "text" : "password" } 
-                    placeholder="Password" 
-                    onChange={e => setPassword(e.target.value)}
+            }
+            <div className="gutter-10x"></div>
+            <div style={{ textAlign: "left" }}>
+              <Form onSubmit={handleLogin}>
+                <Form.Group className="mb-3" controlId="loginEmail">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    size="lg"
+                    type="email"
+                    placeholder="Email"
+                    onChange={e => setEmail(e.target.value)}
                     style={{ fontSize: "16px" }} />
-                  <InputGroup.Text>
+                  {
+                    validationErrors.email &&
+                    <p className="error-msg">{validationErrors.email}</p>
+                  }
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="loginPassword">
+                  <Row>
+                    <Col><Form.Label>Password</Form.Label></Col>
+                    <Col style={{ textAlign: "right" }}></Col>
+                  </Row>
+
+                  <InputGroup className='passwordGroup'>
+                    <Form.Control
+                      size="lg"
+                      ref={passwordRef}
+                      type={passwordShown ? "text" : "password"}
+                      placeholder="Password"
+                      onChange={e => setPassword(e.target.value)}
+                      style={{ fontSize: "16px" }} />
+                    <InputGroup.Text>
                       {
                         passwordShown ?
                           <i onClick={togglePasswordVisiblity} className="showPwd-iconfloat-right">{showPassword}</i>
@@ -182,43 +185,43 @@ const Login = () => {
                           <i onClick={togglePasswordVisiblity} className="showPwd-iconfloat-right">{hidePassword}</i>
                       }
                     </InputGroup.Text>
-                </InputGroup>
-                {
-                  validationErrors.password && 
+                  </InputGroup>
+                  {
+                    validationErrors.password &&
                     <p className="error-msg">{validationErrors.password}</p>
-                }
-              </Form.Group> 
-              <label>
-                <input
+                  }
+                </Form.Group>
+                <label>
+                  <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={() => setRememberMe(!rememberMe)}
-                />
-                <span style={{ paddingLeft: "10px", fontSize: "14px" }}>Remember me</span>
-              </label>
-              <div className="gutter-40x"></div>
-              <div className="d-grid gap-2">
-                <Button 
-                  size="lg" 
-                  type="submit" 
-                  style={{ fontSize: "16px",borderRadius: "20px", backgroundColor: "#2887d4" }}>
-                  {
-                    spinner ?
-                      <div>
-                        <Spinner style={{ marginRight: 10, marginTop: 5 }} animation="border" size="sm" variant="light" role="status" />
-                        Logging in ...
-                      </div>
-                    :
-                    <div>Login</div>
-                  }
-                </Button>
+                  />
+                  <span style={{ paddingLeft: "10px", fontSize: "14px" }}>Remember me</span>
+                </label>
+                <div className="gutter-40x"></div>
+                <div className="d-grid gap-2">
+                  <Button
+                    size="lg"
+                    type="submit"
+                    style={{ fontSize: "16px", borderRadius: "20px", backgroundColor: "#2887d4" }}>
+                    {
+                      spinner ?
+                        <div>
+                          <Spinner style={{ marginRight: 10, marginTop: 5 }} animation="border" size="sm" variant="light" role="status" />
+                          Logging in ...
+                        </div>
+                        :
+                        <div>Login</div>
+                    }
+                  </Button>
+                </div>
+              </Form>
+              <div className="gutter-20x"></div>
+              <div>
+                Do not have an account? <Link to="https://Khazana.com/contact/" style={{ textDecoration: "none", color: "#212529" }}>Contact Us</Link>
               </div>
-            </Form>
-            <div className="gutter-20x"></div>
-            <div>
-              Do not have an account? <Link to="https://Khazana.com/contact/" style={{ textDecoration: "none", color: "#212529" }}>Contact Us</Link>
             </div>
-          </div>
           </div>
         </Col>
         <Col lg="4"></Col>

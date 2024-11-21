@@ -28,7 +28,13 @@ const CreatePurchaseOrder = (props) => {
   const [password, setPassword] = useState('')
   const [userLevel, setUserLevel] = useState(0)
   const [selectedRoles, setSelectedRoles] = useState([])
-
+  const [formValues, setFormValues] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    ntnNumber: "",
+    address: "",
+  });
 
   useEffect(() => {
     //checkUserSession()
@@ -46,6 +52,21 @@ const CreatePurchaseOrder = (props) => {
         navigate("/")
       })
   }
+
+  const handleInputChangeUser = (field, value) => {
+    setFormValues((prevState) => ({
+      ...prevState,
+      [field]: value,
+    }));
+
+    // Clear validation error for the field being updated
+    if (validationErrors[field]) {
+      setValidationErrors((prevState) => ({
+        ...prevState,
+        [field]: "",
+      }));
+    }
+  };
 
   // handle create user
   const handleCreatePurchaseOrder = (e) => {
@@ -444,63 +465,67 @@ const CreatePurchaseOrder = (props) => {
         <Row><Col><span style={{ font: "16px", fontWeight: 'bold' }}>User Info</span></Col></Row>
         <div className='gutter-20x' ></div>
         <Form.Group className="mb-3" controlId="fgFirstName">
-          <Form.Label>First Name</Form.Label>
-          <Form.Control
-            size="lg"
-            type="text"
-            autoFocus={true}
-            onChange={e => setFirstName(e.target.value)}
-            placeholder="Enter first name"
-            style={{ fontSize: "16px" }} />
-          {
-            validationErrors.firstName &&
-            <p className="error-msg">{validationErrors.firstName}</p>
-          }
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="fgLastName">
-          <Form.Label>Last Name</Form.Label>
-          <Form.Control
-            size="lg"
-            type="text"
-            onChange={e => setLastName(e.target.value)}
-            placeholder="Enter last name"
-            style={{ fontSize: "16px" }} />
-          {
-            validationErrors.lastName &&
-            <p className="error-msg">{validationErrors.lastName}</p>
-          }
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="fgEmail">
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            size="lg"
-            type="email"
-            placeholder="Enter email"
-            onChange={e => setEmail(e.target.value)}
-            style={{ fontSize: "16px" }} />
-          {
-            validationErrors.email &&
-            <p className="error-msg">{validationErrors.email}</p>
-          }
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="fgAddress">
-          <Form.Label>NTN Number</Form.Label>
-          <Form.Control
-            size="lg"
-            type="text"
-            placeholder="Enter NTN"
-            // onChange={e => setEmail(e.target.value)}
-            style={{ fontSize: "16px" }} />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="fgAddress">
-          <Form.Label>Address</Form.Label>
-          <Form.Control
-            size="lg"
-            type="text"
-            placeholder="Enter Address"
-            // onChange={e => setEmail(e.target.value)}
-            style={{ fontSize: "16px" }} />
-        </Form.Group>
+        <Form.Label>First Name</Form.Label>
+        <Form.Control
+          size="lg"
+          type="text"
+          value={formValues.firstName}
+          onChange={(e) => handleInputChangeUser("firstName", e.target.value)}
+          placeholder="Enter first name"
+          style={{ fontSize: "16px" }}
+        />
+        {validationErrors.firstName && <p className="error-msg">{validationErrors.firstName}</p>}
+      </Form.Group>
+
+      <Form.Group className="mb-3" controlId="fgLastName">
+        <Form.Label>Last Name</Form.Label>
+        <Form.Control
+          size="lg"
+          type="text"
+          value={formValues.lastName}
+          onChange={(e) => handleInputChangeUser("lastName", e.target.value)}
+          placeholder="Enter last name"
+          style={{ fontSize: "16px" }}
+        />
+        {validationErrors.lastName && <p className="error-msg">{validationErrors.lastName}</p>}
+      </Form.Group>
+
+      <Form.Group className="mb-3" controlId="fgEmail">
+        <Form.Label>Email</Form.Label>
+        <Form.Control
+          size="lg"
+          type="email"
+          value={formValues.email}
+          onChange={(e) => handleInputChangeUser("email", e.target.value)}
+          placeholder="Enter email"
+          style={{ fontSize: "16px" }}
+        />
+        {validationErrors.email && <p className="error-msg">{validationErrors.email}</p>}
+      </Form.Group>
+
+      <Form.Group className="mb-3" controlId="fgNtnNumber">
+        <Form.Label>NTN Number</Form.Label>
+        <Form.Control
+          size="lg"
+          type="text"
+          value={formValues.ntnNumber}
+          onChange={(e) => handleInputChangeUser("ntnNumber", e.target.value)}
+          placeholder="Enter NTN"
+          style={{ fontSize: "16px" }}
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3" controlId="fgAddress">
+        <Form.Label>Address</Form.Label>
+        <Form.Control
+          size="lg"
+          type="text"
+          value={formValues.address}
+          onChange={(e) => handleInputChangeUser("address", e.target.value)}
+          placeholder="Enter Address"
+          style={{ fontSize: "16px" }}
+        />
+      </Form.Group>
 
         {/* -----------------------------------------------------Elastic Cloud Server--------------------------------------------------------*/}
 

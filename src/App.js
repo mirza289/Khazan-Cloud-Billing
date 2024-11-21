@@ -20,17 +20,11 @@ function App() {
         <Route exact path="/" element={<Login />} />
         <Route exact path="/login" element={<Login />} />
         {/* Signup Wizard */}
-        {/* <Route exact path="/signup" element={<Signup />} /> */}
         <Route exact path="/home" element={<Home />} />
-                {/* <Route exact path="settings/home" element={<SettingsHome />} /> */}
         {/* settings module */}
-        <Route exact path="settings/auth/:url_email" element={<Auth />} />
+        {/* <Route exact path="settings/auth/:url_email" element={<Auth />} /> */}
         <Route exact path="settings/resource-usage" element={<ResourceUsage />} />
         <Route exact path="settings/po-list" element={<PurchaseOrderList />} />
-
-       {/* <Route exact path="/settings/survey-list" element={<SurveyList />} /> */}
-        {/* <Route exact path="settings/calls-list/" element={<SurveyList />} /> */}
-        {/* <Route exact path="settings/survey-preview/:survey_id" element={<PreviewElement />} /> */}
       </Routes>
     </Router>
   )
