@@ -75,18 +75,18 @@ const CreatePurchaseOrder = (props) => {
     setValidationErrors({})
     showSpinner(true)
 
-    let ElasticService ={'elasticService':rows}
-    let StorageService = {"storageService": storageService}
-    let DrService ={"drService": drServices}
-    let ContainerServiceCCE={"containerServices":containerServices}
-    let ContainerServiceWorker={"containerServiceWorker":containerSpecialServices}
-    let SecurityProtection={"securityServices":securityServices}
-    let DatabaseServices={"databaseServices":databaseServices}
-    let NetworkServices={"networkServices":networkServices}
-    let AdditionalServices={"valueAddedServices":valueAddedServices}
+    let ElasticService = { 'elasticService': rows }
+    let StorageService = { "storageService": storageService }
+    let DrService = { "drService": drServices }
+    let ContainerServiceCCE = { "containerServices": containerServices }
+    let ContainerServiceWorker = { "containerServiceWorker": containerSpecialServices }
+    let SecurityProtection = { "securityServices": securityServices }
+    let DatabaseServices = { "databaseServices": databaseServices }
+    let NetworkServices = { "networkServices": networkServices }
+    let AdditionalServices = { "valueAddedServices": valueAddedServices }
 
 
-    let services=[
+    let services = [
       ElasticService,
       StorageService,
       DrService,
@@ -99,9 +99,9 @@ const CreatePurchaseOrder = (props) => {
     ]
 
 
-    let UserPurchaseOrder ={
-      "user-info":formValues,
-      "services":services
+    let UserPurchaseOrder = {
+      "user-info": formValues,
+      "services": services
     }
     console.log(JSON.stringify(UserPurchaseOrder))
 
@@ -233,7 +233,7 @@ const CreatePurchaseOrder = (props) => {
 
   // State to manage rows, renamed to storageService
   const [storageService, setStorageService] = useState([
-    { service: "", type: "", gbs: "", duration: "730", price: "" },
+    { service: "", type: "", gbs: 0, duration: 730, price: 0 },
   ]);
 
   // Handle input changes for a specific row
@@ -247,7 +247,7 @@ const CreatePurchaseOrder = (props) => {
   const addStorageServiceRow = () => {
     setStorageService([
       ...storageService,
-      { service: "", type: "", gbs: "", duration: "730", price: "" },
+      { service: "", type: "", gbs: 0, duration: 730, price: 0 },
     ]);
   };
 
@@ -263,7 +263,7 @@ const CreatePurchaseOrder = (props) => {
 
   // State to manage DR services
   const [drServices, setDrServices] = useState([
-    { serviceName: "", type: "", quantity: "", duration: "730", monthlyPrice: "" },
+    { serviceName: "", type: "", quantity: 0, duration: 730, monthlyPrice: 0 },
   ]);
 
   // Handle input changes for a specific row
@@ -277,7 +277,7 @@ const CreatePurchaseOrder = (props) => {
   const addDrServiceRow = () => {
     setDrServices([
       ...drServices,
-      { serviceName: "", type: "", quantity: "", duration: "730", monthlyPrice: "" },
+      { serviceName: "", type: "", quantity: 0, duration: 730, monthlyPrice: 0 },
     ]);
   };
 
@@ -290,7 +290,7 @@ const CreatePurchaseOrder = (props) => {
 
   // State to manage Container Services
   const [containerServices, setContainerServices] = useState([
-    { serviceName: "CCE Cluster", description: "CCE Cluster", vcpuQty: "", duration: "730", monthlyPrice: "" },
+    { serviceName: "CCE Cluster", description: "CCE Cluster", vcpuQty: 0, duration: 730, monthlyPrice: 0},
   ]);
 
   // Handle input changes for a specific row
@@ -304,7 +304,7 @@ const CreatePurchaseOrder = (props) => {
   const addContainerServiceRow = () => {
     setContainerServices([
       ...containerServices,
-      { serviceName: "CCE Cluster", description: "CCE Cluster", vcpuQty: "", duration: "730", monthlyPrice: "" },
+      { serviceName: "CCE Cluster", description: "CCE Cluster", vcpuQty: 0, duration: 730, monthlyPrice: 0 },
     ]);
   };
 
@@ -315,7 +315,7 @@ const CreatePurchaseOrder = (props) => {
   };
 
   const [containerSpecialServices, setContainerSpecialServices] = useState([
-    { serviceName: "", description: "", vcpuQty: "", duration: "730", monthlyPrice: "" },
+    { serviceName: "", description: "", vcpuQty: 0, duration: 730, monthlyPrice: 0 },
   ]);
 
   // Handle input changes for a specific row
@@ -329,7 +329,7 @@ const CreatePurchaseOrder = (props) => {
   const addContainerSpecialServiceRow = () => {
     setContainerSpecialServices([
       ...containerSpecialServices,
-      { serviceName: "", description: "", vcpuQty: "", duration: "730", monthlyPrice: "" },
+      { serviceName: "", description: "", vcpuQty: 0, duration: 730, monthlyPrice: 0 },
     ]);
   };
 
@@ -342,7 +342,7 @@ const CreatePurchaseOrder = (props) => {
   //////////////////////////////////////////////////////////////////////////////
   // State to manage Security and Protection Services
   const [securityServices, setSecurityServices] = useState([
-    { serviceName: "", type: "", description: "", duration: "730", monthlyPrice: "" },
+    { serviceName: "", type: "", description: "", duration: 730, monthlyPrice: 0 },
   ]);
 
   // Handle input changes for a specific row
@@ -356,7 +356,7 @@ const CreatePurchaseOrder = (props) => {
   const addSecurityServiceRow = () => {
     setSecurityServices([
       ...securityServices,
-      { serviceName: "", type: "", description: "", duration: "730", monthlyPrice: "" },
+      { serviceName: "", type: "", description: "", duration: 730, monthlyPrice: 0 },
     ]);
   };
 
@@ -369,7 +369,7 @@ const CreatePurchaseOrder = (props) => {
 
   ///  database 
   const [databaseServices, setDatabaseServices] = useState([
-    { serviceName: "", type: "", qty: "", duration: "730", monthlyPrice: "" },
+    { serviceName: "", type: "", qty: 0, duration: 730, monthlyPrice: 0 },
   ]);
 
   // Handle input changes for a specific row
@@ -383,7 +383,7 @@ const CreatePurchaseOrder = (props) => {
   const addDatabaseServiceRow = () => {
     setDatabaseServices([
       ...databaseServices,
-      { serviceName: "", type: "", qty: "", duration: "730", monthlyPrice: "" },
+      { serviceName: 1, type: "", qty: 0, duration: 730, monthlyPrice: 0 },
     ]);
   };
 
@@ -396,7 +396,7 @@ const CreatePurchaseOrder = (props) => {
   /// network Services 
 
   const [networkServices, setNetworkServices] = useState([
-    { serviceName: "", type: "", qty: "", duration: "", monthlyPrice: "" },
+    { serviceName: 1, type: "", qty: 0, duration: 0, monthlyPrice: 0 },
   ]);
 
   // Handle input changes for a specific row
@@ -410,7 +410,7 @@ const CreatePurchaseOrder = (props) => {
   const addNetworkServiceRow = () => {
     setNetworkServices([
       ...networkServices,
-      { serviceName: "", type: "", qty: "", duration: "", monthlyPrice: "" },
+      { serviceName: "", type: "", qty: 0, duration: 0, monthlyPrice: 0 },
     ]);
   };
 
@@ -469,70 +469,69 @@ const CreatePurchaseOrder = (props) => {
         <Row><Col><span style={{ font: "16px", fontWeight: 'bold' }}>User Info</span></Col></Row>
         <div className='gutter-20x' ></div>
         <Form.Group className="mb-3" controlId="fgFirstName">
-        <Form.Label>First Name</Form.Label>
-        <Form.Control
-          size="lg"
-          type="text"
-          value={formValues.firstName}
-          onChange={(e) => handleInputChangeUser("firstName", e.target.value)}
-          placeholder="Enter first name"
-          style={{ fontSize: "16px" }}
-        />
-        {validationErrors.firstName && <p className="error-msg">{validationErrors.firstName}</p>}
-      </Form.Group>
+          <Form.Label>First Name</Form.Label>
+          <Form.Control
+            size="lg"
+            type="text"
+            value={formValues.firstName}
+            onChange={(e) => handleInputChangeUser("firstName", e.target.value)}
+            placeholder="Enter first name"
+            style={{ fontSize: "16px" }}
+          />
+          {validationErrors.firstName && <p className="error-msg">{validationErrors.firstName}</p>}
+        </Form.Group>
 
-      <Form.Group className="mb-3" controlId="fgLastName">
-        <Form.Label>Last Name</Form.Label>
-        <Form.Control
-          size="lg"
-          type="text"
-          value={formValues.lastName}
-          onChange={(e) => handleInputChangeUser("lastName", e.target.value)}
-          placeholder="Enter last name"
-          style={{ fontSize: "16px" }}
-        />
-        {validationErrors.lastName && <p className="error-msg">{validationErrors.lastName}</p>}
-      </Form.Group>
+        <Form.Group className="mb-3" controlId="fgLastName">
+          <Form.Label>Last Name</Form.Label>
+          <Form.Control
+            size="lg"
+            type="text"
+            value={formValues.lastName}
+            onChange={(e) => handleInputChangeUser("lastName", e.target.value)}
+            placeholder="Enter last name"
+            style={{ fontSize: "16px" }}
+          />
+          {validationErrors.lastName && <p className="error-msg">{validationErrors.lastName}</p>}
+        </Form.Group>
 
-      <Form.Group className="mb-3" controlId="fgEmail">
-        <Form.Label>Email</Form.Label>
-        <Form.Control
-          size="lg"
-          type="email"
-          value={formValues.email}
-          onChange={(e) => handleInputChangeUser("email", e.target.value)}
-          placeholder="Enter email"
-          style={{ fontSize: "16px" }}
-        />
-        {validationErrors.email && <p className="error-msg">{validationErrors.email}</p>}
-      </Form.Group>
+        <Form.Group className="mb-3" controlId="fgEmail">
+          <Form.Label>Email</Form.Label>
+          <Form.Control
+            size="lg"
+            type="email"
+            value={formValues.email}
+            onChange={(e) => handleInputChangeUser("email", e.target.value)}
+            placeholder="Enter email"
+            style={{ fontSize: "16px" }}
+          />
+          {validationErrors.email && <p className="error-msg">{validationErrors.email}</p>}
+        </Form.Group>
 
-      <Form.Group className="mb-3" controlId="fgNtnNumber">
-        <Form.Label>NTN Number</Form.Label>
-        <Form.Control
-          size="lg"
-          type="text"
-          value={formValues.ntnNumber}
-          onChange={(e) => handleInputChangeUser("ntnNumber", e.target.value)}
-          placeholder="Enter NTN"
-          style={{ fontSize: "16px" }}
-        />
-      </Form.Group>
+        <Form.Group className="mb-3" controlId="fgNtnNumber">
+          <Form.Label>NTN Number</Form.Label>
+          <Form.Control
+            size="lg"
+            type="text"
+            value={formValues.ntnNumber}
+            onChange={(e) => handleInputChangeUser("ntnNumber", e.target.value)}
+            placeholder="Enter NTN"
+            style={{ fontSize: "16px" }}
+          />
+        </Form.Group>
 
-      <Form.Group className="mb-3" controlId="fgAddress">
-        <Form.Label>Address</Form.Label>
-        <Form.Control
-          size="lg"
-          type="text"
-          value={formValues.address}
-          onChange={(e) => handleInputChangeUser("address", e.target.value)}
-          placeholder="Enter Address"
-          style={{ fontSize: "16px" }}
-        />
-      </Form.Group>
+        <Form.Group className="mb-3" controlId="fgAddress">
+          <Form.Label>Address</Form.Label>
+          <Form.Control
+            size="lg"
+            type="text"
+            value={formValues.address}
+            onChange={(e) => handleInputChangeUser("address", e.target.value)}
+            placeholder="Enter Address"
+            style={{ fontSize: "16px" }}
+          />
+        </Form.Group>
 
         {/* -----------------------------------------------------Elastic Cloud Server--------------------------------------------------------*/}
-
 
         <div className='gutter-40x' ></div>
         <div className='splitter' ></div>
@@ -557,8 +556,6 @@ const CreatePurchaseOrder = (props) => {
           </Col>
           <Col lg={2}>
             <span>Monthaly Price</span>
-          </Col>
-          <Col >
           </Col>
         </Row>
         <div className='gutter-20x' ></div>
@@ -633,7 +630,10 @@ const CreatePurchaseOrder = (props) => {
                     size="lg"
                     type="text"
                     value={row.rate}
-                    onChange={(e) => handleInputChange(index, "rate", e.target.value)}
+                    onChange={(e) => { 
+                      handleInputChange(index, "rate", e.target.value)
+                      handleInputChange(index, "monthly_rate", (e.target.value * 730))
+                    }}
                     placeholder="Set Rate"
                     style={{ fontSize: "16px" }}
                   />
@@ -644,9 +644,9 @@ const CreatePurchaseOrder = (props) => {
                   <Form.Control
                     size="lg"
                     type="text"
-                    value={row.rate * 730}
-                    disabled={true}
-                    onChange={(e) => handleInputChange(index, "monthly_rate", row.rate * 730)}
+                    value={row.monthly_rate}
+                    // disabled={true}
+                    onChange={(e) => handleInputChange(index, "monthly_rate", e.target.value)}
                     placeholder="Monthly Rate"
                     style={{ fontSize: "16px" }}
                   />
@@ -669,7 +669,8 @@ const CreatePurchaseOrder = (props) => {
                   disabled={index !== rows.length - 1}
                 >
                   Add
-                </Button>}
+                </Button>
+              }
             </div>
           </>
         ))}
