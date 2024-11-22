@@ -26,32 +26,28 @@ function AppHeader(props) {
           onClick=
           {() => {
             if (currentUrlLocaltion.pathname === "/settings/survey-manage/" + survey_id)
-              navigate("/settings/home")
+              navigate("/home")
           }}
         >
-          <Link to="/settings/home">
-          <img 
-            style={{
-              float:'left',
-              width: '48px',
-              height:"31px",
-              marginTop:"7px"    
-             }}
-            src={require("../assets/images/cloud-logo.png")}
-            alt="Logo" />
-            <span style={{ float:'left',padding: 10, fontWeight:'400', color:"white"}}> Khazana Cloud </span>
+          <Link to="/home">
+            <img
+              style={{
+                float: 'left',
+                width: '48px',
+                height: "31px",
+                marginTop: "7px"
+              }}
+              src={require("../assets/images/cloud-logo.png")}
+              alt="Logo" />
+            <span style={{ float: 'left', padding: 10, fontWeight: '400', color: "white" }}> Khazana Cloud </span>
           </Link>
         </Navbar.Brand>
         <Nav.Link eventKey={1}>
-          {/* <span style={{ paddingLeft: "10px", paddingRight: "10px" }}>{
-            props.sessionUser.first_name &&
-            props.sessionUser.first_name + " " + props.sessionUser.last_name
-          }</span> */}
-          <Gravatar
+          {props.sourceType !== "login" && <Gravatar
             style={{ borderRadius: "50%" }}
             size="32"
             email={"Shahriyar" + " " + "Baig"}
-          />
+          />}
         </Nav.Link>
       </Container>
     </Navbar>

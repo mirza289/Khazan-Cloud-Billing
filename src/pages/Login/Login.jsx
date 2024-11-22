@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 //
 import HttpClient from '../../api/HttpClient'
+import AppHeader from '../../components/AppHeader'
 //
 const showPassword = <i className="las la-eye" style={{ cursor: 'pointer' }}></i>;
 const hidePassword = <i className="las la-eye-slash" style={{ cursor: 'pointer' }}></i>;
@@ -109,7 +110,7 @@ const Login = () => {
 
   return (
     <Container fluid>
-      <Row style={{ backgroundColor: "#E9F5FE" }}>
+      {/* <Row style={{ backgroundColor: "#E9F5FE" }}>
         <Col style={{ paddingLeft: "20px" }}>
           <div className="gutter-10x"></div>
           <div style={{ paddingBottom: 10 }}>
@@ -126,7 +127,8 @@ const Login = () => {
           <div className="gutter-10x"></div>
           <div className="gutter-5x"></div>
         </Col>
-      </Row>
+      </Row> */}
+      <AppHeader sourceType={"login"} />
       <Row>
         <Col lg="4"></Col>
         <Col lg="4" style={{
