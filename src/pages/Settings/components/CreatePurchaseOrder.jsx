@@ -230,7 +230,7 @@ const CreatePurchaseOrder = (props) => {
   }
 
   const [rows, setRows] = useState([
-    { serviceName: "", vCPUs: 0, ram: 0, quantity: 0, rate: 0, monthly_rate: 0 },
+    { vCPUs: 0, ram: 0, quantity: 0, rate: 0, monthly_rate: 0 },
   ]);
 
   // Handle input changes for a specific row
@@ -244,7 +244,7 @@ const CreatePurchaseOrder = (props) => {
   const addRow = () => {
     setRows([
       ...rows,
-      { serviceName: "", vCPUs: 0, ram: 0, quantity: 0, rate: 0, monthlyPrice: 0 },
+      { vCPUs: 0, ram: 0, quantity: 0, rate: 0, monthlyPrice: 0 },
     ]);
   };
 
