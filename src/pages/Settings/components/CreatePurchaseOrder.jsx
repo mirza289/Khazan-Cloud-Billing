@@ -244,7 +244,7 @@ const CreatePurchaseOrder = (props) => {
   const addRow = () => {
     setRows([
       ...rows,
-      { serviceName: "", vCPUs: 0, ram: 0, quantity: 0, rate: 0, monthly_rate: 0 },
+      { serviceName: "", vCPUs: 0, ram: 0, quantity: 0, rate: 0, monthlyPrice: 0 },
     ]);
   };
 
@@ -259,7 +259,7 @@ const CreatePurchaseOrder = (props) => {
 
   // State to manage rows, renamed to storageService
   const [storageService, setStorageService] = useState([
-    { service: "", type: "", gbs: 0, duration: 730, price: 0 },
+    { serviceName: "", type: "", gbs: 0, duration: 730, price: 0 },
   ]);
 
   // Handle input changes for a specific row
@@ -273,7 +273,7 @@ const CreatePurchaseOrder = (props) => {
   const addStorageServiceRow = () => {
     setStorageService([
       ...storageService,
-      { service: "", type: "", gbs: 0, duration: 730, price: 0 },
+      { serviceName: "", type: "", gbs: 0, duration: 730, price: 0 },
     ]);
   };
 
@@ -495,7 +495,7 @@ const CreatePurchaseOrder = (props) => {
         <Row><Col><span style={{ font: "16px", fontWeight: 'bold' }}>User Info</span></Col></Row>
         <div className='gutter-20x' ></div>
         <Form.Group className="mb-3" controlId="fgFirstName">
-          <Form.Label>First Name</Form.Label>
+          <Form.Label>Name</Form.Label>
           <Form.Control
             size="lg"
             type="text"
@@ -644,7 +644,7 @@ const CreatePurchaseOrder = (props) => {
                     value={row.rate}
                     onChange={(e) => {
                       handleInputChange(index, "rate", e.target.value)
-                      handleInputChange(index, "monthly_rate", (e.target.value * 730))
+                      handleInputChange(index, "monthlyPrice", (e.target.value * 730))
                     }}
                     placeholder="Set Rate"
                     style={{ fontSize: "16px" }}
@@ -656,9 +656,9 @@ const CreatePurchaseOrder = (props) => {
                   <Form.Control
                     size="lg"
                     type="text"
-                    value={row.monthly_rate}
+                    value={row.monthlyPrice}
                     // disabled={true}
-                    onChange={(e) => handleInputChange(index, "monthly_rate", e.target.value)}
+                    onChange={(e) => handleInputChange(index, "monthlyPrice", e.target.value)}
                     placeholder="Monthly Rate"
                     style={{ fontSize: "16px" }}
                   />
@@ -720,8 +720,8 @@ const CreatePurchaseOrder = (props) => {
                 <Form.Group className="mb-3" controlId={`fgService-${index}`}>
                   <Form.Select
                     aria-label="Select Service"
-                    value={row.service}
-                    onChange={(e) => updateStorageService(index, "service", e.target.value)}
+                    value={row.serviceName}
+                    onChange={(e) => updateStorageService(index, "serviceName", e.target.value)}
                   >
                     <option>Select Service</option>
                     <option value="elastic">Elastic Volume Services</option>
@@ -737,19 +737,19 @@ const CreatePurchaseOrder = (props) => {
                     value={row.type}
                     onChange={(e) => updateStorageService(index, "type", e.target.value)}
                   >
-                    {row.service !== "" ?
+                    {row.serviceName !== "" ?
                       <option>Select Type</option>
                       :
                       <option>Please First Select Service</option>
                     }
-                    {row.service === "elastic" &&
+                    {row.serviceName === "elastic" &&
                       <>
                         <option value="SSD">General Purpose SSD (Per GB)</option>
                         <option value="HHD">HDD (Per GB)</option>
                       </>
                     }
-                    {row.service === "obs" && <option value="OBS">OBS for Object Data or IMS (Images)</option>}
-                    {row.service === "bv" && <option value="OBS-Licence">Licence + OBS</option>}
+                    {row.serviceName === "obs" && <option value="OBS">OBS for Object Data or IMS (Images)</option>}
+                    {row.serviceName === "bv" && <option value="OBS-Licence">Licence + OBS</option>}
                   </Form.Select>
                 </Form.Group>
               </Col>
