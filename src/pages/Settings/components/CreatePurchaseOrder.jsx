@@ -422,17 +422,17 @@ const CreatePurchaseOrder = (props) => {
 
   /// value edit fields 
   const [valueAddedServices, setValueAddedServices] = useState({
-    elasticLoadBalancer: { selected: false, price: "" },
-    natSet: { selected: false, price: "" },
-    smnSet: { selected: false, price: "" },
-    autoScaling: { selected: false, price: "" },
-    vpn: { selected: false, price: "" },
-    imageManagementService: { selected: false, price: "" },
-    virtualPrivateCloud: { selected: false, price: "" },
-    dns: { selected: false, price: "" },
-    monitoringService: { selected: false, price: "" },
-    securityGroups: { selected: false, price: "" },
-    accessControlList: { selected: false, price: "" },
+    elasticLoadBalancer: { selected: false, price: 0 },
+    natSet: { selected: false, price: 0 },
+    smnSet: { selected: false, price: 0 },
+    autoScaling: { selected: false, price: 0 },
+    vpn: { selected: false, price: 0 },
+    imageManagementService: { selected: false, price: 0 },
+    virtualPrivateCloud: { selected: false, price: 0 },
+    dns: { selected: false, price: 0 },
+    monitoringService: { selected: false, price: 0 },
+    securityGroups: { selected: false, price: 0 },
+    accessControlList: { selected: false, price: 0 },
   });
 
   // Handle checkbox changes
@@ -1474,15 +1474,6 @@ const CreatePurchaseOrder = (props) => {
         ))}
         <div className="gutter-10x"></div>
         <div className="splitter"></div>
-        <div className="gutter-20x"></div>
-        <Row>
-          <Col>
-            <span style={{ fontSize: "16px", fontWeight: "bold" }}>
-              Value Added (Free Services)
-            </span>
-          </Col>
-        </Row>
-        <div className="gutter-20x"></div>
         <div className="gutter-20x"></div>
         <Row>
           <Col>
