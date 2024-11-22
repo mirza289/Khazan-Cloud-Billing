@@ -16,7 +16,7 @@ function AppHeader(props) {
     <Navbar
       expand="lg"
       fixed="top"
-      style={{ backgroundColor: "#cb0007", height: "60px" }}>
+      style={{ backgroundColor: "#777777", height: "60px" }}>
       <Container
         fluid
         style={{ justifyContent: "" }}
@@ -34,7 +34,8 @@ function AppHeader(props) {
             style={{
               float:'left',
               width: '48px',
-              height:"31px"    
+              height:"31px",
+              marginTop:"7px"    
              }}
             src={require("../assets/images/cloud-logo.png")}
             alt="Logo" />

@@ -1222,14 +1222,11 @@ const CreatePurchaseOrder = (props) => {
               </Col>
               <Col lg={2}>
                 <Form.Group className="mb-3" controlId={`fgDuration-${index}`}>
-                  <Form.Select
+                  <Form.Control
                     aria-label="Select Duration"
                     value={row.duration}
                     onChange={(e) => updateSecurityService(index, "duration", e.target.value)}
-                  >
-                    <option>Select Duration</option>
-                    <option value="730">730</option>
-                  </Form.Select>
+                  />
                 </Form.Group>
               </Col>
               <Col lg={2}>
