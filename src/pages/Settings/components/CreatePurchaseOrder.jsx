@@ -564,10 +564,10 @@ const CreatePurchaseOrder = (props) => {
             <span>Quantity</span>
           </Col>
           <Col lg={2}>
-            <span>Monthaly Per ECS (unit price)</span>
+            <span>Monthly Per ECS (unit price)</span>
           </Col>
           <Col lg={2}>
-            <span>Monthaly Price</span>
+            <span>Monthly Price</span>
           </Col>
         </Row>
         <div className='gutter-20x' ></div>
