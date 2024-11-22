@@ -550,3 +550,12 @@ tr:nth-child(even) {
   color: red;
   margin-top: 8px;
 }
+
+.border-1px{
+ border: 1px solid rgb(161, 161, 161);
+ padding-top: 10px;
+ padding-left: 10px;
+ padding-bottom: 10px;
+ font-size: 14px;
+ font-weight: bold;
+}

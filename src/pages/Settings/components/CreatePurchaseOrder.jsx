@@ -29,8 +29,7 @@ const CreatePurchaseOrder = (props) => {
   const [userLevel, setUserLevel] = useState(0)
   const [selectedRoles, setSelectedRoles] = useState([])
   const [formValues, setFormValues] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     ntnNumber: "",
     address: "",
@@ -75,16 +74,42 @@ const CreatePurchaseOrder = (props) => {
     setValidationErrors({})
     showSpinner(true)
 
-    let ElasticService = { 'elasticService': rows }
-    let StorageService = { "storageService": storageService }
-    let DrService = { "drService": drServices }
-    let ContainerServiceCCE = { "containerServices": containerServices }
-    let ContainerServiceWorker = { "containerServiceWorker": containerSpecialServices }
-    let SecurityProtection = { "securityServices": securityServices }
-    let DatabaseServices = { "databaseServices": databaseServices }
-    let NetworkServices = { "networkServices": networkServices }
-    let AdditionalServices = { "valueAddedServices": valueAddedServices }
-
+    let ElasticService = {
+      'serviceName': "elasticService",
+      'data': rows
+    }
+    let StorageService = {
+      'serviceName': "storageService",
+      'data': storageService
+    }
+    let DrService = {
+      'serviceName': "drService",
+      'data': drServices
+    }
+    let ContainerServiceCCE = {
+      'serviceName': "containerServices",
+      'data': containerServices
+    }
+    let ContainerServiceWorker = {
+      'serviceName': "containerServiceWorker",
+      'data': containerSpecialServices
+    }
+    let SecurityProtection = {
+      'serviceName': "securityServices",
+      'data': securityServices
+    }
+    let DatabaseServices = {
+      'serviceName': "databaseServices",
+      'data': databaseServices
+    }
+    let NetworkServices = {
+      'serviceName': "networkServices",
+      'data': networkServices
+    }
+    let AdditionalServices = {
+      'serviceName': "valueAddedServices",
+      'data': valueAddedServices
+    }
 
     let services = [
       ElasticService,
@@ -103,6 +128,7 @@ const CreatePurchaseOrder = (props) => {
       "user-info": formValues,
       "services": services
     }
+
     console.log(JSON.stringify(UserPurchaseOrder))
 
     // perform form validation
@@ -290,7 +316,7 @@ const CreatePurchaseOrder = (props) => {
 
   // State to manage Container Services
   const [containerServices, setContainerServices] = useState([
-    { serviceName: "CCE Cluster", description: "CCE Cluster", vcpuQty: 0, duration: 730, monthlyPrice: 0},
+    { serviceName: "CCE Cluster", description: "CCE Cluster", vcpuQty: 0, duration: 730, monthlyPrice: 0 },
   ]);
 
   // Handle input changes for a specific row
@@ -473,27 +499,13 @@ const CreatePurchaseOrder = (props) => {
           <Form.Control
             size="lg"
             type="text"
-            value={formValues.firstName}
-            onChange={(e) => handleInputChangeUser("firstName", e.target.value)}
+            value={formValues.name}
+            onChange={(e) => handleInputChangeUser("name", e.target.value)}
             placeholder="Enter first name"
             style={{ fontSize: "16px" }}
           />
           {validationErrors.firstName && <p className="error-msg">{validationErrors.firstName}</p>}
         </Form.Group>
-
-        <Form.Group className="mb-3" controlId="fgLastName">
-          <Form.Label>Last Name</Form.Label>
-          <Form.Control
-            size="lg"
-            type="text"
-            value={formValues.lastName}
-            onChange={(e) => handleInputChangeUser("lastName", e.target.value)}
-            placeholder="Enter last name"
-            style={{ fontSize: "16px" }}
-          />
-          {validationErrors.lastName && <p className="error-msg">{validationErrors.lastName}</p>}
-        </Form.Group>
-
         <Form.Group className="mb-3" controlId="fgEmail">
           <Form.Label>Email</Form.Label>
           <Form.Control
@@ -630,7 +642,7 @@ const CreatePurchaseOrder = (props) => {
                     size="lg"
                     type="text"
                     value={row.rate}
-                    onChange={(e) => { 
+                    onChange={(e) => {
                       handleInputChange(index, "rate", e.target.value)
                       handleInputChange(index, "monthly_rate", (e.target.value * 730))
                     }}

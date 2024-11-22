@@ -52,16 +52,25 @@ const SidebarMenu = (props) => {
           component={<Link to={"/settings/calls-list"} />}
           className={currentUrlLocaltion.pathname === "/settings/calls-list" ? "menuitem-survey" : "menuitme-normal"}
           style={{ textDecoration: "none" }}>
-          <i className="las la-list" style={{ fontSize: "30px", marginTop:'-3px', marginRight:"8px", float:'left' }}></i> Users List
+          <i className="las la-list" style={{ fontSize: "30px", marginTop: '-3px', marginRight: "8px", float: 'left' }}></i> Users List
+        </MenuItem>
+        <div className="gutter-40x"></div>
+        <div style={{ paddingLeft: "10px", color: "#909090", fontSize: "14px" }}>Prices</div>
+        <div className="gutter-10x"></div>
+        <MenuItem
+          component={<Link to={"/settings/prices"} />}
+          className={currentUrlLocaltion.pathname === "/settings/prices" ? "menuitem-active" : "menuitme-normal"}
+          style={{ textDecoration: "none" }}>
+          <i className="las la-tags" style={{ fontSize: "30px", marginTop: '-3px', marginRight: "8px", float: 'left' }}></i> Cloud Prices
         </MenuItem>
         <div className="gutter-40x"></div>
         <div style={{ paddingLeft: "10px", color: "#909090", fontSize: "14px" }}>Purchase-order</div>
         <div className="gutter-10x"></div>
         <MenuItem
           component={<Link to={"/settings/po-list"} />}
-          className={currentUrlLocaltion.pathname === "/settings/user-profile" ? "menuitem-active" : "menuitme-normal"}
+          className={currentUrlLocaltion.pathname === "/settings/po-list" ? "menuitem-active" : "menuitme-normal"}
           style={{ textDecoration: "none" }}>
-          <i className="las la-cash-register" style={{ fontSize: "30px", marginTop:'-3px', marginRight:"8px", float:'left' }}></i> Purchase-order List
+          <i className="las la-cash-register" style={{ fontSize: "30px", marginTop: '-3px', marginRight: "8px", float: 'left' }}></i> Purchase-order List
         </MenuItem>
         <div className="gutter-40x"></div>
         <div className="menu-divider"></div>
@@ -71,7 +80,7 @@ const SidebarMenu = (props) => {
           component={<Link to={"/settings/resource-usage"} />}
           className={currentUrlLocaltion.pathname === "/settings/resource-usage" ? "menuitem-active" : "menuitme-normal"}
           style={{ textDecoration: "none" }}>
-          <i  className="las la-money-bill" style={{ fontSize: "30px", marginTop:'-3px', marginRight:"8px", float:'left' }}></i> Resource Usage
+          <i className="las la-money-bill" style={{ fontSize: "30px", marginTop: '-3px', marginRight: "8px", float: 'left' }}></i> Resource Usage
         </MenuItem>
       </Menu>
     </Sidebar>

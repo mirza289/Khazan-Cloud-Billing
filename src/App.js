@@ -11,6 +11,7 @@ import Home from './pages/Home/Home'
 import Auth from './pages/Login/Auth'
 import ResourceUsage from './pages/Settings/ResourceUsage'
 import PurchaseOrderList from './pages/Settings/PurchaseOrderList'
+import ManagePrice from './pages/Settings/ManagePrice'
 // import SurveyList from './pages/Survey/SurveyList/SurveyList'
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
         {/* <Route exact path="settings/auth/:url_email" element={<Auth />} /> */}
         <Route exact path="settings/resource-usage" element={<ResourceUsage />} />
         <Route exact path="settings/po-list" element={<PurchaseOrderList />} />
+        <Route exact path="settings/prices" element={<ManagePrice />} />
       </Routes>
     </Router>
   )
