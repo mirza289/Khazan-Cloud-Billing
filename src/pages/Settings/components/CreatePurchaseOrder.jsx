@@ -447,39 +447,92 @@ const CreatePurchaseOrder = (props) => {
   }
 
   /// value edit fields 
-  const [valueAddedServices, setValueAddedServices] = useState({
-    elasticLoadBalancer: { selected: false, price: 0 },
-    natSet: { selected: false, price: 0 },
-    smnSet: { selected: false, price: 0 },
-    autoScaling: { selected: false, price: 0 },
-    vpn: { selected: false, price: 0 },
-    imageManagementService: { selected: false, price: 0 },
-    virtualPrivateCloud: { selected: false, price: 0 },
-    dns: { selected: false, price: 0 },
-    monitoringService: { selected: false, price: 0 },
-    securityGroups: { selected: false, price: 0 },
-    accessControlList: { selected: false, price: 0 },
-  });
+  const [valueAddedServices, setValueAddedServices] = useState([
+    {
+      serviceName: "elasticLoadBalancer",
+      data: [{ price: "", qty: "" }],
+    },
+    {
+      serviceName: "natSet",
+      data: [{ price: "", qty: "" }],
+    },
+    {
+      serviceName: "smnSet",
+      data: [{ price: "", qty: "" }],
+    },
+    {
+      serviceName: "autoScaling",
+      data: [{ price: "", qty: "" }],
+    },
+    {
+      serviceName: "vpn",
+      data: [{ price: "", qty: "" }],
+    },
+    {
+      serviceName: "imageManagementService",
+      data: [{ price: "", qty: "" }],
+    },
+    {
+      serviceName: "virtualPrivateCloud",
+      data: [{ price: "", qty: "" }],
+    },
+    {
+      serviceName: "dns",
+      data: [{ price: "", qty: "" }],
+    },
+    {
+      serviceName: "monitoringService",
+      data: [{ price: "", qty: "" }],
+    },
+    {
+      serviceName: "securityGroups",
+      data: [{ price: "", qty: "" }],
+    },
+    {
+      serviceName: "accessControlList",
+      data: [{ price: "", qty: "" }],
+    },
+  ]);
 
-  // Handle checkbox changes
-  const handleCheckboxChange = (service) => {
-    setValueAddedServices((prevState) => ({
-      ...prevState,
-      [service]: { ...prevState[service], selected: !prevState[service].selected },
-    }));
+  const [selectedServices, setSelectedServices] = useState([]);
+
+  const handleCheckboxChange = (serviceName) => {
+    setSelectedServices((prevSelected) => {
+      const exists = prevSelected.some((service) => service.serviceName === serviceName);
+
+      if (exists) {
+        return prevSelected.filter((service) => service.serviceName !== serviceName);
+      }
+
+      const service = valueAddedServices.find((service) => service.serviceName === serviceName);
+      return [...prevSelected, { ...service }];
+    });
   };
 
-  // Handle price input changes
-  const handlePriceChange = (service, price) => {
-    setValueAddedServices((prevState) => ({
-      ...prevState,
-      [service]: { ...prevState[service], price },
-    }));
+  const handlePriceChange = (serviceName, price) => {
+    setSelectedServices((prevSelected) =>
+      prevSelected.map((service) =>
+        service.serviceName === serviceName
+          ? { ...service, data: [{ ...service.data[0], price }] }
+          : service
+      )
+    );
   };
+
+  const handleQtyChange = (serviceName, qty) => {
+    setSelectedServices((prevSelected) =>
+      prevSelected.map((service) =>
+        service.serviceName === serviceName
+          ? { ...service, data: [{ ...service.data[0], qty }] }
+          : service
+      )
+    );
+  };
+
 
   useEffect(() => {
-    console.log(rows)
-  }, [rows])
+    console.log(selectedServices)
+  }, [selectedServices])
 
   return (
     <Container fluid style={{ paddingRight: "0", paddingLeft: "0" }}>
@@ -1498,72 +1551,92 @@ const CreatePurchaseOrder = (props) => {
         <Row style={{ fontSize: "14px", fontWeight: "bold" }}>
           {/* Column 1 */}
           <Col lg={6}>
-            {[
-              "elasticLoadBalancer",
-              "natSet",
-              "smnSet",
-              "autoScaling",
-              "vpn",
-            ].map((service) => (
-              <div key={service} style={{ marginBottom: "10px" }}>
+            {valueAddedServices.slice(0, 5).map((service) => (
+              <div key={service.serviceName} style={{ marginBottom: "10px" }}>
                 <Row>
                   <Col>
                     <Form.Check
                       type="checkbox"
-                      label={service
+                      label={service.serviceName
                         .replace(/([A-Z])/g, " $1")
                         .replace(/^\w/, (c) => c.toUpperCase())}
-                      checked={valueAddedServices[service].selected}
-                      onChange={() => handleCheckboxChange(service)}
+                      checked={selectedServices.some((s) => s.serviceName === service.serviceName)}
+                      onChange={() => handleCheckboxChange(service.serviceName)}
                     />
                   </Col>
-                  <Col>
-                    {valueAddedServices[service].selected && (
-                      <Form.Control
-                        type="text"
-                        placeholder="Enter Price"
-                        value={valueAddedServices[service].price}
-                        onChange={(e) => handlePriceChange(service, e.target.value)}
-                        style={{ marginTop: "5px", fontSize: "14px", float: "right" }}
-                      />
-                    )}
-                  </Col>
+                  {selectedServices.some((s) => s.serviceName === service.serviceName) && (
+                    <>
+                      <Col>
+                        <Form.Control
+                          type="text"
+                          placeholder="Enter Price"
+                          value={
+                            selectedServices.find((s) => s.serviceName === service.serviceName)?.data[0]
+                              .price || ""
+                          }
+                          onChange={(e) => handlePriceChange(service.serviceName, e.target.value)}
+                          style={{ marginTop: "5px", fontSize: "14px", float: "right" }}
+                        />
+                      </Col>
+                      <Col>
+                        <Form.Control
+                          type="text"
+                          placeholder="Enter Qty"
+                          value={
+                            selectedServices.find((s) => s.serviceName === service.serviceName)?.data[0]
+                              .qty || ""
+                          }
+                          onChange={(e) => handleQtyChange(service.serviceName, e.target.value)}
+                          style={{ marginTop: "5px", fontSize: "14px", float: "right" }}
+                        />
+                      </Col>
+                    </>
+                  )}
                 </Row>
               </div>
             ))}
           </Col>
           {/* Column 2 */}
           <Col lg={6}>
-            {[
-              "imageManagementService",
-              "virtualPrivateCloud",
-              "dns",
-              "monitoringService",
-              "securityGroups",
-              "accessControlList",
-            ].map((service) => (
-              <div key={service} style={{ marginBottom: "10px" }}>
+            {valueAddedServices.slice(5).map((service) => (
+              <div key={service.serviceName} style={{ marginBottom: "10px" }}>
                 <Form.Check
                   type="checkbox"
-                  label={service
+                  label={service.serviceName
                     .replace(/([A-Z])/g, " $1")
                     .replace(/^\w/, (c) => c.toUpperCase())}
-                  checked={valueAddedServices[service].selected}
-                  onChange={() => handleCheckboxChange(service)}
+                  checked={selectedServices.some((s) => s.serviceName === service.serviceName)}
+                  onChange={() => handleCheckboxChange(service.serviceName)}
                 />
-                {valueAddedServices[service].selected && (
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter Price"
-                    value={valueAddedServices[service].price}
-                    onChange={(e) => handlePriceChange(service, e.target.value)}
-                    style={{ marginTop: "5px", fontSize: "14px" }}
-                  />
+                {selectedServices.some((s) => s.serviceName === service.serviceName) && (
+                  <>
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter Price"
+                      value={
+                        selectedServices.find((s) => s.serviceName === service.serviceName)?.data[0]
+                          .price || ""
+                      }
+                      onChange={(e) => handlePriceChange(service.serviceName, e.target.value)}
+                      style={{ marginTop: "5px", fontSize: "14px" }}
+                    />
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter Qty"
+                      value={
+                        selectedServices.find((s) => s.serviceName === service.serviceName)?.data[0].qty ||
+                        ""
+                      }
+                      onChange={(e) => handleQtyChange(service.serviceName, e.target.value)}
+                      style={{ marginTop: "5px", fontSize: "14px" }}
+                    />
+                  </>
                 )}
               </div>
             ))}
           </Col>
         </Row>
+
         <div className="d-grid gap-2">
           <Button
             size="lg"

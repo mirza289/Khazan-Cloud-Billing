@@ -37,7 +37,7 @@ const ResourceUsage = () => {
   })
 
   const handelUploadResourceData = (e) => {
-
+    setShowSpinner(true)
     // continue if no validation errors
     let formData = new FormData()
     formData.append('file', acceptedFiles[0])
@@ -167,6 +167,11 @@ const ResourceUsage = () => {
     }
   })
 
+
+  useEffect(() => {
+    handelUploadResourceData()
+  }, [acceptedFiles])
+
   return (
     <Container fluid style={{ paddingRight: "0", paddingLeft: "0" }}>
       <AppHeader />
@@ -192,9 +197,10 @@ const ResourceUsage = () => {
                     <Card.Subtitle className="mb-2 text-muted">Drop your resource data file here or click to browse</Card.Subtitle>
                     <div className="gutter-5x"></div>
                     {acceptedFiles.length > 0 && <p>{acceptedFiles[0].name}</p>}
+                    {showSpinner && <Spinner style={{ marginRight: 10, marginTop: 5 }} animation="border" size="sm" variant="dark" role="status" />}
                   </div>
                   <div className="gutter-20x"></div>
-                  <Button variant="primary" disabled={acceptedFiles.length === 0} onClick={handelUploadResourceData}>Upload</Button>
+                  {/* <Button variant="primary" disabled={acceptedFiles.length === 0} onClick={handelUploadResourceData}>Upload</Button> */}
                   <div className="gutter-10x"></div>
                 </Card.Body>
               </Card>
@@ -222,7 +228,7 @@ const ResourceUsage = () => {
                       !isEmpty(resonseData) && resonseData.regions[0].services.map((item, index) => (
                         <Accordion.Item eventKey={index}>
                           <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>{item.serviceName}</Accordion.Header>
-                          <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY:'auto', maxHeight:'20vh' }}>
+                          <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: 'auto', maxHeight: '20vh' }}>
                             <ListGroup variant="flush">
                               {item.instances.map((item, index) => (
                                 <ListGroup.Item onClick={() => handleSelectService(item)} style={{ backgroundColor: '#c0e2ff', borderRadius: '6px', marginBottom: '5px', cursor: 'pointer', fontSize: '14px' }} key={index}>{item["Resource Name"]}

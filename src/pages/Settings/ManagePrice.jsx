@@ -1,304 +1,256 @@
-import React, { useState, useEffect } from 'react'
-import Container from 'react-bootstrap/Container'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
-import Button from 'react-bootstrap/Button'
-import Alert from 'react-bootstrap/Alert'
-import Badge from 'react-bootstrap/Badge'
+import React, { useState, useEffect } from "react";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
+import Form from "react-bootstrap/Form";
+import "react-sliding-pane/dist/react-sliding-pane.css";
 
-//
-import Gravatar from 'react-gravatar'
-import { useNavigate, useParams } from 'react-router-dom'
-import SlidingPane from "react-sliding-pane"
-import "react-sliding-pane/dist/react-sliding-pane.css"
-import moment from 'moment'
-//
-import HttpClient from '../../api/HttpClient'
-import SidebarMenu from '../../components/SidebarMenu'
-import AppHeader from '../../components/AppHeader'
-import Table from '../../shared/Table'
-import CreatePurchaseOrder from './components/CreatePurchaseOrder'
+import HttpClient from "../../api/HttpClient";
+import SidebarMenu from "../../components/SidebarMenu";
+import AppHeader from "../../components/AppHeader";
 
 const ManagePrice = () => {
-  const navigate = useNavigate()
-  const [userList, setUserList] = useState([])
-  const [sessionUser, setSessionUser] = useState({})
-  const [apiError, setApiError] = useState('')
-  const [apiSessionError, setApiSessionError] = useState('')
-  const [currentUserId, setCurrentUserId] = useState('')
-  const [currentCompanyId, setCurrentCompanyId] = useState('')
-  const [listLoadingSpinner, setListLoadingSpinner] = useState(false)
-  const [sliderState, setSliderState] = useState({
-    isPaneOpen: false,
-    isPaneOpenLeft: false,
-  })
-  const [sliderTitle, setSliderTitle] = useState('Create User')
-  const [sliderFormView, setSliderFormView] = useState('CreateUser')
-
+  const [unitCostList, setUnitCostList] = useState([]);
+  const [sessionUser, setSessionUser] = useState({});
+  const [apiError, setApiError] = useState("");
+  const [apiSessionError, setApiSessionError] = useState("");
+  const [listLoadingSpinner, setListLoadingSpinner] = useState(false);
+  const [editedItems, setEditedItems] = useState([]); // Track edited items
 
   useEffect(() => {
-    document.title = ("User Manage | Khazana")
-    // checkUserSession()
-  }, [])
+    document.title = "Cost Manage | Khazana";
+    getUnitPriceList();
+  }, []);
 
-  // check session user exists otherwise logout
-  const checkUserSession = () => {
-    setApiSessionError('')
-    HttpClient.get('auth/me')
-      .then(responsePayload => {
-        let responseData = responsePayload.data.data
-        // set the user object from the session
-         setSessionUser(responseData)
-         getUserList(responseData.company_id)
-         setCurrentCompanyId(responseData.company_id)
+  const getUnitPriceList = () => {
+    setUnitCostList([]);
+    setListLoadingSpinner(true);
+
+    HttpClient.get("/unit-costs")
+      .then((responsePayload) => {
+        let responseData = responsePayload.data;
+        setUnitCostList(responseData.unit_costs);
+        console.log(responseData);
+        setListLoadingSpinner(false);
       })
-      .catch(error => {
+      .catch((error) => {
+        setListLoadingSpinner(false);
         if (error.response) {
-          setApiSessionError(error.response.data.message + "[" + error.response.data.message_detail + "]")
+          setApiError(
+            error.response.data.message +
+              "[" +
+              error.response.data.message_detail +
+              "]"
+          );
         } else if (error.request) {
-          setApiSessionError(error.request)
+          setApiError(error.request);
         } else {
-          setApiSessionError(error.message)
+          setApiError(error.message);
         }
-      })
-  }
-
-
-  const getUserList = () => {
-    setUserList([])
-    setListLoadingSpinner(true)
-    let formData = new FormData()
-
-    HttpClient.post('user/get-list', formData)
-      .then(responsePayload => {
-        let responseData = responsePayload.data.data
-        setUserList(responseData)
-        setListLoadingSpinner(false)
-      })
-      .catch(error => {
-        setListLoadingSpinner(false)
-        if (error.response) {
-          setApiError(error.response.data.message + "[" + error.response.data.message_detail + "]")
-        } else if (error.request) {
-          setApiError(error.request)
-        } else {
-          setApiError(error.message)
-        }
-      })
-  }
-
-  const handelCreateUserRecord = () => {
-    setSliderFormView('Create')
-    setSliderTitle('Create Purchase Record')
-    setSliderState({ isPaneOpen: true })
-  }
-
-  const handleEditUser = (companyId, userId) => {
-    setSliderFormView("Edit")
-    setSliderTitle("Edit User")
-    setCurrentUserId(userId)
-    setCurrentCompanyId(companyId)
-    setSliderState({ isPaneOpen: true })
-  }
-
-  const listCols = [
-    {
-      Header: <span className='table-heading-font'>Name</span>,
-      accessor: 'first_name',
-      width: 80,
-      Cell: ({ cell, row }) => (
-        <>
-          <Row>
-            <Col sm="2">
-              <Gravatar
-                style={{ borderRadius: "50%" }}
-                size="32"
-                email={cell.value + " " + row.original.last_name}
-              />
-            </Col>
-            <Col>
-              <div>{cell.value + " " + row.original.last_name}</div>
-            </Col>
-          </Row>
-        </>
-      ),
-    },
-    {
-      Header: <span className='table-heading-font'>Email</span>,
-      accessor: 'email',
-      width: 60,
-      Cell: ({ cell, row }) => (
-        <span>{cell.value}</span>
-      ),
-    },
-    {
-      Header: <span className='table-heading-font'>Company</span>,
-      accessor: 'company_name',
-      width: 40,
-      Cell: ({ cell, row }) => (
-        <span>{cell.value}</span>
-      ),
-    },
-    {
-      Header: <span className='table-heading-font'>User Level</span>,
-      accessor: 'user_level',
-      width: 10,
-      Cell: ({ cell }) => (
-        <></>
-        // <span>
-        //   {
-        //     cell.value === 0 &&
-        //     <Badge className="badge-free">Free</Badge>
-        //   }
-        //   {
-        //     cell.value === 1 &&
-        //     <Badge className="badge-essentials">Essentials</Badge>
-        //   }
-        //   {
-        //     cell.value === 2 &&
-        //     <Badge className="badge-pro">Pro</Badge>
-        //   }
-        //   {
-        //     cell.value === 3 &&
-        //     <Badge className="badge-advanced">Advanced</Badge>
-        //   }
-        //   {
-        //     cell.value === 4 &&
-        //     <Badge className="badge-superadmin">Super Admin</Badge>
-        //   }
-        // </span>
-      ),
-    },
-    {
-      Header: <span className='table-heading-font'>Admin Roles</span>,
-      accessor: 'admin_roles',
-      width: 40,
-      Cell: ({ cell }) => (
-        <span>
-          { 
-            cell.value.length !==0 && 
-             "["+cell.value.join(", ")+"]"
-          }
-        </span>
-      ),
-    },
-    {
-      Header: <span className='table-heading-font'>Last Activity</span>,
-      accessor: 'last_login',
-      width: 20,
-      Cell: ({ cell }) => (
-        <span>{cell.value}</span>
-      ),
-    },
-    {
-      Header: <span className='table-heading-font'>Created</span>,
-      accessor: 'created_at',
-      width: 50,
-      Cell: ({ cell }) => (
-        <>
-          <div>{moment.utc(cell.value).local().fromNow()}</div>
-          <div style={{ fontSize: "10px" }}>{cell.value && moment(cell.value).local().format("MM-DD-YYYY HH:mm:ss")}</div>
-        </>
-      ),
-    },
-    {
-      Header: '',
-      accessor: 'action',
-      width: 40,
-      disableSortBy: true,
-      Cell: ({ cell, row }) => (
-        <div style={{ textAlign: "right" }}>
-          <Button
-            size="sm"
-            variant="light"
-            style={{ marginLeft: "4px" }}
-            onClick={() => handleEditUser(row.original.company_id, row.original.user_id)}>
-            <i className="las la-edit" style={{ fontSize: "20px" }}></i>
-          </Button>
-        </div>
-      )
-    },
-  ]
-
-
-  const columns = React.useMemo(() => {
-    return listCols
-  })
+      });
+  };
 
   const handleUserListReload = () => {
-    getUserList()
-  }
+    getUnitPriceList();
+  };
 
-  const updateSliderState = (newState) => {
-    setSliderState((prevState) => ({
-      ...prevState,
-      ...newState,
-    }))
-    getUserList()
-  }
+  const handleInputChange = (index, key, value) => {
+    const updatedItem = { ...unitCostList[index], [key]: value };
+
+    // Update the main list
+    const updatedList = [...unitCostList];
+    updatedList[index] = updatedItem;
+
+    setUnitCostList(updatedList);
+
+    // Track updated items separately
+    setEditedItems((prev) => {
+      const existingIndex = prev.findIndex((item) => item.id === updatedItem.id);
+      if (existingIndex > -1) {
+        prev[existingIndex] = updatedItem;
+        return [...prev];
+      } else {
+        return [...prev, updatedItem];
+      }
+    });
+  };
+
+  const handleUpdatePrices = () => {
+    // Example data payload
+   
+    setListLoadingSpinner(true);
+  
+    HttpClient.post("/unit-costs", editedItems)
+      .then((responsePayload) => {
+        const responseData = responsePayload.data;
+        console.log(responseData);
+  
+        if (responseData.updated_count > 0) {
+          setUnitCostList((prevList) => {
+            // Update the local state with the new data (optional, depends on the use case)
+            return prevList.map((item) => {
+              const updatedItem = editedItems.find((p) => p.id === item.id);
+              return updatedItem ? { ...item, ...updatedItem } : item;
+            });
+          });
+        }
+  
+        setListLoadingSpinner(false);
+      })
+      .catch((error) => {
+        setListLoadingSpinner(false);
+  
+        if (error.response) {
+          setApiError(
+            error.response.data.message +
+              "[" +
+              error.response.data.message_detail +
+              "]"
+          );
+        } else if (error.request) {
+          setApiError(error.request);
+        } else {
+          setApiError(error.message);
+        }
+      });
+  };
+  
+
+  useEffect(()=>{
+   console.log(editedItems)
+  },[editedItems])
 
   return (
     <Container fluid style={{ paddingRight: "0", paddingLeft: "0" }}>
       <div style={{ display: "flex", height: "100vh" }}>
         <AppHeader
           appTitle="Manage Users"
-          sessionUser={ sessionUser }
+          sessionUser={sessionUser}
           source="SystemAdmin"
         />
-        {
-          apiSessionError ? (
-            <>
-              <main style={{ width: "100%", paddingTop: "60px", padding: "100px" }}>
-                <Alert className="form-global-error">{apiSessionError}</Alert>
-              </main>
-            </>
-          ) : (
-            <>
-              <SidebarMenu 
-                sessionUser={sessionUser}
-              />
-              <main style={{ width: "100%", paddingTop: "60px" }}>
-                <Row style={{ margin: "0" }}>
-                  {/* Main panel */}
-                  <Col style={{ padding: "30px" }}>
-                    <Row>
-                      <Col>
-                        <div style={{ fontSize: "14px", color: "#909090" }}>Settings / Manage Price</div>
+        {apiSessionError ? (
+          <>
+            <main
+              style={{ width: "100%", paddingTop: "60px", padding: "100px" }}
+            >
+              <Alert className="form-global-error">{apiSessionError}</Alert>
+            </main>
+          </>
+        ) : (
+          <>
+            <SidebarMenu sessionUser={sessionUser} />
+            <main style={{ width: "100%", paddingTop: "60px" }}>
+              <Row style={{ margin: "0" }}>
+                <Col style={{ padding: "30px" }}>
+                  <Row>
+                    <Col>
+                      <div style={{ fontSize: "14px", color: "#909090" }}>
+                        Settings / Manage Price
+                      </div>
+                    </Col>
+                    <Col style={{ textAlign: "right" }}></Col>
+                  </Row>
+                  <div className="gutter-10x"></div>
+                  <Row>
+                    <Col>
+                      <div style={{ fontSize: "16px", color: "#909090" }}></div>
+                    </Col>
+                    <Col style={{ textAlign: "right" }}>
+                    <Button
+                        variant="outline-primary"
+                        size="md"
+                        onClick={() => handleUpdatePrices()}
+                        style={{
+                          fontSize: "14px",
+                          paddingLeft: "20px",
+                          paddingRight: "20px",
+                          borderRadius: "20px",
+                        }}
+                      >
+                        Update
+                      </Button>
+                      <Button
+                        variant="light"
+                        size="md"
+                        onClick={() => handleUserListReload()}
+                        style={{
+                          fontSize: "14px",
+                          paddingLeft: "20px",
+                          paddingRight: "20px",
+                          borderRadius: "20px",
+                        }}
+                      >
+                        <i className="las la-sync" style={{ fontSize: "18px" }}></i>{" "}
+                        Reload
+                      </Button>
+                    </Col>
+                  </Row>
+                  <div className="gutter-20x"></div>
+                </Col>
+              </Row>
+              <Row style={{ padding: 30, paddingTop: 0 }}>
+                <Col className="border-1px">Resource Description</Col>
+                <Col className="border-1px">
+                  Khazana Cost <br /> (Unit Cost (hour) without Margin)
+                </Col>
+                <Col className="border-1px">
+                  Customer Price <br /> (Unit Price (hour) with Margin)
+                </Col>
+                <Col className="border-1px">Appx Monthly Unit Price</Col>
+                <Col className="border-1px">Remarks</Col>
+              </Row>
+
+              <div style={{ height: "60vh", overflowY: "auto" }}>
+                {unitCostList.length !== 0 &&
+                  unitCostList.map((unitPrice, i) => (
+                    <Row
+                      key={unitPrice.id}
+                      style={{ padding: 30, paddingTop: 0, paddingBottom: 0 }}
+                    >
+                      <Col className="border-1px">
+                        <Form.Control
+                          type="text"
+                          value={unitPrice.resource_desc}
+                          onChange={(e) =>
+                            handleInputChange(i, "resource_desc", e.target.value)
+                          }
+                        />
                       </Col>
-                      <Col style={{ textAlign: "right" }}>
+                      <Col className="border-1px">
+                        <Form.Control
+                          type="number"
+                          value={unitPrice.unit_cost}
+                          onChange={(e) =>
+                            handleInputChange(i, "unit_cost", e.target.value)
+                          }
+                        />
+                      </Col>
+                      <Col className="border-1px">
+                        {unitPrice.unit_cost_margin}
+                      </Col>
+                      <Col className="border-1px">
+                        {unitPrice.appx_monthly_cost}
+                      </Col>
+                      <Col className="border-1px">
+                        <Form.Control
+                          type="text"
+                          value={unitPrice.remarks}
+                          onChange={(e) =>
+                            handleInputChange(i, "remarks", e.target.value)
+                          }
+                        />
                       </Col>
                     </Row>
-                    <div className="gutter-10x"></div>
-                    <Row>
-                      <Col>
-                        <div style={{ fontSize: "16px", color: "#909090" }}></div>
-                      </Col>
-                      <Col style={{ textAlign: "right" }}>
-                        <Button variant="light"
-                          size="md"
-                          onClick={() => handleUserListReload()}
-                          style={{ fontSize: "14px", paddingLeft: "20px", paddingRight: "20px", borderRadius: "20px" }}>
-                          <i className="las la-sync" style={{ fontSize: "18px" }}></i> Reload
-                        </Button>
-                      </Col>
-                    </Row>
-                    <div className="gutter-20x"></div>
-                  </Col>
-                </Row>
-                <Row style={{padding:30, paddingTop:0}}>
-                    <Col className='border-1px'>Resource Description</Col>
-                    <Col className='border-1px'>Khazana Cost <br/> (Unit Cost (hour) without Margin)</Col>
-                    <Col className='border-1px'>Custormer Price <br/>  (Unit Price (hour) with Margin)</Col>
-                    <Col className='border-1px'>Appx Monthly Unit Price</Col>
-                    <Col className='border-1px'>Remarks</Col>
-                </Row>
-              </main>
-            </>
-          )
-        }
+                  ))}
+              </div>
+            </main>
+          </>
+        )}
       </div>
     </Container>
-  )
-}
+  );
+};
 
-export default ManagePrice
+export default ManagePrice;
