@@ -106,10 +106,7 @@ const CreatePurchaseOrder = (props) => {
       'serviceName': "networkServices",
       'data': networkServices
     }
-    let AdditionalServices = {
-      'serviceName': "valueAddedServices",
-      'data': valueAddedServices
-    }
+    
 
     let services = [
       ElasticService,
@@ -120,7 +117,7 @@ const CreatePurchaseOrder = (props) => {
       SecurityProtection,
       DatabaseServices,
       NetworkServices,
-      AdditionalServices
+      additionalServices
     ]
 
 
@@ -132,50 +129,43 @@ const CreatePurchaseOrder = (props) => {
     console.log(JSON.stringify(UserPurchaseOrder))
 
     // perform form validation
-    const validationErrors = formValidation()
-    const noErrors = Object.keys(validationErrors).length === 0;
-    if (!noErrors) {
-      setValidationErrors(validationErrors)
-      showSpinner(false)
-      return
-    }
+    // const validationErrors = formValidation()
+    // const noErrors = Object.keys(validationErrors).length === 0;
+    // if (!noErrors) {
+    //   setValidationErrors(validationErrors)
+    //   showSpinner(false)
+    //   return
+    // }
 
-    // continue if no validation errors
-    let formData = new FormData()
-    formData.append('purchase-order', "")
+    HttpClient.post('/po/add', UserPurchaseOrder)
+      .then(responsePayload => {
+        toast.success("PO recorded successfully")
+        showSpinner(false)
+        // reset the form
+        // setFirstName('')
+        // setLastName('')
+        // setEmail('')
+        // setPassword('')
+        // passwordRef.current.value = ''
+        // props.updateSliderState({
+        //   isPaneOpen: false,
+        // })
 
+      })
+      .catch(error => {
+        showSpinner(false)
+        if (error.response) {
+          setApiError(error.response.data.message)
+        } else if (error.request) {
+          setApiError(error.request)
+        } else {
+          setApiError(error.message)
+        }
 
-
-
-    // HttpClient.post('user/create-user', formData)
-    //   .then(responsePayload => {
-    //     toast.success("User created successfully")
-    //     showSpinner(false)
-    //     // reset the form
-    //     setFirstName('')
-    //     setLastName('')
-    //     setEmail('')
-    //     setPassword('')
-    //     passwordRef.current.value = ''
-    //     props.updateSliderState({
-    //       isPaneOpen: false,
-    //     })
-
-    //   })
-    //   .catch(error => {
-    //     showSpinner(false)
-    //     if (error.response) {
-    //       setApiError(error.response.data.message)
-    //     } else if (error.request) {
-    //       setApiError(error.request)
-    //     } else {
-    //       setApiError(error.message)
-    //     }
-
-    //     // reset the password on any error
-    //     setPassword('')
-    //     passwordRef.current.value = ''
-    //   })
+        // reset the password on any error
+        setPassword('')
+        passwordRef.current.value = ''
+      })
   }
 
 
@@ -253,7 +243,6 @@ const CreatePurchaseOrder = (props) => {
     const updatedRows = rows.filter((_, i) => i !== index);
     setRows(updatedRows);
   };
-
 
   //// handle storage states 
 
@@ -447,92 +436,64 @@ const CreatePurchaseOrder = (props) => {
   }
 
   /// value edit fields 
-  const [valueAddedServices, setValueAddedServices] = useState([
-    {
-      serviceName: "elasticLoadBalancer",
-      data: [{ price: "", qty: "" }],
-    },
-    {
-      serviceName: "natSet",
-      data: [{ price: "", qty: "" }],
-    },
-    {
-      serviceName: "smnSet",
-      data: [{ price: "", qty: "" }],
-    },
-    {
-      serviceName: "autoScaling",
-      data: [{ price: "", qty: "" }],
-    },
-    {
-      serviceName: "vpn",
-      data: [{ price: "", qty: "" }],
-    },
-    {
-      serviceName: "imageManagementService",
-      data: [{ price: "", qty: "" }],
-    },
-    {
-      serviceName: "virtualPrivateCloud",
-      data: [{ price: "", qty: "" }],
-    },
-    {
-      serviceName: "dns",
-      data: [{ price: "", qty: "" }],
-    },
-    {
-      serviceName: "monitoringService",
-      data: [{ price: "", qty: "" }],
-    },
-    {
-      serviceName: "securityGroups",
-      data: [{ price: "", qty: "" }],
-    },
-    {
-      serviceName: "accessControlList",
-      data: [{ price: "", qty: "" }],
-    },
-  ]);
+  const [additionalServices, setAdditionalServices] = useState({
+    serviceName: "additionalServices",
+    data: [], // Array to hold selected services with price and qty
+  });
 
-  const [selectedServices, setSelectedServices] = useState([]);
 
+  // Handle checkbox changes
   const handleCheckboxChange = (serviceName) => {
-    setSelectedServices((prevSelected) => {
-      const exists = prevSelected.some((service) => service.serviceName === serviceName);
+    setAdditionalServices((prevState) => {
+      const exists = prevState.data.some((service) => service.serviceName === serviceName);
 
       if (exists) {
-        return prevSelected.filter((service) => service.serviceName !== serviceName);
+        // Remove service if it already exists
+        return {
+          ...prevState,
+          data: prevState.data.filter((service) => service.serviceName !== serviceName),
+        };
       }
 
-      const service = valueAddedServices.find((service) => service.serviceName === serviceName);
-      return [...prevSelected, { ...service }];
+      // Add new service with default values
+      return {
+        ...prevState,
+        data: [
+          ...prevState.data,
+          { serviceName, price: "", qty: "" },
+        ],
+      };
     });
   };
 
+  // Handle price changes
   const handlePriceChange = (serviceName, price) => {
-    setSelectedServices((prevSelected) =>
-      prevSelected.map((service) =>
+    setAdditionalServices((prevState) => ({
+      ...prevState,
+      data: prevState.data.map((service) =>
         service.serviceName === serviceName
-          ? { ...service, data: [{ ...service.data[0], price }] }
+          ? { ...service, price }
           : service
-      )
-    );
+      ),
+    }));
   };
 
+  // Handle quantity changes
   const handleQtyChange = (serviceName, qty) => {
-    setSelectedServices((prevSelected) =>
-      prevSelected.map((service) =>
+    setAdditionalServices((prevState) => ({
+      ...prevState,
+      data: prevState.data.map((service) =>
         service.serviceName === serviceName
-          ? { ...service, data: [{ ...service.data[0], qty }] }
+          ? { ...service, qty }
           : service
-      )
-    );
+      ),
+    }));
   };
 
 
   useEffect(() => {
-    console.log(selectedServices)
-  }, [selectedServices])
+    console.log(additionalServices)
+  }, [additionalServices])
 
   return (
     <Container fluid style={{ paddingRight: "0", paddingLeft: "0" }}>
@@ -628,7 +589,7 @@ const CreatePurchaseOrder = (props) => {
           <>
             <Row key={index} style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "10px" }}>
               <Col lg={2}>
-                <Form.Group className="mb-3" controlId={`fgServiceName-${index}`}>
+                {/* <Form.Group className="mb-3" controlId={`fgServiceName-${index}`}>
                   <Form.Control
                     size="lg"
                     type="text"
@@ -637,7 +598,8 @@ const CreatePurchaseOrder = (props) => {
                     placeholder="Service Name"
                     style={{ fontSize: "16px" }}
                   />
-                </Form.Group>
+                </Form.Group> */}
+                {index + 1}
               </Col>
               <Col lg={1}>
                 <Form.Group className="mb-3" controlId={`fgCPUs-${index}`}>
@@ -1551,30 +1513,35 @@ const CreatePurchaseOrder = (props) => {
         <Row style={{ fontSize: "14px", fontWeight: "bold" }}>
           {/* Column 1 */}
           <Col lg={6}>
-            {valueAddedServices.slice(0, 5).map((service) => (
-              <div key={service.serviceName} style={{ marginBottom: "10px" }}>
+            {[
+              "elasticLoadBalancer",
+              "natSet",
+              "smnSet",
+              "autoScaling",
+              "vpn",
+            ].map((service) => (
+              <div key={service} style={{ marginBottom: "10px" }}>
                 <Row>
                   <Col>
                     <Form.Check
                       type="checkbox"
-                      label={service.serviceName
+                      label={service
                         .replace(/([A-Z])/g, " $1")
                         .replace(/^\w/, (c) => c.toUpperCase())}
-                      checked={selectedServices.some((s) => s.serviceName === service.serviceName)}
-                      onChange={() => handleCheckboxChange(service.serviceName)}
+                      checked={additionalServices.data.some((s) => s.serviceName === service)}
+                      onChange={() => handleCheckboxChange(service)}
                     />
                   </Col>
-                  {selectedServices.some((s) => s.serviceName === service.serviceName) && (
+                  {additionalServices.data.some((s) => s.serviceName === service) && (
                     <>
                       <Col>
                         <Form.Control
                           type="text"
                           placeholder="Enter Price"
                           value={
-                            selectedServices.find((s) => s.serviceName === service.serviceName)?.data[0]
-                              .price || ""
+                            additionalServices.data.find((s) => s.serviceName === service)?.price || ""
                           }
-                          onChange={(e) => handlePriceChange(service.serviceName, e.target.value)}
+                          onChange={(e) => handlePriceChange(service, e.target.value)}
                           style={{ marginTop: "5px", fontSize: "14px", float: "right" }}
                         />
                       </Col>
@@ -1583,10 +1550,9 @@ const CreatePurchaseOrder = (props) => {
                           type="text"
                           placeholder="Enter Qty"
                           value={
-                            selectedServices.find((s) => s.serviceName === service.serviceName)?.data[0]
-                              .qty || ""
+                            additionalServices.data.find((s) => s.serviceName === service)?.qty || ""
                           }
-                          onChange={(e) => handleQtyChange(service.serviceName, e.target.value)}
+                          onChange={(e) => handleQtyChange(service, e.target.value)}
                           style={{ marginTop: "5px", fontSize: "14px", float: "right" }}
                         />
                       </Col>
@@ -1598,36 +1564,41 @@ const CreatePurchaseOrder = (props) => {
           </Col>
           {/* Column 2 */}
           <Col lg={6}>
-            {valueAddedServices.slice(5).map((service) => (
-              <div key={service.serviceName} style={{ marginBottom: "10px" }}>
+            {[
+              "imageManagementService",
+              "virtualPrivateCloud",
+              "dns",
+              "monitoringService",
+              "securityGroups",
+              "accessControlList",
+            ].map((service) => (
+              <div key={service} style={{ marginBottom: "10px" }}>
                 <Form.Check
                   type="checkbox"
-                  label={service.serviceName
+                  label={service
                     .replace(/([A-Z])/g, " $1")
                     .replace(/^\w/, (c) => c.toUpperCase())}
-                  checked={selectedServices.some((s) => s.serviceName === service.serviceName)}
-                  onChange={() => handleCheckboxChange(service.serviceName)}
+                  checked={additionalServices.data.some((s) => s.serviceName === service)}
+                  onChange={() => handleCheckboxChange(service)}
                 />
-                {selectedServices.some((s) => s.serviceName === service.serviceName) && (
+                {additionalServices.data.some((s) => s.serviceName === service) && (
                   <>
                     <Form.Control
                       type="text"
                       placeholder="Enter Price"
                       value={
-                        selectedServices.find((s) => s.serviceName === service.serviceName)?.data[0]
-                          .price || ""
+                        additionalServices.data.find((s) => s.serviceName === service)?.price || ""
                       }
-                      onChange={(e) => handlePriceChange(service.serviceName, e.target.value)}
+                      onChange={(e) => handlePriceChange(service, e.target.value)}
                       style={{ marginTop: "5px", fontSize: "14px" }}
                     />
                     <Form.Control
                       type="text"
                       placeholder="Enter Qty"
                       value={
-                        selectedServices.find((s) => s.serviceName === service.serviceName)?.data[0].qty ||
-                        ""
+                        additionalServices.data.find((s) => s.serviceName === service)?.qty || ""
                       }
-                      onChange={(e) => handleQtyChange(service.serviceName, e.target.value)}
+                      onChange={(e) => handleQtyChange(service, e.target.value)}
                       style={{ marginTop: "5px", fontSize: "14px" }}
                     />
                   </>
@@ -1636,7 +1607,6 @@ const CreatePurchaseOrder = (props) => {
             ))}
           </Col>
         </Row>
-
         <div className="d-grid gap-2">
           <Button
             size="lg"

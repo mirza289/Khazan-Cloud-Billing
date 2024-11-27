@@ -48,9 +48,9 @@ const PurchaseOrderList = () => {
       .then(responsePayload => {
         let responseData = responsePayload.data.data
         // set the user object from the session
-         setSessionUser(responseData)
-         getUserList(responseData.company_id)
-         setCurrentCompanyId(responseData.company_id)
+        setSessionUser(responseData)
+        getUserList(responseData.company_id)
+        setCurrentCompanyId(responseData.company_id)
       })
       .catch(error => {
         if (error.response) {
@@ -67,9 +67,8 @@ const PurchaseOrderList = () => {
   const getUserList = () => {
     setUserList([])
     setListLoadingSpinner(true)
-    let formData = new FormData()
 
-    HttpClient.post('user/get-list', formData)
+    HttpClient.get('/po/get')
       .then(responsePayload => {
         let responseData = responsePayload.data.data
         setUserList(responseData)
@@ -104,8 +103,8 @@ const PurchaseOrderList = () => {
   const listCols = [
     {
       Header: <span className='table-heading-font'>Name</span>,
-      accessor: 'first_name',
-      width: 80,
+      accessor: 'name',
+      width: 50,
       Cell: ({ cell, row }) => (
         <>
           <Row>
@@ -117,7 +116,7 @@ const PurchaseOrderList = () => {
               />
             </Col>
             <Col>
-              <div>{cell.value + " " + row.original.last_name}</div>
+              <div>{cell.value}</div>
             </Col>
           </Row>
         </>
@@ -132,62 +131,22 @@ const PurchaseOrderList = () => {
       ),
     },
     {
-      Header: <span className='table-heading-font'>Company</span>,
-      accessor: 'company_name',
-      width: 40,
-      Cell: ({ cell, row }) => (
+      Header: <span className='table-heading-font'>NTN</span>,
+      accessor: 'ntn_number',
+      width: 30,
+      Cell: ({ cell }) => (
         <span>{cell.value}</span>
-      ),
-    },
-    {
-      Header: <span className='table-heading-font'>User Level</span>,
-      accessor: 'user_level',
-      width: 10,
-      Cell: ({ cell }) => (
-        <></>
-        // <span>
-        //   {
-        //     cell.value === 0 &&
-        //     <Badge className="badge-free">Free</Badge>
-        //   }
-        //   {
-        //     cell.value === 1 &&
-        //     <Badge className="badge-essentials">Essentials</Badge>
-        //   }
-        //   {
-        //     cell.value === 2 &&
-        //     <Badge className="badge-pro">Pro</Badge>
-        //   }
-        //   {
-        //     cell.value === 3 &&
-        //     <Badge className="badge-advanced">Advanced</Badge>
-        //   }
-        //   {
-        //     cell.value === 4 &&
-        //     <Badge className="badge-superadmin">Super Admin</Badge>
-        //   }
-        // </span>
-      ),
-    },
-    {
-      Header: <span className='table-heading-font'>Admin Roles</span>,
-      accessor: 'admin_roles',
-      width: 40,
-      Cell: ({ cell }) => (
-        <span>
-          { 
-            cell.value.length !==0 && 
-             "["+cell.value.join(", ")+"]"
-          }
-        </span>
       ),
     },
     {
       Header: <span className='table-heading-font'>Last Activity</span>,
-      accessor: 'last_login',
+      accessor: 'updated_at',
       width: 20,
       Cell: ({ cell }) => (
-        <span>{cell.value}</span>
+        <>
+          <div>{moment.utc(cell.value).local().fromNow()}</div>
+          <div style={{ fontSize: "10px" }}>{cell.value && moment(cell.value).local().format("MM-DD-YYYY HH:mm:ss")}</div>
+        </>
       ),
     },
     {
@@ -242,7 +201,7 @@ const PurchaseOrderList = () => {
       <div style={{ display: "flex", height: "100vh" }}>
         <AppHeader
           appTitle="Manage Users"
-          sessionUser={ sessionUser }
+          sessionUser={sessionUser}
           source="SystemAdmin"
         />
         {
@@ -254,7 +213,7 @@ const PurchaseOrderList = () => {
             </>
           ) : (
             <>
-              <SidebarMenu 
+              <SidebarMenu
                 sessionUser={sessionUser}
               />
               <main style={{ width: "100%", paddingTop: "60px" }}>
@@ -325,7 +284,7 @@ const PurchaseOrderList = () => {
                   <CreatePurchaseOrder
                     updateSliderState={updateSliderState}
                     companyId={currentCompanyId}
-                    source={ "UserManagement" }
+                    source={"UserManagement"}
                   />
                 }
                 {/* {
