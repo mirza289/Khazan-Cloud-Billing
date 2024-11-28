@@ -36,21 +36,11 @@ const CreatePurchaseOrder = (props) => {
   });
 
   useEffect(() => {
-    //checkUserSession()
+    if (props.source === "user-update") {
+      getUserRecord()
+    }
   }, [])
 
-  // check session user exists otherwise logout
-  const checkUserSession = () => {
-    HttpClient.get('auth/me')
-      .then(responsePayload => {
-        // set the user object from the session
-        // setSessionUser(responsePayload.data.data)
-      })
-      .catch(error => {
-        // in case of any error take the user to login page as this is unauthorized
-        navigate("/")
-      })
-  }
 
   const handleInputChangeUser = (field, value) => {
     setFormValues((prevState) => ({
@@ -65,7 +55,7 @@ const CreatePurchaseOrder = (props) => {
         [field]: "",
       }));
     }
-  };
+  }
 
   // handle create user
   const handleCreatePurchaseOrder = (e) => {
@@ -106,7 +96,7 @@ const CreatePurchaseOrder = (props) => {
       'serviceName': "networkServices",
       'data': networkServices
     }
-    
+
 
     let services = [
       ElasticService,
@@ -494,6 +484,18 @@ const CreatePurchaseOrder = (props) => {
   useEffect(() => {
     console.log(additionalServices)
   }, [additionalServices])
+
+  // check session user exists otherwise logout
+  const getUserRecord = () => {
+    HttpClient.get('po/get/' + props.userId)
+      .then(responsePayload => {
+
+      })
+      .catch(error => {
+        // in case of any error take the user to login page as this is unauthorized
+        // navigate("/")
+      })
+  }
 
   return (
     <Container fluid style={{ paddingRight: "0", paddingLeft: "0" }}>

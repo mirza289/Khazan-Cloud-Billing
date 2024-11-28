@@ -26,7 +26,7 @@ const PurchaseOrderList = () => {
   const [apiError, setApiError] = useState('')
   const [apiSessionError, setApiSessionError] = useState('')
   const [currentUserId, setCurrentUserId] = useState('')
-  const [currentCompanyId, setCurrentCompanyId] = useState('')
+  const [userId, setUserId] = useState('')
   const [listLoadingSpinner, setListLoadingSpinner] = useState(false)
   const [sliderState, setSliderState] = useState({
     isPaneOpen: false,
@@ -50,7 +50,7 @@ const PurchaseOrderList = () => {
         // set the user object from the session
         setSessionUser(responseData)
         getUserList(responseData.company_id)
-        setCurrentCompanyId(responseData.company_id)
+        setUserId(responseData.company_id)
       })
       .catch(error => {
         if (error.response) {
@@ -92,11 +92,11 @@ const PurchaseOrderList = () => {
     setSliderState({ isPaneOpen: true })
   }
 
-  const handleEditUser = (companyId, userId) => {
+  const handleEditUser = (userId) => {
     setSliderFormView("Edit")
     setSliderTitle("Edit User")
     setCurrentUserId(userId)
-    setCurrentCompanyId(companyId)
+    setUserId(userId)
     setSliderState({ isPaneOpen: true })
   }
 
@@ -171,7 +171,7 @@ const PurchaseOrderList = () => {
             size="sm"
             variant="light"
             style={{ marginLeft: "4px" }}
-            onClick={() => handleEditUser(row.original.company_id, row.original.user_id)}>
+            onClick={() => handleEditUser(row.original.id)}>
             <i className="las la-edit" style={{ fontSize: "20px" }}></i>
           </Button>
         </div>
@@ -283,20 +283,18 @@ const PurchaseOrderList = () => {
                   sliderFormView === 'Create' &&
                   <CreatePurchaseOrder
                     updateSliderState={updateSliderState}
-                    companyId={currentCompanyId}
-                    source={"UserManagement"}
+                    companyId={userId}
                   />
                 }
-                {/* {
+                {
                   sliderFormView === "Edit" &&
-                  <UserEdit
-                    sessionUser={sessionUser}
-                    userId={currentUserId}
-                    companyId={currentCompanyId}
+                  <CreatePurchaseOrder
                     updateSliderState={updateSliderState}
-                    source={ "UserManagement" }
+                    companyId={userId}
+                    source={"user-update"}
+                    userId={userId}
                   />
-                } */}
+                }
               </SlidingPane>
             </>
           )
