@@ -1,0 +1,64 @@
+{
+    "apiKey": "xJbDINQFZWacA82tYJSXzlOVnRQBgOaanPyTfiv9MokJCmBZe47FwCGB8AStJ674",
+    "mode": "production",
+    "documentTitle": "  ",
+    "title": "",
+    "images": {
+        "background": "https://drive.google.com/uc?id=1L2wa3DlDaK71bThZZ4nibZHQ8yoNQUzM&export=download"
+    },
+    "customize": {
+        "header": {
+            "html": "<div style='margin-top: 50px;'>My Custom Header</div>"
+        },
+        "footer": {
+            "html": "<div style='margin-top: 20px;'>My Custom Footer</div>"
+        }
+    },
+    "sender": {
+        "company": "KHAZANA ENTERPRISE (PVT) LIMITED",
+        "address": "NTC Building Ground Floor 6 - Race Course Road",
+        "zip": "54000",
+        "city": "Lahore",
+        "country": "Pakistan",
+        "NTN": "6672323-2"
+    },
+    "client": {
+        "company": "Client Corp",
+        "address": "Clientstreet 456",
+        "zip": "4567 CD",
+        "city": "Clientcity",
+        "country": "Clientcountry"
+    },
+    "information": {
+        "number": "2022.0001",
+        "date": "1.1.2022",
+        "due-date": "15.1.2022",
+        "title": "Helo "
+    },
+    "products": [
+        {
+            "quantity": "2",
+            "description": "Test1",
+            "tax-rate": 6,
+            "price": 33.87
+        },
+        {
+            "quantity": "4",
+            "description": "Test2",
+            "tax-rate": 21,
+            "price": 10.45
+        }
+    ],
+    "bottom-notice": "Kindly pay your invoice within 15 days.",
+    "settings": {
+        "currency": "USD",
+        "tax-notation": "vat",
+        "float": "right",
+        "margin-right": 50,
+        "margin-left": 50,
+        "margin-top":"1",
+        "margin-bottom": 0,
+        "width": 550,
+        "height": 712
+    }
+}

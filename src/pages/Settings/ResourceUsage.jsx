@@ -22,6 +22,8 @@ import { ListGroup } from 'react-bootstrap'
 import isEmpty from '../../utils/isEmpty'
 import Table from '../../shared/Table'
 import Accordion from 'react-bootstrap/Accordion'
+import InvoiceGenerator from './InvoiceGenerator'
+import invoice from './Invoice.json'
 
 
 const ResourceUsage = () => {
@@ -32,7 +34,7 @@ const ResourceUsage = () => {
   const [selectedInstanceList, setSelectedIntanceList] = useState([])
   const [unitCostList, setUnitCostList] = useState([]);
   const elementRefs = useRef([]);
-  const [listLoadingSpinner, setListLoadingSpinner] = useState(false);
+  const [listLoadingSpinner, setListLoadingSpinner] = useState(false)
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
     accept: 'audio/*',
     onDrop: acceptedFiles => {
@@ -41,15 +43,22 @@ const ResourceUsage = () => {
   })
 
   useEffect(() => {
-      if (!isEmpty(selectedService)  && elementRefs.current) {
-        // Find the index of the selected element
-        const index = selectedInstanceList.instance.findIndex(element => element["Resource ID"] === selectedService["Resource ID"]);
-        if (index !== -1 && elementRefs.current[index]) {
-          // Scroll the selected element into view
-          elementRefs.current[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+    if (!isEmpty(selectedService) && elementRefs.current) {
+      // Find the index of the selected element in the instance list
+      const index = selectedInstanceList.instances?.findIndex(
+        (element) => element["Resource ID"] === selectedService["Resource ID"]
+      );
+
+      if (index !== -1 && elementRefs.current[index]) {
+        // Scroll the selected element into view
+        elementRefs.current[index].scrollIntoView({
+          behavior: "smooth",
+          block: "center", // Center the element vertically in the viewport
+        });
       }
-  }, []);
+    }
+  }, [selectedService, selectedInstanceList]);
+
 
 
 
@@ -69,9 +78,9 @@ const ResourceUsage = () => {
         if (error.response) {
           setApiError(
             error.response.data.message +
-              "[" +
-              error.response.data.message_detail +
-              "]"
+            "[" +
+            error.response.data.message_detail +
+            "]"
           );
         } else if (error.request) {
           setApiError(error.request);
@@ -98,6 +107,7 @@ const ResourceUsage = () => {
       // Enable credentials if your API requires them
       // withCredentials: true,
     }
+    getUnitPriceList()
 
     HttpClient.post('/upload', formData, config)
       .then(responsePayload => {
@@ -134,12 +144,45 @@ const ResourceUsage = () => {
 
 
   useEffect(() => {
-    handelUploadResourceData()
+    if (acceptedFiles.length > 0)
+      handelUploadResourceData()
   }, [acceptedFiles])
 
-  useEffect(() => {
-    getUnitPriceList()
-  }, [])
+    const groupedInstances = resonseData?.regions[0]?.services.reduce(
+      (acc, service) => {
+        service.instances.forEach((instance) => {
+          if (instance["Service Type"] === "dedicated") {
+            acc.dedicated.push({ ...instance, serviceName: service.serviceName });
+          } else {
+            acc.cluster.push({ ...instance, serviceName: service.serviceName });
+          }
+        });
+        return acc;
+      },
+      { dedicated: [], cluster: [] }
+    );
+
+  const validServices = ["ecs", "evs", "eip", "eip-bandwidth"]; // List of valid service names
+
+  const calculatePrice = (seletecdService) => {
+
+    if (!isEmpty(selectedInstanceList)) {
+      const serviceName = selectedInstanceList.serviceName?.toLowerCase(); // Safely get the service name in lowercase
+      if (validServices.includes(serviceName)) {
+        // Calculate the total price for all instances
+        const totalPrice = selectedInstanceList.instances.reduce((total, instance) => {
+          // Accumulate the price of each instance
+          const price = instance["Usage Cost"] || 0; // Default to 0 if no price is provided
+          return total + price; // Add price to total
+        }, 0);
+
+        console.log(`Total price for ${serviceName}:`, totalPrice);
+        return totalPrice; // Return the total price
+      }
+
+    }
+  }
+
   return (
     <Container fluid style={{ paddingRight: "0", paddingLeft: "0" }}>
       <AppHeader />
@@ -148,11 +191,10 @@ const ResourceUsage = () => {
         <main style={{ width: "100%" }}>
           <div className="gutter-40x"></div>
           <div className="gutter-20x"></div>
-          <Row style={{ padding: "20px" }}>
+          <Row style={{ padding: "20px", paddingBottom: "10", paddingTop: "10" }}>
             <Col>
               <Card style={{ width: '100%', boxShadow: '0px 0px 5px 5px #e0e0e0' }}>
                 <Card.Body style={{ textAlign: "center", backgroundColor: "#f0f8ff" }}>
-                  <div className="gutter-10x"></div>
                   <div
                     id='DragFileArea'
                     style={{ textAlign: 'center', cursor: 'pointer' }}
@@ -167,9 +209,7 @@ const ResourceUsage = () => {
                     {acceptedFiles.length > 0 && <p>{acceptedFiles[0].name}</p>}
                     {showSpinner && <Spinner style={{ marginRight: 10, marginTop: 5 }} animation="border" size="sm" variant="dark" role="status" />}
                   </div>
-                  <div className="gutter-20x"></div>
                   {/* <Button variant="primary" disabled={acceptedFiles.length === 0} onClick={handelUploadResourceData}>Upload</Button> */}
-                  <div className="gutter-10x"></div>
                 </Card.Body>
               </Card>
             </Col>
@@ -192,28 +232,69 @@ const ResourceUsage = () => {
                   <div className='splitter'></div>
                   <div className="gutter-20x"></div>
                   <Accordion>
-                    {
-                      !isEmpty(resonseData) && resonseData.regions[0].services.map((service, index) => (
-                        <Accordion.Item eventKey={index} onClick={() => setSelectedIntanceList(service)}>
-                          <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>{service.serviceName}</Accordion.Header>
-                          <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: 'auto', maxHeight: '20vh' }}>
-                            <ListGroup variant="flush">
-                              {service.instances.map((item, index) => (
-                                <ListGroup.Item onClick={() => handleSelectService(item)} style={{ backgroundColor: '#c0e2ff', borderRadius: '6px', marginBottom: '5px', cursor: 'pointer', fontSize: '14px' }} key={index}>{item["Resource Name"]}
-                                  {item["Service Type"] &&
-                                    item["Service Type"] === "dedicated" ?
-                                    <Badge bg="success" style={{ float: "right" }}>{item["Service Type"]}</Badge>
-                                    :
-                                    <Badge bg="primary" style={{ float: "right" }}>{item["Service Type"]}</Badge>
-                                  }
-                                </ListGroup.Item>
-                              ))
-                              }
-                            </ListGroup>
-                          </Accordion.Body>
-                        </Accordion.Item>
-                      ))
-                    }
+                    {/* Dedicated ECS Accordion */}
+                    <Accordion.Item eventKey="0">
+                      <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>
+                        Dedicated ECS
+                      </Accordion.Header>
+                      <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: "auto", maxHeight: "20vh" }}>
+                        <ListGroup variant="flush">
+                          {groupedInstances.dedicated.map((item, index) => (
+                            <ListGroup.Item
+                              key={`dedicated-${index}`}
+                              onClick={() => handleSelectService(item)}
+                              style={{
+                                backgroundColor: "#c0e2ff",
+                                borderRadius: "6px",
+                                marginBottom: "5px",
+                                cursor: "pointer",
+                                fontSize: "14px",
+                              }}
+                            >
+                              {item["Resource Name"]}
+                              <Badge bg="warning" style={{ float: "left" }}>
+                                {item.serviceName}
+                              </Badge>
+                              <Badge bg="success" style={{ float: "right" }}>
+                                {item["Service Type"]}
+                              </Badge>
+                            </ListGroup.Item>
+                          ))}
+                        </ListGroup>
+                      </Accordion.Body>
+                    </Accordion.Item>
+
+                    {/* Cluster ECS Accordion */}
+                    <Accordion.Item eventKey="1">
+                      <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>
+                        Cluster ECS
+                      </Accordion.Header>
+                      <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: "auto", maxHeight: "20vh" }}>
+                        <ListGroup variant="flush">
+                          {groupedInstances.cluster.map((item, index) => (
+                            <ListGroup.Item
+                              key={`cluster-${index}`}
+                              onClick={() => handleSelectService(item)}
+                              style={{
+                                backgroundColor: "#c0e2ff",
+                                borderRadius: "6px",
+                                marginBottom: "5px",
+                                cursor: "pointer",
+                                fontSize: "14px",
+                              }}
+                            >
+                              {item["Resource Name"]}
+                              <Badge bg="warning" style={{ float: "left" }}>
+                                {item.serviceName}
+                              </Badge>
+                              <Badge bg="primary" style={{ float: "right" }}>
+                                {item["Service Type"]}
+                              </Badge>
+                            </ListGroup.Item>
+                          ))}
+                        </ListGroup>
+                      </Accordion.Body>
+                    </Accordion.Item>
                   </Accordion>
                   <div className="gutter-20x"></div>
                 </Card.Body>
@@ -223,63 +304,17 @@ const ResourceUsage = () => {
               <Card style={{ width: '100%', backgroundColor: "#f0f8ff" }}>
                 <Card.Body>
                   <div className="gutter-20x"></div>
-                  {!isEmpty(selectedService) && (
-                    <>
-                    </>
-                    // <>
-                    //   {Object.keys(selectedService)
-                    //     .sort((a, b) => {
-                    //       // Define the fixed keys that must always appear on top
-                    //       const fixedKeys = ["Resource ID", "Resource Name"];
-
-                    //       // Check if both keys are in the fixed set
-                    //       const isAInFixed = fixedKeys.includes(a);
-                    //       const isBInFixed = fixedKeys.includes(b);
-
-                    //       // Ensure fixed keys always come first and in their defined order
-                    //       if (isAInFixed && isBInFixed) {
-                    //         return fixedKeys.indexOf(a) - fixedKeys.indexOf(b);
-                    //       }
-                    //       if (isAInFixed) return -1; // Fixed keys always come before others
-                    //       if (isBInFixed) return 1;
-
-                    //       // Sort other keys dynamically (alphabetically or as needed)
-                    //       return a.localeCompare(b);
-                    //     })
-                    //     .map((key) => (
-                    //       <div key={key}>
-                    //         <Row>
-                    //           <Col style={{ float: "left", fontWeight: "bold" }}>
-                    //             {key.replace(/([A-Z])/g, "$1").replace(/^./, (str) => str.toUpperCase())}
-                    //           </Col>
-                    //           <Col style={{ float: "right" }}>
-                    //             {/* {key === "Metering Metric" ? (
-                    //               <Badge bg="secondary" style={{ fontSize: "14px", padding: "10px" }}>
-                    //                 {selectedService[key]}
-                    //               </Badge>
-                    //             ) : (
-                    //               <span>{selectedService[key]}</span>
-                    //             )} */}
-                    //             {key !== "Metering Metric" && key !== "Meter Begin Time (UTC+05:00)" && key !== "Meter End Time (UTC+05:00)" && <span>{selectedService[key]}</span>}
-                    //             {key === "Metering Metric" && <Badge bg="secondary" style={{ fontSize: "14px", padding: "10px" }}> {selectedService[key]}  </Badge>}
-                    //             {key === "Meter Begin Time (UTC+05:00)" && <span style={{ fontSize: "14px", color: "#717171" }}>{moment(selectedService[key]).local().format('MM-DD-YYYY HH:mm:ss')}</span>}
-                    //             {key === "Meter End Time (UTC+05:00)" && <span style={{ fontSize: "14px", color: "#717171" }}>{moment(selectedService[key]).local().format('MM-DD-YYYY HH:mm:ss')}</span>}
-                    //           </Col>
-                    //         </Row>
-                    //         <div className="gutter-10x"></div>
-                    //       </div>
-                    //     ))}
-                    // </>
-                  )}
-
                   <div style={{ height: '50vh', overflowY: "auto", overflowX: "hidden" }}>
                     {selectedInstanceList.length !== 0 &&
                       selectedInstanceList.instances.map((instance, i) => (
                         <div ref={(el) => elementRefs.current[i] = el}
-                        key={instance["Resource ID"]} style={{ marginBottom: "20px" }}>
+                          key={i} style={{ marginBottom: "20px" }}>
                           <div style={{ padding: 20, backgroundColor: "white", borderRadius: 6 }}>
                             <Badge bg="warning" style={{ fontSize: "14px", padding: "10px" }}>
                               {selectedInstanceList.serviceName + " " + (i + 1)}
+                            </Badge>
+                            <Badge bg="success" style={{ fontSize: "14px", padding: "10px", float: "right" }}>
+                              {'Price: $ ' + instance["Usage Cost"].toFixed(2)}
                             </Badge>
                             <div className='gutter-10x'> </div>
                             <div className='splitter'> </div>
@@ -319,6 +354,33 @@ const ResourceUsage = () => {
                   </div>
                   <div className="gutter-20x"></div>
                   <div className='splitter'></div>
+
+                  {selectedInstanceList.length !== 0 && validServices.includes((selectedInstanceList.serviceName).toLowerCase()) &&
+                    <Row style={{ fontSize: "14px", fontWeight: "bold", padding: 20, backgroundColor: "white", borderRadius: 6 }}>
+                      <Col>
+                      </Col>
+                      <Col>
+                        <Badge bg="light" style={{ fontSize: "18px", padding: "10px", color: "black" }}>
+                          {'Total Service Cost : $' + calculatePrice(selectedInstanceList).toFixed(2)}
+                        </Badge>
+                      </Col>
+                    </Row>
+                  }
+
+                  <Button
+                    size="sm"
+                    variant="light"
+                    style={{ marginLeft: "4px" }}
+                    onClick={() => {
+                      const key = 'invoiceData';
+                      localStorage.setItem(key, JSON.stringify(invoice)); // Save to local storage
+                      window.open('/settings/generate-invoice', '_blank'); // Open the new tab
+                    }}
+                  >
+                    Preview Invoice
+                  </Button>
+
+                  {/* <InvoiceGenerator /> */}
                   <div className="gutter-10x"></div>
                 </Card.Body>
               </Card>

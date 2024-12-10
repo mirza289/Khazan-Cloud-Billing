@@ -17,7 +17,7 @@ import HttpClient from '../../api/HttpClient'
 import SidebarMenu from '../../components/SidebarMenu'
 import AppHeader from '../../components/AppHeader'
 import Table from '../../shared/Table'
-import CreatePurchaseOrder from './components/CreatePurchaseOrder'
+import CreatePurchaseOrder from './CreatePurchaseOrder'
 
 const PurchaseOrderList = () => {
   const navigate = useNavigate()
