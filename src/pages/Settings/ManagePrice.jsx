@@ -32,6 +32,7 @@ const ManagePrice = () => {
       .then((responsePayload) => {
         let responseData = responsePayload.data;
         setUnitCostList(responseData.unit_costs);
+        localStorage.setItem("unitCost", JSON.stringify(responseData.unit_costs));
         console.log(responseData);
         setListLoadingSpinner(false);
       })
@@ -50,7 +51,7 @@ const ManagePrice = () => {
           setApiError(error.message);
         }
       });
-  };
+  }
 
   const handleUserListReload = () => {
     getUnitPriceList();

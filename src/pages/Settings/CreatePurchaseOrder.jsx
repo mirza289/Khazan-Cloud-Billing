@@ -50,6 +50,13 @@ const CreatePurchaseOrder = (props) => {
     }
   }, [])
 
+
+  useEffect(() => {
+    // Fetch data from local storage
+    const storedData = JSON.parse(localStorage.getItem("unitCost"));
+    console.log(`Data fetched: ${JSON.stringify(storedData)}`)
+  }, [])
+
   const handleInputChangeUser = (field, value) => {
     setFormValues((prevState) => ({
       ...prevState,
@@ -429,14 +436,14 @@ const CreatePurchaseOrder = (props) => {
           setNetworkServices={setNetworkServices}
         />
 
-       {/* -------------------------------------------------------- Value Added Services ---------------------------------------------------------*/}
+        {/* -------------------------------------------------------- Value Added Services ---------------------------------------------------------*/}
 
-        <ValueAddedService 
-        additionalServices={additionalServices}
-        setAdditionalServices={setAdditionalServices}
+        <ValueAddedService
+          additionalServices={additionalServices}
+          setAdditionalServices={setAdditionalServices}
         />
 
-       
+
       </Form>
     </Container>
   )

@@ -34,6 +34,7 @@ const PurchaseOrderList = () => {
   })
   const [sliderTitle, setSliderTitle] = useState('Create User')
   const [sliderFormView, setSliderFormView] = useState('CreateUser')
+  const [unitCostList, setUnitCostList] = useState([]);
 
 
   useEffect(() => {
@@ -73,6 +74,7 @@ const PurchaseOrderList = () => {
         let responseData = responsePayload.data.data
         setUserList(responseData)
         setListLoadingSpinner(false)
+        getUnitPriceList()
       })
       .catch(error => {
         setListLoadingSpinner(false)
@@ -195,6 +197,35 @@ const PurchaseOrderList = () => {
     }))
     getUserList()
   }
+
+
+  const getUnitPriceList = () => {
+    setUnitCostList([]);
+    setListLoadingSpinner(true);
+
+    HttpClient.get("/unit-costs")
+      .then((responsePayload) => {
+        let responseData = responsePayload.data;
+        setUnitCostList(responseData.unit_costs);
+        console.log(responseData);
+        setListLoadingSpinner(false);
+      })
+      .catch((error) => {
+        setListLoadingSpinner(false);
+        if (error.response) {
+          setApiError(
+            error.response.data.message +
+            "[" +
+            error.response.data.message_detail +
+            "]"
+          );
+        } else if (error.request) {
+          setApiError(error.request);
+        } else {
+          setApiError(error.message);
+        }
+      });
+  };
 
   return (
     <Container fluid style={{ paddingRight: "0", paddingLeft: "0" }}>

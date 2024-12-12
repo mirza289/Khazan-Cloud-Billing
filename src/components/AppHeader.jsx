@@ -6,11 +6,33 @@ import { useNavigate, useLocation, useParams } from 'react-router-dom'
 
 //
 import Gravatar from 'react-gravatar'
+import HttpClient from '../api/HttpClient';
 
 function AppHeader(props) {
   const currentUrlLocaltion = useLocation()
   const navigate = useNavigate()
   const { survey_id } = useParams()
+
+  
+  useEffect(() => {
+      getUnitPriceList()
+  }, [])
+
+  const getUnitPriceList = () => {
+    
+    HttpClient.get("/unit-costs")
+      .then((responsePayload) => {
+        let responseData = responsePayload.data;
+        localStorage.setItem("unitCost", JSON.stringify(responseData.unit_costs));
+      })
+      .catch((error) => {
+        if (error.response) {
+         
+        } else if (error.request) {
+        } else {
+        }
+      });
+  };
 
   return (
     <Navbar
