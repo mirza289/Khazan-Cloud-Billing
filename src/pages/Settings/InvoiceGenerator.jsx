@@ -1,124 +1,180 @@
-import React, { useState, useEffect } from 'react';
-import easyinvoice from 'easyinvoice';
-import invoice from './Invoice.json'
-const InvoiceGenerator = () => {
-    const [pdfData, setPdfData] = useState(null); // State to hold the generated PDF data
-    const [invoiceData, setInvoiceData] = useState(null);
+import React, { useState } from 'react';
+import { Container, Row, Col, Table, Button, Form, Image } from 'react-bootstrap';
+import generatePDF, { Options } from 'react-to-pdf';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-    useEffect(() => {
-        const key = 'invoiceData';
-        const data = localStorage.getItem(key); 
-        if (data) {
-          setInvoiceData(JSON.parse(data)); 
-        }
-        console.log(data)
-      }, []);
+const options = {
+  filename: 'invoice.pdf',
+  page: {
+    margin: 20,
+  },
+}
 
-    const generateInvoice = async () => {
+function InvoiceGenerator() {
+  const [items, setItems] = useState([
+    { description: 'Brochure Design', quantity: 2, rate: 100, amount: 200 },
+  ]);
+  const [taxRate, setTaxRate] = useState(18);
+  const [discount, setDiscount] = useState(0);
+  const [notes, setNotes] = useState('It was great doing business with you.');
+  const [terms, setTerms] = useState('Please make the payment by the due date.');
 
-        // const invoiceData = {
-        //     documentTitle: "Tax Invoice",
-        //     logo: "https://khazanapk.com/wp-content/uploads/2023/01/KEL-Logo-for-Website-header-02.png", // Add your logo URL
-        //     sender: {
-        //         company: "Khazana Cloud",
-        //         address: "123 Corporate Way",
-        //         zip: "90210",
-        //         city: "Innovation City",
-        //         country: "Techland",
-        //         custom1: "Email: info@yourcompany.com",
-        //         custom2: "Phone: +1 123 456 7890",
-        //     },
-        //     client: {
-        //         company: "Valued Client",
-        //         address: "789 Client Street",
-        //         zip: "45678",
-        //         city: "Client City",
-        //         country: "Client Country",
-        //         custom1: "Email: client@example.com",
-        //     },
-        //     invoiceNumber: "INV-2024-001",
-        //     invoiceDate: "2024-11-29",
-        //     dueDate: "2024-12-10",
-        //     currency: "USD",
-        //     taxNotation: "vat",
-        //     items: [
-        //         {
-        //             quantity: 2,
-        //             description: "Premium Product",
-        //             tax: 5,
-        //             price: 150,
-        //         },
-        //         {
-        //             quantity: 1,
-        //             description: "Service Package",
-        //             tax: 10,
-        //             price: 300,
-        //         },
-        //     ],
-        //     bottomNotice: "This invoice was generated with EasyInvoice. Thanks for your business!",
-        //     footer: {
-        //         text: "Your Cool Company © 2024 - All Rights Reserved",
-        //     },
-        //     customize: {
-        //         background: "#f0f0f0", // Background color
-        //         color: "#333333", // Text color
-        //         header: { color: "#4CAF50", height: 80 }, // Header styles
-        //         footer: { color: "#777777", height: 50 }, // Footer styles
-        //     },
-        // }
+  const handleAddItem = () => {
+    setItems([...items, { description: '', quantity: 1, rate: 0, amount: 0 }]);
+  };
 
-        const invoiceData = invoice
+  const handleItemChange = (index, field, value) => {
+    const updatedItems = [...items];
+    updatedItems[index][field] = value;
+    if (field === 'quantity' || field === 'rate') {
+      updatedItems[index].amount = updatedItems[index].quantity * updatedItems[index].rate;
+    }
+    setItems(updatedItems);
+  };
 
+  const subTotal = items.reduce((sum, item) => sum + item.amount, 0);
+  const discountAmount = (subTotal * discount) / 100;
+  const taxableAmount = subTotal - discountAmount;
+  const tax = (taxableAmount * taxRate) / 100;
+  const total = taxableAmount + tax;
 
-        try {
-            const result = await easyinvoice.createInvoice(invoiceData);
-            setPdfData(result.pdf); // Set the generated PDF data (base64 string) to state
-        } catch (error) {
-            console.error("Error generating invoice:", error);
-        }
-    };
+  const getTargetElement = () => document.getElementById('invoice-container');
 
-    const downloadInvoice = () => {
-        if (pdfData) {
-            easyinvoice.download("invoice.pdf", pdfData);
-        }
-    };
+  const downloadPdf = () => generatePDF(getTargetElement, options);
 
-    return (
-        <div style={{ textAlign: "center", marginTop: "20px" }}>
-            <h1>Invoice Generator</h1>
-            <button onClick={generateInvoice} style={{ padding: "10px 20px", fontSize: "16px", margin: "10px" }}>
-                Generate Invoice
-            </button>
-            <button
-                onClick={downloadInvoice}
-                style={{
-                    padding: "10px 20px",
-                    fontSize: "16px",
-                    margin: "10px",
-                    backgroundColor: "#4CAF50",
-                    color: "white",
-                    border: "none",
-                    cursor: "pointer",
-                }}
-                disabled={!pdfData} // Disable the button if no PDF data is available
-            >
-                Download Invoice
-            </button>
-            {pdfData && (
-                <div style={{ marginTop: "20px" }}>
-                    <h3>Invoice Preview:</h3>
-                    <iframe
-                        src={`data:application/pdf;base64,${pdfData}`}
-                        title="Invoice Preview"
-                        width="100%"
-                        height="1200px"
-                        style={{ border: "1px solid #ddd" }}
-                    ></iframe>
-                </div>
-            )}
-        </div>
-    );
-};
+  return (
+    <Container>
+      <Row className="my-4">
+        <Col md={12} className="text-end">
+          <Button variant="primary" onClick={downloadPdf}>Download PDF</Button>
+        </Col>
+      </Row>
+      <div id="invoice-container">
+        <Row className="my-4">
+          <Col md={6}>
+            <Image src="/KEL-Logo-for-Website-header-02.png" style={{height:250}} alt="Company Logo" className="mb-3" />
+            <h5>Your Company</h5>
+            <p>Your Name</p>
+            <p>Company's Address</p>
+            <p>City, State Zip</p>
+            <p>Pakistan</p>
+          </Col>
+          <Col md={6} className="text-end">
+            <div className='gutter-40x'></div>
+            <div className='gutter-20x'></div>
+            <h1>INVOICE</h1>
+            <p><strong>Invoice#:</strong> INV-12</p>
+            <p><strong>Invoice Date:</strong> Dec 19, 2024</p>
+            <p><strong>Due Date:</strong> Jan 18, 2025</p>
+          </Col>
+        </Row>
+        <Row>
+          <Col md={6}>
+            <h6>Bill To:</h6>
+            <p>Your Client's Name</p>
+            <p>Client's Address</p>
+            <p>City, State Zip</p>
+            <p>United States</p>
+          </Col>
+        </Row>
+        <Table striped bordered hover className="my-4">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Qty</th>
+              <th>Rate</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item, index) => (
+              <tr key={index}>
+                <td>
+                  <Form.Control
+                    type="text"
+                    value={item.description}
+                    onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                  />
+                </td>
+                <td>
+                  <Form.Control
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) => handleItemChange(index, 'quantity', Number(e.target.value))}
+                  />
+                </td>
+                <td>
+                  <Form.Control
+                    type="number"
+                    value={item.rate}
+                    onChange={(e) => handleItemChange(index, 'rate', Number(e.target.value))}
+                  />
+                </td>
+                <td>{item.amount.toFixed(2)}</td>
+              </tr>
+            ))}
+            <tr>
+              <td colSpan={4} className="text-center">
+                <Button variant="success" onClick={handleAddItem}>Add Line Item</Button>
+              </td>
+            </tr>
+          </tbody>
+        </Table>
+        <Row>
+          <Col md={{ span: 4, offset: 8 }}>
+            <Table bordered>
+              <tbody>
+                <tr>
+                  <td>Sub Total</td>
+                  <td>{subTotal.toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td>Discount (%)</td>
+                  <td>
+                    <Form.Control
+                      type="number"
+                      value={discount}
+                      onChange={(e) => setDiscount(Number(e.target.value))}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Sale Tax ({taxRate}%)</td>
+                  <td>{tax.toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td><strong>TOTAL</strong></td>
+                  <td><strong>{total.toFixed(2)}</strong></td>
+                </tr>
+              </tbody>
+            </Table>
+          </Col>
+        </Row>
+        <Row className="my-4">
+          <Col>
+            <h6>Notes</h6>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+          </Col>
+        </Row>
+        <Row className="my-4">
+          <Col>
+            <h6>Terms & Conditions</h6>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={terms}
+              onChange={(e) => setTerms(e.target.value)}
+            />
+          </Col>
+        </Row>
+      </div>
+    </Container>
+  );
+}
 
-export default InvoiceGenerator;
+export default InvoiceGenerator

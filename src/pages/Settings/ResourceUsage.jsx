@@ -59,37 +59,6 @@ const ResourceUsage = () => {
     }
   }, [selectedService, selectedInstanceList]);
 
-
-
-
-  const getUnitPriceList = () => {
-    setUnitCostList([]);
-    setListLoadingSpinner(true);
-
-    HttpClient.get("/unit-costs")
-      .then((responsePayload) => {
-        let responseData = responsePayload.data;
-        setUnitCostList(responseData.unit_costs);
-        console.log(responseData);
-        setListLoadingSpinner(false);
-      })
-      .catch((error) => {
-        setListLoadingSpinner(false);
-        if (error.response) {
-          setApiError(
-            error.response.data.message +
-            "[" +
-            error.response.data.message_detail +
-            "]"
-          );
-        } else if (error.request) {
-          setApiError(error.request);
-        } else {
-          setApiError(error.message);
-        }
-      });
-  };
-
   const handelUploadResourceData = (e) => {
     setShowSpinner(true)
     // continue if no validation errors
@@ -107,13 +76,18 @@ const ResourceUsage = () => {
       // Enable credentials if your API requires them
       // withCredentials: true,
     }
-    getUnitPriceList()
 
     HttpClient.post('/upload', formData, config)
       .then(responsePayload => {
         setShowSpinner(false)
-        console.log(responsePayload.data)
-        setResonseData(responsePayload.data)
+
+        let data = processECSData(responsePayload.data)
+        setResonseData(data)
+
+        console.log("----call-------")
+
+        let prices = calculateServiceCosts(data)
+        // console.log("-----------" + prices)
       })
       .catch(error => {
         setShowSpinner(false)
@@ -127,6 +101,30 @@ const ResourceUsage = () => {
 
       })
   }
+
+  const [servicesSummary, setServicesSummary] = useState([]);
+
+  // Function to calculate total costs for each service
+  const calculateServiceCosts = (data) => {
+    const summary = [];
+
+    data.regions.forEach(region => {
+      region.services.forEach(service => {
+        const serviceName = service.serviceName;
+        const totalCost = service.instances.reduce((sum, instance) => {
+          return sum + (instance['Usage Cost'] || 0);
+        }, 0);
+
+        // Push an object with serviceName and total cost
+        summary.push({
+          serviceName: serviceName,
+          totalCost: totalCost.toFixed(2)
+        });
+      });
+    });
+    console.log(summary)
+    setServicesSummary(summary);
+  };
 
 
   const handleSelectService = (item) => {
@@ -148,21 +146,48 @@ const ResourceUsage = () => {
       handelUploadResourceData()
   }, [acceptedFiles])
 
-    const groupedInstances = resonseData?.regions[0]?.services.reduce(
-      (acc, service) => {
-        service.instances.forEach((instance) => {
-          if (instance["Service Type"] === "dedicated") {
-            acc.dedicated.push({ ...instance, serviceName: service.serviceName });
-          } else {
-            acc.cluster.push({ ...instance, serviceName: service.serviceName });
-          }
-        });
-        return acc;
-      },
-      { dedicated: [], cluster: [] }
-    );
 
-  const validServices = ["ecs", "evs", "eip", "eip-bandwidth"]; // List of valid service names
+  function processECSData(data) {
+    const regions = data.regions;
+
+    regions.forEach(region => {
+      const ecsService = region.services.find(service => service.serviceName === "ECS");
+
+      if (ecsService) {
+        // Extract clustered and dedicated instances
+        const clusteredInstances = ecsService.instances.clustered || [];
+        const dedicatedInstances = ecsService.instances.dedicated || [];
+
+        // Transform the data
+        const clustered = {
+          serviceName: "ECS-cluster",
+          instances: clusteredInstances.map(instance => ({
+            "Resource Name": instance["Resource Name"] || instance["Resource ID"],
+            "Usage Cost": instance["Usage Cost"],
+            "Usage Duration": instance["Usage Duration"]
+          }))
+        };
+
+        const dedicated = {
+          serviceName: "ECS-dedicated",
+          instances: dedicatedInstances.map(instance => ({
+            "Resource Name": instance["Resource Name"] || instance["Resource ID"],
+            "Usage Cost": instance["Usage Cost"],
+            "Usage Duration": instance["Usage Duration"]
+          }))
+        };
+
+        // Add the new objects to the services array
+        region.services = region.services.filter(service => service.serviceName !== "ECS");
+        region.services.push(clustered, dedicated);
+      }
+    });
+
+    return data;
+  }
+
+
+  const validServices = ["ecs", "evs", "eip", "eip-bandwidth", 'ecs-cluster', 'ecs-dedicated']; // List of valid service names
 
   const calculatePrice = (seletecdService) => {
 
@@ -176,10 +201,8 @@ const ResourceUsage = () => {
           return total + price; // Add price to total
         }, 0);
 
-        console.log(`Total price for ${serviceName}:`, totalPrice);
         return totalPrice; // Return the total price
       }
-
     }
   }
 
@@ -227,74 +250,35 @@ const ResourceUsage = () => {
                       <Col>
                         <span style={{ color: "#717171", fontSize: '16px', float: "right" }}><i style={{ fontSize: '22px', color: "#717171" }} className="las la-globe-asia"></i> Pakistan</span>
                       </Col>
-                    </Row>}
+                    </Row>
+                  }
                   <div className="gutter-10x"></div>
                   <div className='splitter'></div>
                   <div className="gutter-20x"></div>
                   <Accordion>
-                    {/* Dedicated ECS Accordion */}
-                    <Accordion.Item eventKey="0">
-                      <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>
-                        Dedicated ECS
-                      </Accordion.Header>
-                      <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: "auto", maxHeight: "20vh" }}>
-                        <ListGroup variant="flush">
-                          {groupedInstances.dedicated.map((item, index) => (
-                            <ListGroup.Item
-                              key={`dedicated-${index}`}
-                              onClick={() => handleSelectService(item)}
-                              style={{
-                                backgroundColor: "#c0e2ff",
-                                borderRadius: "6px",
-                                marginBottom: "5px",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                              }}
-                            >
-                              {item["Resource Name"]}
-                              <Badge bg="warning" style={{ float: "left" }}>
-                                {item.serviceName}
-                              </Badge>
-                              <Badge bg="success" style={{ float: "right" }}>
-                                {item["Service Type"]}
-                              </Badge>
-                            </ListGroup.Item>
-                          ))}
-                        </ListGroup>
-                      </Accordion.Body>
-                    </Accordion.Item>
-
-                    {/* Cluster ECS Accordion */}
-                    <Accordion.Item eventKey="1">
-                      <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>
-                        Cluster ECS
-                      </Accordion.Header>
-                      <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: "auto", maxHeight: "20vh" }}>
-                        <ListGroup variant="flush">
-                          {groupedInstances.cluster.map((item, index) => (
-                            <ListGroup.Item
-                              key={`cluster-${index}`}
-                              onClick={() => handleSelectService(item)}
-                              style={{
-                                backgroundColor: "#c0e2ff",
-                                borderRadius: "6px",
-                                marginBottom: "5px",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                              }}
-                            >
-                              {item["Resource Name"]}
-                              <Badge bg="warning" style={{ float: "left" }}>
-                                {item.serviceName}
-                              </Badge>
-                              <Badge bg="primary" style={{ float: "right" }}>
-                                {item["Service Type"]}
-                              </Badge>
-                            </ListGroup.Item>
-                          ))}
-                        </ListGroup>
-                      </Accordion.Body>
-                    </Accordion.Item>
+                    {
+                      !isEmpty(resonseData) && resonseData.regions[0].services.map((service, index) => (
+                        <Accordion.Item eventKey={index} onClick={() => setSelectedIntanceList(service)}>
+                          <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>{service.serviceName}</Accordion.Header>
+                          <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: 'auto', maxHeight: '20vh' }}>
+                            <ListGroup variant="flush">
+                              {
+                                (service.instances.map((item, index) => (
+                                  <ListGroup.Item onClick={() => handleSelectService(item)} style={{ backgroundColor: '#c0e2ff', borderRadius: '6px', marginBottom: '5px', cursor: 'pointer', fontSize: '14px' }} key={index}>{item["Resource Name"]}
+                                    {item["Service Type"] &&
+                                      item["Service Type"] === "dedicated" ?
+                                      <Badge bg="success" style={{ float: "right" }}>{item["Service Type"]}</Badge>
+                                      :
+                                      <Badge bg="primary" style={{ float: "right" }}>{item["Service Type"]}</Badge>
+                                    }
+                                  </ListGroup.Item>
+                                )))
+                              }
+                            </ListGroup>
+                          </Accordion.Body>
+                        </Accordion.Item>
+                      ))
+                    }
                   </Accordion>
                   <div className="gutter-20x"></div>
                 </Card.Body>
@@ -388,7 +372,7 @@ const ResourceUsage = () => {
           </Row>
         </main>
       </div>
-    </Container>
+    </Container >
   )
 }
 export default ResourceUsage

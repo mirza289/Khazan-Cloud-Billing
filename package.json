@@ -19,11 +19,13 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-gravatar": "^2.6.3",
+    "react-pdf": "^9.1.1",
     "react-pro-sidebar": "^1.1.0-alpha.1",
     "react-router-dom": "^6.13.0",
     "react-scripts": "^5.0.1",
     "react-sliding-pane": "^7.3.0",
     "react-table": "^7.8.0",
+    "react-to-pdf": "^1.0.1",
     "react-toastify": "^10.0.5",
     "styled-components": "^6.0.5",
     "web-vitals": "^4.1.4"
