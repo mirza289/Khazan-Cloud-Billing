@@ -32,7 +32,7 @@ const ResourceUsage = () => {
   const [resonseData, setResonseData] = useState({})
   const [selectedService, setSelectedService] = useState({})
   const [selectedInstanceList, setSelectedIntanceList] = useState([])
-  const [unitCostList, setUnitCostList] = useState([]);
+  const [servicesCostList, setServicesCostList] = useState([]);
   const elementRefs = useRef([]);
   const [listLoadingSpinner, setListLoadingSpinner] = useState(false)
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
@@ -85,9 +85,7 @@ const ResourceUsage = () => {
         setResonseData(data)
 
         console.log("----call-------")
-
-        let prices = calculateServiceCosts(data)
-        // console.log("-----------" + prices)
+        setServicesCostList(calculateServiceCosts(data))
       })
       .catch(error => {
         setShowSpinner(false)
@@ -357,7 +355,7 @@ const ResourceUsage = () => {
                     style={{ marginLeft: "4px" }}
                     onClick={() => {
                       const key = 'invoiceData';
-                      localStorage.setItem(key, JSON.stringify(invoice)); // Save to local storage
+                      localStorage.setItem(key, JSON.stringify(servicesCostList)); // Save to local storage
                       window.open('/settings/generate-invoice', '_blank'); // Open the new tab
                     }}
                   >

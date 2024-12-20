@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Table, Button, Form, Image } from 'react-bootstrap';
 import generatePDF, { Options } from 'react-to-pdf';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -18,6 +18,8 @@ function InvoiceGenerator() {
   const [discount, setDiscount] = useState(0);
   const [notes, setNotes] = useState('It was great doing business with you.');
   const [terms, setTerms] = useState('Please make the payment by the due date.');
+  const storedData = localStorage.getItem('invoiceData');
+
 
   const handleAddItem = () => {
     setItems([...items, { description: '', quantity: 1, rate: 0, amount: 0 }]);
@@ -42,6 +44,11 @@ function InvoiceGenerator() {
 
   const downloadPdf = () => generatePDF(getTargetElement, options);
 
+  useEffect(() => {
+    console.log("---------------------")
+    console.log(storedData)
+  }, [storedData])
+
   return (
     <Container>
       <Row className="my-4">
@@ -52,11 +59,11 @@ function InvoiceGenerator() {
       <div id="invoice-container">
         <Row className="my-4">
           <Col md={6}>
-            <Image src="/KEL-Logo-for-Website-header-02.png" style={{height:250}} alt="Company Logo" className="mb-3" />
-            <h5>Your Company</h5>
-            <p>Your Name</p>
-            <p>Company's Address</p>
-            <p>City, State Zip</p>
+            <Image src="/KEL-Logo-for-Website-header-02.png" style={{ height: 250 }} alt="Company Logo" className="mb-3" />
+            <h5>KHAZANA ENTERPRISE (PVT) LIMITED</h5>
+            <p>NTC Building, Ground Floor <br />
+              6 - Race Course Road, Lahore</p>
+            <p>Lahore, 54000</p>
             <p>Pakistan</p>
           </Col>
           <Col md={6} className="text-end">
@@ -64,6 +71,7 @@ function InvoiceGenerator() {
             <div className='gutter-20x'></div>
             <h1>INVOICE</h1>
             <p><strong>Invoice#:</strong> INV-12</p>
+            <p><strong>NTN#:6672323-2</strong></p>
             <p><strong>Invoice Date:</strong> Dec 19, 2024</p>
             <p><strong>Due Date:</strong> Jan 18, 2025</p>
           </Col>

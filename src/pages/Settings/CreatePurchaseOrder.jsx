@@ -131,8 +131,6 @@ const CreatePurchaseOrder = (props) => {
       "services": services
     }
 
-    console.log(JSON.stringify(UserPurchaseOrder))
-
     // perform form validation
     // const validationErrors = formValidation()
     // const noErrors = Object.keys(validationErrors).length === 0;
