@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, memo } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -6,41 +6,37 @@ import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Spinner from 'react-bootstrap/Spinner'
-import InputGroup from 'react-bootstrap/InputGroup'
-import Alert from 'react-bootstrap/Alert'
-import Badge from 'react-bootstrap/Badge'
-import moment from 'moment'
+import Table from 'react-bootstrap/Table'
+import Stack from 'react-bootstrap/Stack'
 //
-import { Link } from 'react-router-dom'
 import SidebarMenu from '../../components/SidebarMenu'
-import { useNavigate } from 'react-router-dom'
 import AppHeader from '../../components/AppHeader'
 import { useDropzone } from 'react-dropzone'
 import HttpClient from '../../api/HttpClient'
 import data from '../../utils/data.json'
 import { ListGroup } from 'react-bootstrap'
 import isEmpty from '../../utils/isEmpty'
-import Table from '../../shared/Table'
+// import Table from '../../shared/Table'
 import Accordion from 'react-bootstrap/Accordion'
-import InvoiceGenerator from './InvoiceGenerator'
-import invoice from './Invoice.json'
 
 
 const ResourceUsage = () => {
-  const [apiError, setApiError] = useState(null)
-  const [showSpinner, setShowSpinner] = useState(false)
-  const [resonseData, setResonseData] = useState({})
-  const [selectedService, setSelectedService] = useState({})
-  const [selectedInstanceList, setSelectedIntanceList] = useState([])
+  const [apiError, setApiError] = useState(null);
+  const [showSpinner, setShowSpinner] = useState(false);
+  const [responseData, setResponseData] = useState({});
+  const [summarizedData, setSummarizedData] = useState({});
+  const [showSummary, setShowSummary] = useState(false);
+  const [selectedService, setSelectedService] = useState({});
+  const [selectedInstanceList, setSelectedIntanceList] = useState({ instances: [] });
   const [servicesCostList, setServicesCostList] = useState([]);
   const elementRefs = useRef([]);
-  const [listLoadingSpinner, setListLoadingSpinner] = useState(false)
+  // const [listLoadingSpinner, setListLoadingSpinner] = useState(false)
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
     accept: 'audio/*',
     onDrop: acceptedFiles => {
       const selectedFile = acceptedFiles[0]
     }
-  })
+  });
 
   useEffect(() => {
     if (!isEmpty(selectedService) && elementRefs.current) {
@@ -82,7 +78,9 @@ const ResourceUsage = () => {
         setShowSpinner(false)
 
         let data = processECSData(responsePayload.data)
-        setResonseData(data)
+        setResponseData(data);
+        let summary = processSummary(JSON.parse(JSON.stringify(data)));
+        setSummarizedData(summary);
 
         console.log("----call-------")
         setServicesCostList(calculateServiceCosts(data))
@@ -100,7 +98,7 @@ const ResourceUsage = () => {
       })
   }
 
-  const [servicesSummary, setServicesSummary] = useState([]);
+  // const [servicesSummary, setServicesSummary] = useState([]);
 
   // Function to calculate total costs for each service
   const calculateServiceCosts = (data) => {
@@ -121,23 +119,13 @@ const ResourceUsage = () => {
       });
     });
     console.log(summary)
-    setServicesSummary(summary);
+    // setServicesSummary(summary);
   };
 
 
   const handleSelectService = (item) => {
     setSelectedService(item);
   };
-
-
-  const ConvertToLocalTime = memo(({ gmtTimeString }) => {
-    // Convert GMT time to local time using moment.js
-    const convertToLocal = (gmtTimeString) => {
-      const localTime = moment(gmtTimeString).local().format('LLLL'); // Format the local time
-      return localTime;
-    }
-  })
-
 
   useEffect(() => {
     if (acceptedFiles.length > 0)
@@ -149,20 +137,26 @@ const ResourceUsage = () => {
     const regions = data.regions;
 
     regions.forEach(region => {
+      // console.log(region.services);
       const ecsService = region.services.find(service => service.serviceName === "ECS");
+      let newServices = [];
 
       if (ecsService) {
         // Extract clustered and dedicated instances
         const clusteredInstances = ecsService.instances.clustered || [];
         const dedicatedInstances = ecsService.instances.dedicated || [];
 
+
         // Transform the data
         const clustered = {
           serviceName: "ECS-cluster",
           instances: clusteredInstances.map(instance => ({
             "Resource Name": instance["Resource Name"] || instance["Resource ID"],
-            "Usage Cost": instance["Usage Cost"],
-            "Usage Duration": instance["Usage Duration"]
+            "Resource Metric": instance["Metering Metric"],
+            "vCPU": instance["vCPUs"],
+            "Memory": instance["Memory"],
+            "Usage Duration": instance["Usage Duration"],
+            "Usage Cost": instance["Usage Cost"].toFixed(2),
           }))
         };
 
@@ -170,38 +164,199 @@ const ResourceUsage = () => {
           serviceName: "ECS-dedicated",
           instances: dedicatedInstances.map(instance => ({
             "Resource Name": instance["Resource Name"] || instance["Resource ID"],
-            "Usage Cost": instance["Usage Cost"],
-            "Usage Duration": instance["Usage Duration"]
+            "Resource Metric": instance["Metering Metric"],
+            "vCPU": instance["vCPUs"],
+            "Memory": instance["Memory"],
+            "Usage Duration": instance["Usage Duration"],
+            "Usage Cost": instance["Usage Cost"].toFixed(2),
           }))
         };
 
         // Add the new objects to the services array
         region.services = region.services.filter(service => service.serviceName !== "ECS");
-        region.services.push(clustered, dedicated);
+        newServices.push(clustered, dedicated);
       }
+
+      for (let service of region.services) {
+        newServices.push({
+          serviceName: service.serviceName,
+          instances: service.instances.map(instance => ({
+            "Resource Name": instance["Resource Name"] || instance["Resource ID"],
+            "Resource Metric": instance["Metering Metric"],
+            "Usage": instance["Usage"],
+            "Usage Duration": instance["Usage Duration"],
+            "Usage Cost": instance["Usage Cost"].toFixed(2),
+          }))
+        })
+      }
+      region.services = newServices;
     });
 
     return data;
   }
 
+  function processSummary(data) {
+    const regions = data.regions;
 
-  const validServices = ["ecs", "evs", "eip", "eip-bandwidth", 'ecs-cluster', 'ecs-dedicated']; // List of valid service names
+    regions.forEach(region => {
+      const ecsCluster = region.services.find(service => service.serviceName.toLowerCase() === "ecs-cluster");
+      const ecsDedicated = region.services.find(service => service.serviceName.toLowerCase() === "ecs-dedicated");
+      const evsService = region.services.find(service => service.serviceName.toLowerCase() === "evs");
+      let newServices = [];
 
-  const calculatePrice = (seletecdService) => {
+      if (ecsCluster) {
+        const groupedData = {};
 
-    if (!isEmpty(selectedInstanceList)) {
-      const serviceName = selectedInstanceList.serviceName?.toLowerCase(); // Safely get the service name in lowercase
-      if (validServices.includes(serviceName)) {
-        // Calculate the total price for all instances
-        const totalPrice = selectedInstanceList.instances.reduce((total, instance) => {
-          // Accumulate the price of each instance
-          const price = instance["Usage Cost"] || 0; // Default to 0 if no price is provided
-          return total + price; // Add price to total
-        }, 0);
+        ecsCluster.instances.forEach(instance => {
+          const key = `${instance["vCPU"]}-${instance["Memory"]}`;
 
-        return totalPrice; // Return the total price
+          if (!groupedData[key]) {
+            groupedData[key] = {
+              "Resource": instance['Resource Metric'],
+              "vCPU": instance['vCPU'],
+              "Memory": instance['Memory'],
+              totalDuration: 0,
+              totalCost: 0,
+              count: 0,
+            };
+          }
+
+          groupedData[key].totalDuration += parseFloat(instance["Usage Duration"]);
+          groupedData[key].totalCost += parseFloat(instance["Usage Cost"]);
+          groupedData[key].count++;
+        });
+
+        let ecsClusterSummary = []
+
+        for (const key in groupedData) {
+          const group = groupedData[key];
+          ecsClusterSummary.push({
+            "Resource": group['Resource'],
+            "vCPU": group['vCPU'],
+            "Memory": group['Memory'],
+            "Quantity": group.count,
+            "Avg Duration": (group.totalDuration / group.count).toFixed(2),
+            "Usage Cost": group.totalCost.toFixed(2)
+          });
+        }
+
+        // Add the new objects to the services array
+        region.services = region.services.filter(service => service.serviceName.toLowerCase() !== "ecs-cluster");
+        newServices.push({
+          serviceName: ecsCluster.serviceName,
+          instances: ecsClusterSummary
+        })
       }
-    }
+
+      if (ecsDedicated) {
+        const groupedData = {};
+
+        ecsDedicated.instances.forEach(instance => {
+          const key = `${instance["vCPU"]}-${instance["Memory"]}`;
+
+          if (!groupedData[key]) {
+            groupedData[key] = {
+              "Resource": instance['Resource Metric'],
+              "vCPU": instance['vCPU'],
+              "Memory": instance['Memory'],
+              totalDuration: 0,
+              totalCost: 0,
+              count: 0,
+            };
+          }
+
+          groupedData[key].totalDuration += parseFloat(instance["Usage Duration"]);
+          groupedData[key].totalCost += parseFloat(instance["Usage Cost"]);
+          groupedData[key].count++;
+        });
+
+        let ecsDedicatedSummary = []
+
+        for (const key in groupedData) {
+          const group = groupedData[key];
+          ecsDedicatedSummary.push({
+            "Resource": group['Resource'],
+            "vCPU": group['vCPU'],
+            "Memory": group['Memory'],
+            "Quantity": group.count,
+            "Avg Duration": (group.totalDuration / group.count).toFixed(2),
+            "Usage Cost": group.totalCost.toFixed(2)
+          });
+        }
+
+        // Add the new objects to the services array
+        region.services = region.services.filter(service => service.serviceName.toLowerCase() !== "ecs-dedicated");
+        newServices.push({
+          serviceName: ecsDedicated.serviceName,
+          instances: ecsDedicatedSummary
+        })
+      }
+
+      if (evsService) {
+        let evsSsd = evsService.instances.filter(instance => {
+          if (instance["Resource Metric"].toLowerCase().includes('ssd')) {
+            return true;
+          } else if (instance["Resource Metric"].toLowerCase().includes('snapshot')) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        const evsSata = evsService.instances.filter(instance => instance["Resource Metric"].toLowerCase().includes('sata'));
+        let newEvsService = []
+
+        if (evsSsd.length > 0) {
+          let summaryEvsSSD = {
+            "Resource": "EVS SSD",
+            "Resource Metric": "SSD",
+            "Size (GB)": 0,
+            "Avg Duration": 0,
+            "Usage Cost": 0
+          }
+          let count = 0
+          evsSsd.forEach(instance => {
+            summaryEvsSSD["Size (GB)"] += parseInt(instance["Usage"])
+            summaryEvsSSD["Avg Duration"] += parseFloat(instance["Usage Duration"])
+            summaryEvsSSD["Usage Cost"] += parseFloat(instance["Usage Cost"])
+            count++;
+          })
+          summaryEvsSSD["Avg Duration"] = (summaryEvsSSD["Avg Duration"] / count).toFixed(2);
+          newEvsService.push(summaryEvsSSD);
+        }
+
+        if (evsSata.length > 0) {
+          let summaryEvsSata = {
+            "Resource": "EVS SATA",
+            "Resource Metric": "SATA",
+            "Size (GB)": 0,
+            "Avg Duration": 0,
+            "Usage Cost": 0
+          }
+          let count = 0
+          evsSata.forEach(instance => {
+            summaryEvsSata["Size (GB)"] += parseInt(instance["Usage"])
+            summaryEvsSata["Avg Duration"] += parseFloat(instance["Usage Duration"])
+            summaryEvsSata["Usage Cost"] += parseFloat(instance["Usage Cost"])
+            count++;
+          })
+          summaryEvsSata["Avg Duration"] = (summaryEvsSata["Avg Duration"] / count).toFixed();
+          newEvsService.push(summaryEvsSata);
+        }
+
+        // Add the new objects to the services array
+        region.services = region.services.filter(service => service.serviceName.toLowerCase() !== "evs");
+        newServices.push({
+          serviceName: evsService.serviceName,
+          instances: newEvsService
+        })
+      }
+
+      for (let service of region.services) {
+        newServices.push(service);
+      }
+      region.services = newServices;
+    });
+    return data;
   }
 
   return (
@@ -240,7 +395,7 @@ const ResourceUsage = () => {
               <Card style={{ width: '100%' }}>
                 <Card.Body style={{ textAlign: "center", backgroundColor: "#f0f8ff" }}>
                   <div className="gutter-20x"></div>
-                  {isEmpty(resonseData) ? "No data found" :
+                  {isEmpty(responseData) ? "No data found" :
                     <Row>
                       <Col>
                         <span style={{ color: "#717171", fontSize: '18px', float: "left" }}> <i style={{ fontSize: '24px', color: "#717171" }} className="las la-cloud"></i> {data.regions[0].regionName}</span>
@@ -255,20 +410,33 @@ const ResourceUsage = () => {
                   <div className="gutter-20x"></div>
                   <Accordion>
                     {
-                      !isEmpty(resonseData) && resonseData.regions[0].services.map((service, index) => (
+                      !showSummary && !isEmpty(responseData) && responseData.regions[0].services.map((service, index) => (
                         <Accordion.Item eventKey={index} onClick={() => setSelectedIntanceList(service)}>
                           <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>{service.serviceName}</Accordion.Header>
                           <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: 'auto', maxHeight: '20vh' }}>
                             <ListGroup variant="flush">
                               {
                                 (service.instances.map((item, index) => (
-                                  <ListGroup.Item onClick={() => handleSelectService(item)} style={{ backgroundColor: '#c0e2ff', borderRadius: '6px', marginBottom: '5px', cursor: 'pointer', fontSize: '14px' }} key={index}>{item["Resource Name"]}
-                                    {item["Service Type"] &&
-                                      item["Service Type"] === "dedicated" ?
-                                      <Badge bg="success" style={{ float: "right" }}>{item["Service Type"]}</Badge>
-                                      :
-                                      <Badge bg="primary" style={{ float: "right" }}>{item["Service Type"]}</Badge>
-                                    }
+                                  <ListGroup.Item onClick={() => handleSelectService(item)} style={{ backgroundColor: '#c0e2ff', borderRadius: '6px', marginBottom: '5px', cursor: 'pointer', fontSize: '14px' }} key={index}>
+                                    {item["Resource Name"]}
+                                  </ListGroup.Item>
+                                )))
+                              }
+                            </ListGroup>
+                          </Accordion.Body>
+                        </Accordion.Item>
+                      ))
+                    }
+                    {
+                      showSummary && !isEmpty(summarizedData) && summarizedData.regions[0].services.map((service, index) => (
+                        <Accordion.Item eventKey={index} onClick={() => setSelectedIntanceList(service)}>
+                          <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>{service.serviceName}</Accordion.Header>
+                          <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: 'auto', maxHeight: '20vh' }}>
+                            <ListGroup variant="flush">
+                              {
+                                (service.instances.map((item, index) => (
+                                  <ListGroup.Item onClick={() => handleSelectService(item)} style={{ backgroundColor: '#c0e2ff', borderRadius: '6px', marginBottom: '5px', cursor: 'pointer', fontSize: '14px' }} key={index}>
+                                    {item["Resource"] || item["Resource Name"]}
                                   </ListGroup.Item>
                                 )))
                               }
@@ -287,57 +455,39 @@ const ResourceUsage = () => {
                 <Card.Body>
                   <div className="gutter-20x"></div>
                   <div style={{ height: '50vh', overflowY: "auto", overflowX: "hidden" }}>
-                    {selectedInstanceList.length !== 0 &&
-                      selectedInstanceList.instances.map((instance, i) => (
-                        <div ref={(el) => elementRefs.current[i] = el}
-                          key={i} style={{ marginBottom: "20px" }}>
-                          <div style={{ padding: 20, backgroundColor: "white", borderRadius: 6 }}>
-                            <Badge bg="warning" style={{ fontSize: "14px", padding: "10px" }}>
-                              {selectedInstanceList.serviceName + " " + (i + 1)}
-                            </Badge>
-                            <Badge bg="success" style={{ fontSize: "14px", padding: "10px", float: "right" }}>
-                              {'Price: $ ' + instance["Usage Cost"].toFixed(2)}
-                            </Badge>
-                            <div className='gutter-10x'> </div>
-                            <div className='splitter'> </div>
-                            <div className='gutter-10x'> </div>
-                            <Row>
-                              {Object.keys(instance).map((key) => (
-                                <Row key={key} style={{ marginBottom: "10px" }}>
-                                  <Col xs={6} style={{ textAlign: "left", fontWeight: "bold" }}>
-                                    {key}
-                                  </Col>
-                                  <Col xs={6} style={{ textAlign: "right" }}>
-                                    {key.includes("Time") ? (
-                                      // Format date/time fields
-                                      <span style={{ fontSize: "14px", color: "#717171" }}>
-                                        {moment(instance[key]).local().format("MM-DD-YYYY HH:mm:ss")}
-                                      </span>
-                                    ) : key === "Metering Metric" ? (
-                                      // Special styling for "Metering Metric"
-                                      <Badge bg="secondary" style={{ fontSize: "14px", padding: "10px" }}>
-                                        {instance[key]}
-                                      </Badge>
-                                    ) : (
-                                      // Default rendering for other fields
-                                      <span>{instance[key]}</span>
-                                    )}
-                                  </Col>
-                                </Row>
-                              ))}
-                            </Row>
-                          </div>
-                          <div className="gutter-20x"></div>
-                          <div className='splitter'></div>
-                          <div className="gutter-10x"></div>
-                        </div>
-                      ))
-                    }
+                    <Table striped bordered hover>
+                      <thead>
+                        <tr>
+                          {
+                            selectedInstanceList?.instances?.length > 0 &&
+                            Object.keys(selectedInstanceList.instances[0]).map((key, i) => {
+                              return <th key={i}>{key}</th>
+                            })
+                          }
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          selectedInstanceList?.instances?.length > 0 &&
+                          selectedInstanceList.instances.map((instance, i) => {
+                            return (
+                              <tr style={{
+                                height: "30px"
+                              }}>
+                                {Object.keys(instance).map((key, index) => {
+                                  return <td key={index}>{instance[key]}</td>
+                                })}
+                              </tr>
+                            )
+                          })
+                        }
+                      </tbody>
+                    </Table>
                   </div>
                   <div className="gutter-20x"></div>
                   <div className='splitter'></div>
 
-                  {selectedInstanceList.length !== 0 && validServices.includes((selectedInstanceList.serviceName).toLowerCase()) &&
+                  {/* {selectedInstanceList.length !== 0 && validServices.includes((selectedInstanceList.serviceName).toLowerCase()) &&
                     <Row style={{ fontSize: "14px", fontWeight: "bold", padding: 20, backgroundColor: "white", borderRadius: 6 }}>
                       <Col>
                       </Col>
@@ -347,21 +497,37 @@ const ResourceUsage = () => {
                         </Badge>
                       </Col>
                     </Row>
-                  }
+                  } */}
 
-                  <Button
-                    size="sm"
-                    variant="light"
-                    style={{ marginLeft: "4px" }}
-                    onClick={() => {
-                      const key = 'invoiceData';
-                      localStorage.setItem(key, JSON.stringify(servicesCostList)); // Save to local storage
-                      window.open('/settings/generate-invoice', '_blank'); // Open the new tab
-                    }}
-                  >
-                    Preview Invoice
-                  </Button>
+                  <Stack gap={2} className="col-md-5 mx-auto">
+                    <Form>
+                      <Form.Switch type="switch" id="custom-switch" label="Show Summary" onChange={() => {
+                        let newShowSummaryState = !showSummary;
+                        let newSelectedService = {};
+                        let selectedServiceName = selectedInstanceList.serviceName;
+                        if (newShowSummaryState) {
+                          newSelectedService = summarizedData.regions[0].services.find(service => service.serviceName === selectedServiceName);
+                        } else {
+                          newSelectedService = responseData.regions[0].services.find(service => service.serviceName === selectedServiceName);
+                        }
+                        setShowSummary(newShowSummaryState);
+                        setSelectedIntanceList(newSelectedService);
+                      }} />
+                    </Form>
 
+                    <Button
+                      size="sm"
+                      variant="light"
+                      style={{ marginLeft: "4px" }}
+                      onClick={() => {
+                        const key = 'invoiceData';
+                        localStorage.setItem(key, JSON.stringify(servicesCostList)); // Save to local storage
+                        window.open('/settings/generate-invoice', '_blank'); // Open the new tab
+                      }}
+                    >
+                      Preview Invoice
+                    </Button>
+                  </Stack>
                   {/* <InvoiceGenerator /> */}
                   <div className="gutter-10x"></div>
                 </Card.Body>
