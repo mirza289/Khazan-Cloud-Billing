@@ -41,9 +41,9 @@ const ManagePrice = () => {
         if (error.response) {
           setApiError(
             error.response.data.message +
-              "[" +
-              error.response.data.message_detail +
-              "]"
+            "[" +
+            error.response.data.message_detail +
+            "]"
           );
         } else if (error.request) {
           setApiError(error.request);
@@ -80,14 +80,14 @@ const ManagePrice = () => {
 
   const handleUpdatePrices = () => {
     // Example data payload
-   
+
     setListLoadingSpinner(true);
-  
+
     HttpClient.post("/unit-costs", editedItems)
       .then((responsePayload) => {
         const responseData = responsePayload.data;
         console.log(responseData);
-  
+
         if (responseData.updated_count > 0) {
           setUnitCostList((prevList) => {
             // Update the local state with the new data (optional, depends on the use case)
@@ -97,18 +97,18 @@ const ManagePrice = () => {
             });
           });
         }
-  
+
         setListLoadingSpinner(false);
       })
       .catch((error) => {
         setListLoadingSpinner(false);
-  
+
         if (error.response) {
           setApiError(
             error.response.data.message +
-              "[" +
-              error.response.data.message_detail +
-              "]"
+            "[" +
+            error.response.data.message_detail +
+            "]"
           );
         } else if (error.request) {
           setApiError(error.request);
@@ -117,11 +117,11 @@ const ManagePrice = () => {
         }
       });
   };
-  
 
-  useEffect(()=>{
-   console.log(editedItems)
-  },[editedItems])
+
+  useEffect(() => {
+    console.log(editedItems)
+  }, [editedItems])
 
   return (
     <Container fluid style={{ paddingRight: "0", paddingLeft: "0" }}>
@@ -159,7 +159,7 @@ const ManagePrice = () => {
                       <div style={{ fontSize: "16px", color: "#909090" }}></div>
                     </Col>
                     <Col style={{ textAlign: "right" }}>
-                    <Button
+                      <Button
                         variant="outline-primary"
                         size="md"
                         onClick={() => handleUpdatePrices()}

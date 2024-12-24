@@ -1,0 +1,12 @@
+/* Prevent Bootstrap validation styles from changing checkbox color */
+.was-validated .form-check-input:valid,
+.was-validated .form-check-input:invalid {
+  border-color: initial !important; /* Reset border color */
+  background-color: initial !important; /* Reset background color */
+  box-shadow: none !important; /* Remove any shadow effects */
+}
+
+/* Prevent label color change */
+.was-validated .form-check-label {
+  color: initial !important; /* Keep default text color */
+}

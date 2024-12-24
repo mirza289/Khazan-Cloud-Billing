@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
-import { Navbar, Nav, Container, Button } from 'react-bootstrap'
+import React, { useEffect } from 'react'
+import { Navbar, Nav, Container } from 'react-bootstrap'
 import '../App.css';
-import { Link, NavLink } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
 
 //
@@ -13,24 +13,20 @@ function AppHeader(props) {
   const navigate = useNavigate()
   const { survey_id } = useParams()
 
-  
+
   useEffect(() => {
-      getUnitPriceList()
+    getUnitPriceList()
   }, [])
 
   const getUnitPriceList = () => {
-    
+
     HttpClient.get("/unit-costs")
       .then((responsePayload) => {
         let responseData = responsePayload.data;
         localStorage.setItem("unitCost", JSON.stringify(responseData.unit_costs));
       })
       .catch((error) => {
-        if (error.response) {
-         
-        } else if (error.request) {
-        } else {
-        }
+        console.log(error);
       });
   };
 
@@ -39,10 +35,7 @@ function AppHeader(props) {
       expand="lg"
       fixed="top"
       style={{ backgroundColor: "#777777", height: "60px" }}>
-      <Container
-        fluid
-        style={{ justifyContent: "" }}
-      >
+      <Container fluid style={{ justifyContent: "" }} >
         <Navbar.Brand
           style={{ cursor: "pointer" }}
           onClick=
@@ -67,8 +60,8 @@ function AppHeader(props) {
         <Nav.Link eventKey={1}>
           {props.sourceType !== "login" && <Gravatar
             style={{ borderRadius: "50%" }}
-            size="32"
-            email={"Shahriyar" + " " + "Baig"}
+            size={32}
+            email={"Shahriyar Baig"}
           />}
         </Nav.Link>
       </Container>

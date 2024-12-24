@@ -2,27 +2,26 @@ import React, { useState, useEffect } from 'react'
 //
 import { Link } from 'react-router-dom'
 import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 //
 const SidebarMenu = (props) => {
-  const navigate = useNavigate()
   const currentUrlLocaltion = useLocation()
 
   const [isMobileScreen, setIsMobileScreen] = useState(false)
-  const [collapsedWidth, setCollapsedWidth] = useState("1px")
+  // const [collapsedWidth, setCollapsedWidth] = useState("1px")
   const checkIfMobileScreen = () => {
     setIsMobileScreen(window.innerWidth <= 768) // Adjust the threshold value as needed
   }
 
   useEffect(() => {
     checkIfMobileScreen()
-    if (isMobileScreen) {
-      setCollapsedWidth("0")
-    }
-    else {
-      setCollapsedWidth("70px")
-    }
+    // if (isMobileScreen) {
+    //   setCollapsedWidth("0")
+    // }
+    // else {
+    //   setCollapsedWidth("70px")
+    // }
 
     window.addEventListener('resize', checkIfMobileScreen);
 
@@ -49,8 +48,8 @@ const SidebarMenu = (props) => {
             <i className="las la-poll" style={{ fontSize: "30px" }}></i> New Survey
           </MenuItem> */}
         <MenuItem
-          component={<Link to={"/settings/calls-list"} />}
-          className={currentUrlLocaltion.pathname === "/settings/calls-list" ? "menuitem-survey" : "menuitme-normal"}
+          component={<Link to={"/settings/users-list"} />}
+          className={currentUrlLocaltion.pathname === "/settings/users-list" ? "menuitem-survey" : "menuitme-normal"}
           style={{ textDecoration: "none" }}>
           <i className="las la-list" style={{ fontSize: "30px", marginTop: '-3px', marginRight: "8px", float: 'left' }}></i> Users List
         </MenuItem>

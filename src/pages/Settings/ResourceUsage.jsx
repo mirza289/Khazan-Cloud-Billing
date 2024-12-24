@@ -1,23 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react'
-import Container from 'react-bootstrap/Container'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
-import Button from 'react-bootstrap/Button'
-import Card from 'react-bootstrap/Card'
-import Form from 'react-bootstrap/Form'
-import Spinner from 'react-bootstrap/Spinner'
-import Table from 'react-bootstrap/Table'
-import Stack from 'react-bootstrap/Stack'
+import React, { useState, useEffect, useRef } from 'react';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
+import Spinner from 'react-bootstrap/Spinner';
+import Table from 'react-bootstrap/Table';
+import Stack from 'react-bootstrap/Stack';
+import Badge from 'react-bootstrap/Badge';
 //
-import SidebarMenu from '../../components/SidebarMenu'
-import AppHeader from '../../components/AppHeader'
-import { useDropzone } from 'react-dropzone'
-import HttpClient from '../../api/HttpClient'
-import data from '../../utils/data.json'
-import { ListGroup } from 'react-bootstrap'
-import isEmpty from '../../utils/isEmpty'
-// import Table from '../../shared/Table'
-import Accordion from 'react-bootstrap/Accordion'
+import SidebarMenu from '../../components/SidebarMenu';
+import AppHeader from '../../components/AppHeader';
+import { useDropzone } from 'react-dropzone';
+import HttpClient from '../../api/HttpClient';
+import data from '../../utils/data.json';
+import { ListGroup } from 'react-bootstrap';
+import isEmpty from '../../utils/isEmpty';
+import Accordion from 'react-bootstrap/Accordion';
 
 
 const ResourceUsage = () => {
@@ -31,12 +31,7 @@ const ResourceUsage = () => {
   const [servicesCostList, setServicesCostList] = useState([]);
   const elementRefs = useRef([]);
   // const [listLoadingSpinner, setListLoadingSpinner] = useState(false)
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
-    accept: 'audio/*',
-    onDrop: acceptedFiles => {
-      const selectedFile = acceptedFiles[0]
-    }
-  });
+  const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
 
   useEffect(() => {
     if (!isEmpty(selectedService) && elementRefs.current) {
@@ -54,6 +49,8 @@ const ResourceUsage = () => {
       }
     }
   }, [selectedService, selectedInstanceList]);
+
+  useEffect(() => console.log(apiError), [apiError]);
 
   const handelUploadResourceData = (e) => {
     setShowSpinner(true)
@@ -75,15 +72,15 @@ const ResourceUsage = () => {
 
     HttpClient.post('/upload', formData, config)
       .then(responsePayload => {
-        setShowSpinner(false)
+        setShowSpinner(false);
 
-        let data = processECSData(responsePayload.data)
-        setResponseData(data);
+        let data = processECSData(responsePayload.data);
         let summary = processSummary(JSON.parse(JSON.stringify(data)));
         setSummarizedData(summary);
+        setResponseData(data);
 
-        console.log("----call-------")
-        setServicesCostList(calculateServiceCosts(data))
+        console.log("----call-------");
+        setServicesCostList(calculateServiceCosts(data));
       })
       .catch(error => {
         setShowSpinner(false)
@@ -130,6 +127,7 @@ const ResourceUsage = () => {
   useEffect(() => {
     if (acceptedFiles.length > 0)
       handelUploadResourceData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [acceptedFiles])
 
 
@@ -321,6 +319,8 @@ const ResourceUsage = () => {
             count++;
           })
           summaryEvsSSD["Avg Duration"] = (summaryEvsSSD["Avg Duration"] / count).toFixed(2);
+          summaryEvsSSD["Usage Cost"] = summaryEvsSSD["Usage Cost"].toFixed(2)
+
           newEvsService.push(summaryEvsSSD);
         }
 
@@ -340,6 +340,8 @@ const ResourceUsage = () => {
             count++;
           })
           summaryEvsSata["Avg Duration"] = (summaryEvsSata["Avg Duration"] / count).toFixed();
+          summaryEvsSata["Usage Cost"] = summaryEvsSata["Usage Cost"].toFixed(2)
+
           newEvsService.push(summaryEvsSata);
         }
 
@@ -357,6 +359,23 @@ const ResourceUsage = () => {
       region.services = newServices;
     });
     return data;
+  }
+
+  const validServices = ["ecs", "evs", "eip", "eip-bandwidth", 'ecs-cluster', 'ecs-dedicated']; // List of valid service names
+
+  const calculatePrice = (seletecdService) => {
+    if (!isEmpty(selectedInstanceList)) {
+      const serviceName = selectedInstanceList.serviceName?.toLowerCase(); // Safely get the service name in lowercase
+      if (validServices.includes(serviceName)) {
+        // Calculate the total price for all instances
+        const totalPrice = selectedInstanceList.instances.reduce((total, instance) => {
+          // Accumulate the price of each instance
+          const price = parseFloat(instance["Usage Cost"]) || 0.0; // Default to 0 if no price is provided
+          return total + price; // Add price to total
+        }, 0);
+        return totalPrice.toFixed(2); // Return the total price
+      }
+    }
   }
 
   return (
@@ -411,7 +430,7 @@ const ResourceUsage = () => {
                   <Accordion>
                     {
                       !showSummary && !isEmpty(responseData) && responseData.regions[0].services.map((service, index) => (
-                        <Accordion.Item eventKey={index} onClick={() => setSelectedIntanceList(service)}>
+                        <Accordion.Item eventKey={index} onClick={() => setSelectedIntanceList(service)} key={index}>
                           <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>{service.serviceName}</Accordion.Header>
                           <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: 'auto', maxHeight: '20vh' }}>
                             <ListGroup variant="flush">
@@ -471,7 +490,7 @@ const ResourceUsage = () => {
                           selectedInstanceList?.instances?.length > 0 &&
                           selectedInstanceList.instances.map((instance, i) => {
                             return (
-                              <tr style={{
+                              <tr key={i} style={{
                                 height: "30px"
                               }}>
                                 {Object.keys(instance).map((key, index) => {
@@ -487,17 +506,17 @@ const ResourceUsage = () => {
                   <div className="gutter-20x"></div>
                   <div className='splitter'></div>
 
-                  {/* {selectedInstanceList.length !== 0 && validServices.includes((selectedInstanceList.serviceName).toLowerCase()) &&
+                  {selectedInstanceList.instances.length > 0 && validServices.includes((selectedInstanceList.serviceName).toLowerCase()) &&
                     <Row style={{ fontSize: "14px", fontWeight: "bold", padding: 20, backgroundColor: "white", borderRadius: 6 }}>
                       <Col>
                       </Col>
                       <Col>
                         <Badge bg="light" style={{ fontSize: "18px", padding: "10px", color: "black" }}>
-                          {'Total Service Cost : $' + calculatePrice(selectedInstanceList).toFixed(2)}
+                          {'Total Service Cost : $' + calculatePrice(selectedInstanceList)}
                         </Badge>
                       </Col>
                     </Row>
-                  } */}
+                  }
 
                   <Stack gap={2} className="col-md-5 mx-auto">
                     <Form>

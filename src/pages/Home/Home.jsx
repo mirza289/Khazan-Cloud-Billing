@@ -1,57 +1,51 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import Button from 'react-bootstrap/Button'
-import Card from 'react-bootstrap/Card'
-import Form from 'react-bootstrap/Form'
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 //
-import {Link} from 'react-router-dom'
 import Gravatar from 'react-gravatar'
-import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar'
-import { useNavigate } from 'react-router-dom'
+// import { useNavigate } from 'react-router-dom'
 //
-import HttpClient from '../../api/HttpClient'
 import AppHeader from '../../components/AppHeader'
 import SidebarMenu from '../../components/SidebarMenu'
 
 const Home = () => {
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
 
-  const [collapsed, setCollapsed] = useState(false)
-  const [sessionUser, setSessionUser] = useState({})
-  const [apiError, setApiError] = useState('')
+  // const [collapsed, setCollapsed] = useState(false)
+  // const [sessionUser, setSessionUser] = useState({})
+  // const [apiError, setApiError] = useState('')
 
   useEffect(() => {
   // checkUserSession()
   }, [])
 
   // check session user exists otherwise logout
-  const checkUserSession = () => {
-    HttpClient.get('auth/me')
-      .then(responsePayload => {
-        // set the user object from the session
-        setSessionUser(responsePayload.data.data)
-      })
-      .catch(error => {
-        // in case of any error take the user to login page as this is unauthorized
-        navigate("/")
-      })
-  }
+  // const checkUserSession = () => {
+  //   HttpClient.get('auth/me')
+  //     .then(responsePayload => {
+  //       // set the user object from the session
+  //       setSessionUser(responsePayload.data.data)
+  //     })
+  //     .catch(error => {
+  //       // in case of any error take the user to login page as this is unauthorized
+  //       navigate("/")
+  //     })
+  // }
 
   // handle logout functionality
-  function handleLogout() {
-    // HttpClient.get('auth/logout')
-    //   .then(responsePayload => {
-    //     navigate("/")
-    //   })
-    //   .catch(error => {
-    //     // in case of any error take the user to login page as this is unauthorized
-    //     navigate("/")
-    //   })
-  }
+  // function handleLogout() {
+  //   HttpClient.get('auth/logout')
+  //     .then(responsePayload => {
+  //       navigate("/")
+  //     })
+  //     .catch(error => {
+  //       // in case of any error take the user to login page as this is unauthorized
+  //       navigate("/")
+  //     })
+  // }
 
   return (
     <Container fluid style={{ paddingRight: "0", paddingLeft: "0"}}>
@@ -97,11 +91,11 @@ const Home = () => {
               <Navbar.Brand href="#home"><b>Home</b></Navbar.Brand>
               <Nav>
                 <Nav.Link eventKey={2} href="#memes">
-                  <span style={{ paddingLeft: "10px", paddingRight: "10px" }}>Hello, { sessionUser.first_name}</span>
+                  <span style={{ paddingLeft: "10px", paddingRight: "10px" }}>Hello, Tester</span>
                   <Gravatar 
                     style={{ borderRadius: "50%" }}
-                    size="32"
-                    email={ sessionUser.email } />
+                    size={32}
+                    email="test@example.com" />
                   <span style={{ paddingRight: "20px" }}></span>
                 </Nav.Link>
               </Nav>
