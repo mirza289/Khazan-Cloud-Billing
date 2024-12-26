@@ -5,7 +5,8 @@ import axios from 'axios'
 // const baseURL = process.env.REACT_APP_ENV === 'dev' ? +'http://103.164.9.58:5000' : '/'
 
 const HttpClient = axios.create({
-  baseURL: "http://127.0.0.1:5000",
+  baseURL: "http://103.164.9.58:5000",
+  // baseURL: "http://127.0.0.1:5000",
   // withCredentials: true,
   headers: {
     // 'Access-Control-Allow-Credentials': true,
