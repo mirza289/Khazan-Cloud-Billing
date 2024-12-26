@@ -79,7 +79,9 @@ const ResourceUsage = () => {
         setSummarizedData(summary);
         setResponseData(data);
 
-        console.log("----call-------");
+        console.log("----Service Costs -------");
+
+        console.log(calculateServiceCosts(data))
         setServicesCostList(calculateServiceCosts(data));
       })
       .catch(error => {
@@ -105,20 +107,19 @@ const ResourceUsage = () => {
       region.services.forEach(service => {
         const serviceName = service.serviceName;
         const totalCost = service.instances.reduce((sum, instance) => {
-          return sum + (instance['Usage Cost'] || 0);
+          // Ensure 'Usage Cost' is treated as a number
+          return sum + parseFloat(instance['Usage Cost'] || 0);
         }, 0);
 
-        // Push an object with serviceName and total cost
         summary.push({
           serviceName: serviceName,
-          totalCost: totalCost.toFixed(2)
+          totalCost: totalCost.toFixed(2) // Optionally format to 2 decimal places
         });
       });
     });
-    console.log(summary)
-    // setServicesSummary(summary);
+    localStorage.setItem('serviceCostsSummary', JSON.stringify(summary));
+    // setServicesSummary(summary); // Uncomment this if required
   };
-
 
   const handleSelectService = (item) => {
     setSelectedService(item);
@@ -127,7 +128,7 @@ const ResourceUsage = () => {
   useEffect(() => {
     if (acceptedFiles.length > 0)
       handelUploadResourceData()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [acceptedFiles])
 
 
