@@ -29,7 +29,6 @@ const ResourceUsage = () => {
   const [selectedService, setSelectedService] = useState({});
   const [selectedInstanceList, setSelectedIntanceList] = useState({ instances: [] });
   const [servicesCostList, setServicesCostList] = useState([]);
-  const [unitCostList, setUnitCostList] = useState([]);
   const elementRefs = useRef([]);
   // const [listLoadingSpinner, setListLoadingSpinner] = useState(false)
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
@@ -71,8 +70,7 @@ const ResourceUsage = () => {
       // withCredentials: true,
     }
 
-    const responsePayload = await HttpClient.get("/unit-costs")
-      .catch((error) => {
+    let responsePayload = await HttpClient.get("/unit-costs").catch((error) => {
         if (error.response) {
           setApiError(
             error.response.data.message +
@@ -88,8 +86,6 @@ const ResourceUsage = () => {
       });
 
     const unitCosts = responsePayload.data.unit_costs;
-    setUnitCostList(unitCosts);
-    console.log("---Unit Costs---");
 
     HttpClient.post('/upload', formData, config)
       .then(responsePayload => {
@@ -224,6 +220,9 @@ const ResourceUsage = () => {
       const ecsCluster = region.services.find(service => service.serviceName.toLowerCase() === "ecs-cluster");
       const ecsDedicated = region.services.find(service => service.serviceName.toLowerCase() === "ecs-dedicated");
       const evsService = region.services.find(service => service.serviceName.toLowerCase() === "evs");
+      const eipService = region.services.find(service => service.serviceName.toLowerCase() === "eip");
+      const vpnService = region.services.find(service => service.serviceName.toLowerCase() === "virtual private network");
+      const bwService = region.services.find(service => service.serviceName.toLowerCase() === "bandwidth");
       let newServices = [];
 
       if (ecsCluster) {
@@ -349,22 +348,12 @@ const ResourceUsage = () => {
               summaryEvsSnapshot["Usage Cost"] += parseFloat(instance["Usage Cost"]);
             })
             summaryEvsSnapshot["Avg Duration"] = summaryEvsSnapshot["Avg Duration"] / summaryEvsSnapshot["Size (GB)"]
-            if (summaryEvsSnapshot["Avg Duration"] > 715) {
-              summaryEvsSnapshot["Avg Duration"] = 730;
-            }
 
             summaryEvsSSD["Avg Duration"] = (summaryEvsSSD["Avg Duration"] + summaryEvsSnapshot["Avg Duration"]) / 2
             summaryEvsSSD["Usage Cost"] = summaryEvsSSD["Usage Cost"] + summaryEvsSnapshot["Usage Cost"];
             summaryEvsSSD["Size (GB)"] = summaryEvsSSD["Size (GB)"] + summaryEvsSnapshot["Size (GB)"];
           }
 
-          if (summaryEvsSSD["Avg Duration"] > 715) {
-            summaryEvsSSD["Avg Duration"] = 730;
-          }
-
-          const ssdCost = unitCosts.find(unitCost => unitCost.resource_desc.toLowerCase().includes('ssd'));
-
-          summaryEvsSSD["Usage Cost"] = summaryEvsSSD["Size (GB)"] * summaryEvsSSD["Avg Duration"] * ssdCost.unit_cost_margin;
           summaryEvsSSD["Usage Cost"] = summaryEvsSSD["Usage Cost"].toFixed(2);
           summaryEvsSSD["Avg Duration"] = summaryEvsSSD["Avg Duration"].toFixed(2)
 
@@ -388,9 +377,9 @@ const ResourceUsage = () => {
           
           summaryEvsSata["Usage Cost"] = summaryEvsSata["Usage Cost"].toFixed(2);
           summaryEvsSata["Avg Duration"] = (summaryEvsSata["Avg Duration"] / summaryEvsSata["Size (GB)"]).toFixed();
-          if (summaryEvsSata["Avg Duration"] > 715) {
-            summaryEvsSata["Avg Duration"] = "730";
-          }
+          // if (summaryEvsSata["Avg Duration"] > 715) {
+          //   summaryEvsSata["Avg Duration"] = "730";
+          // }
 
           newEvsService.push(summaryEvsSata);
         }
@@ -403,6 +392,82 @@ const ResourceUsage = () => {
         })
       }
 
+      if (eipService) {
+        let eipServiceSummary = {
+          "Resource": "EIP",
+          "Resource Metric": "Elastic IP",
+          "Quantity": 0,
+          "Avg Duration": 0,
+          "Usage Cost": 0
+        }
+
+        eipService.instances.forEach(instance => {
+          eipServiceSummary["Quantity"] += 1;
+          eipServiceSummary["Avg Duration"] += parseFloat(instance["Metering Value"]);
+          eipServiceSummary["Usage Cost"] += parseFloat(instance["Usage Cost"]);
+        })
+
+        eipServiceSummary["Usage Cost"] = eipServiceSummary["Usage Cost"].toFixed(2);
+        eipServiceSummary["Avg Duration"] = (eipServiceSummary["Avg Duration"] / eipServiceSummary["Quantity"]).toFixed(2);
+
+        // Add the new objects to the services array
+        region.services = region.services.filter(service => service.serviceName.toLowerCase() !== "eip");
+        newServices.push({
+          serviceName: eipService.serviceName,
+          instances: [eipServiceSummary]
+        })
+      }
+
+      if (vpnService) {
+        let vpnServiceSummary = {
+          "Resource": "Virtual Private Network",
+          "Resource Metric": "VPN",
+          "Quantity": 0,
+          "Avg Duration": 0,
+          "Usage Cost": 0
+        };
+
+        vpnService.instances.forEach(instance => {
+          vpnServiceSummary["Quantity"] += 1;
+          vpnServiceSummary["Avg Duration"] += parseFloat(instance["Metering Value"]);
+          vpnServiceSummary["Usage Cost"] += parseFloat(instance["Usage Cost"]);
+        });
+
+        vpnServiceSummary["Usage Cost"] = vpnServiceSummary["Usage Cost"].toFixed(2);
+        vpnServiceSummary["Avg Duration"] = (vpnServiceSummary["Avg Duration"] / vpnServiceSummary["Quantity"]).toFixed(2);
+
+        // Add the new objects to the services array
+        region.services = region.services.filter(service => service.serviceName.toLowerCase() !== "virtual private network");
+        newServices.push({
+          serviceName: vpnService.serviceName,
+          instances: [vpnServiceSummary]
+        })
+      }
+
+      if (bwService) {
+        let bwServiceSummary = {
+          "Resource": "Bandwidth",
+          "Resource Metric": "Bandwidth",
+          "Quantity": 0,
+          "Duration": 0,
+          "Usage Cost": 0
+        }
+
+        const bwUnitCost = unitCosts.find(unitCost => unitCost.resource_desc.toLowerCase().includes("bandwidth"));
+
+        // bwService.instances
+        bwServiceSummary["Quantity"] = Math.max(...bwService.instances.map(instance => instance['Usage']));
+        bwServiceSummary["Duration"] = Math.max(...bwService.instances.map(instance => instance['Usage Duration']));
+        bwServiceSummary["Usage Cost"] = (bwServiceSummary["Quantity"] * bwServiceSummary['Duration'] * bwUnitCost.unit_cost_margin).toFixed(2);
+
+        // Add the new objects to the services array
+        region.services = region.services.filter(service => service.serviceName.toLowerCase() !== "bandwidth");
+        newServices.push({
+          serviceName: "All-Bandwidth",
+          instances: [bwServiceSummary]
+        })
+      }
+
       for (let service of region.services) {
         newServices.push(service);
       }
@@ -411,7 +476,7 @@ const ResourceUsage = () => {
     return data;
   }
 
-  const validServices = ["ecs", "evs", "eip", "eip-bandwidth", 'ecs-cluster', 'ecs-dedicated']; // List of valid service names
+  const validServices = ["ecs", "evs", "eip", "all-bandwidth", 'ecs-cluster', 'ecs-dedicated', 'virtual private network']; // List of valid service names
 
   const calculatePrice = (seletecdService) => {
     if (!isEmpty(selectedInstanceList)) {
@@ -558,7 +623,7 @@ const ResourceUsage = () => {
                     <div className='splitter'></div>
 
                     {
-                      selectedInstanceList.instances.length > 0 &&
+                      selectedInstanceList?.instances?.length > 0 &&
                       validServices.includes((selectedInstanceList.serviceName).toLowerCase()) &&
                       <Row style={{ fontSize: "14px", fontWeight: "bold", padding: 20, backgroundColor: "white", borderRadius: 6 }}>
                         <Col>
