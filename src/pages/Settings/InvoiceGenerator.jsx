@@ -18,7 +18,7 @@ function InvoiceGenerator() {
   const [discount, setDiscount] = useState(0);
   const [notes, setNotes] = useState('It was great doing business with you.');
   const [terms, setTerms] = useState('Prices are inclusive of taxes. Income tax deduction certificate to be shared within 7 days of payment.');
-  const [showActions, setShowActions] = useState(true); // Toggle state
+  const [showActions, setShowActions] = useState(false); // Toggle state
   const storedData = JSON.parse(localStorage.getItem('serviceCostsSummary')) || [];
   
   const companyInfo = {

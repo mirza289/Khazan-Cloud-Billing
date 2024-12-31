@@ -423,150 +423,151 @@ const ResourceUsage = () => {
               </Card>
             </Col>
           </Row>
-          <Row style={{ padding: "20px" }}>
-            <Col lg={3}>
-              <Card style={{ width: '100%' }}>
-                <Card.Body style={{ textAlign: "center", backgroundColor: "#f0f8ff" }}>
-                  <div className="gutter-20x"></div>
-                  {isEmpty(responseData) ? "No data found" :
-                    <Row>
-                      <Col>
-                        <span style={{ color: "#717171", fontSize: '18px', float: "left" }}> <i style={{ fontSize: '24px', color: "#717171" }} className="las la-cloud"></i> {data.regions[0].regionName}</span>
-                      </Col>
-                      <Col>
-                        <span style={{ color: "#717171", fontSize: '16px', float: "right" }}><i style={{ fontSize: '22px', color: "#717171" }} className="las la-globe-asia"></i> Pakistan</span>
-                      </Col>
-                    </Row>
-                  }
-                  <div className="gutter-10x"></div>
-                  <div className='splitter'></div>
-                  <div className="gutter-20x"></div>
-                  <Accordion>
-                    {
-                      !showSummary && !isEmpty(responseData) && responseData.regions[0].services.map((service, index) => (
-                        <Accordion.Item eventKey={index} onClick={() => setSelectedIntanceList(service)} key={index}>
-                          <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>{service.serviceName}</Accordion.Header>
-                          <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: 'auto', maxHeight: '20vh' }}>
-                            <ListGroup variant="flush">
-                              {
-                                (service.instances.map((item, index) => (
-                                  <ListGroup.Item onClick={() => handleSelectService(item)} style={{ backgroundColor: '#c0e2ff', borderRadius: '6px', marginBottom: '5px', cursor: 'pointer', fontSize: '14px' }} key={index}>
-                                    {item["Resource Name"]}
-                                  </ListGroup.Item>
-                                )))
-                              }
-                            </ListGroup>
-                          </Accordion.Body>
-                        </Accordion.Item>
-                      ))
+          {!isEmpty(responseData) &&
+            <Row style={{ padding: "20px" }}>
+              <Col lg={3}>
+                <Card style={{ width: '100%' }}>
+                  <Card.Body style={{ textAlign: "center", backgroundColor: "#f0f8ff" }}>
+                    <div className="gutter-20x"></div>
+                    {isEmpty(responseData) ? "No data found" :
+                      <Row>
+                        <Col>
+                          <span style={{ color: "#717171", fontSize: '18px', float: "left" }}> <i style={{ fontSize: '24px', color: "#717171" }} className="las la-cloud"></i> {data.regions[0].regionName}</span>
+                        </Col>
+                        <Col>
+                          <span style={{ color: "#717171", fontSize: '16px', float: "right" }}><i style={{ fontSize: '22px', color: "#717171" }} className="las la-globe-asia"></i> Pakistan</span>
+                        </Col>
+                      </Row>
                     }
-                    {
-                      showSummary && !isEmpty(summarizedData) && summarizedData.regions[0].services.map((service, index) => (
-                        <Accordion.Item eventKey={index} onClick={() => setSelectedIntanceList(service)}>
-                          <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>{service.serviceName}</Accordion.Header>
-                          <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: 'auto', maxHeight: '20vh' }}>
-                            <ListGroup variant="flush">
-                              {
-                                (service.instances.map((item, index) => (
-                                  <ListGroup.Item onClick={() => handleSelectService(item)} style={{ backgroundColor: '#c0e2ff', borderRadius: '6px', marginBottom: '5px', cursor: 'pointer', fontSize: '14px' }} key={index}>
-                                    {item["Resource"] || item["Resource Name"]}
-                                  </ListGroup.Item>
-                                )))
-                              }
-                            </ListGroup>
-                          </Accordion.Body>
-                        </Accordion.Item>
-                      ))
-                    }
-                  </Accordion>
-                  <div className="gutter-20x"></div>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col>
-              <Card style={{ width: '100%', backgroundColor: "#f0f8ff" }}>
-                <Card.Body>
-                  <div className="gutter-20x"></div>
-                  <div style={{ height: '50vh', overflowY: "auto", overflowX: "hidden" }}>
-                    <Table striped bordered hover>
-                      <thead>
-                        <tr>
+                    <div className="gutter-10x"></div>
+                    <div className='splitter'></div>
+                    <div className="gutter-20x"></div>
+                    <Accordion>
+                      {
+                        !showSummary && !isEmpty(responseData) && responseData.regions[0].services.map((service, index) => (
+                          <Accordion.Item eventKey={index} onClick={() => setSelectedIntanceList(service)} key={index}>
+                            <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>{service.serviceName}</Accordion.Header>
+                            <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: 'auto', maxHeight: '20vh' }}>
+                              <ListGroup variant="flush">
+                                {
+                                  (service.instances.map((item, index) => (
+                                    <ListGroup.Item onClick={() => handleSelectService(item)} style={{ backgroundColor: '#c0e2ff', borderRadius: '6px', marginBottom: '5px', cursor: 'pointer', fontSize: '14px' }} key={index}>
+                                      {item["Resource Name"]}
+                                    </ListGroup.Item>
+                                  )))
+                                }
+                              </ListGroup>
+                            </Accordion.Body>
+                          </Accordion.Item>
+                        ))
+                      }
+                      {
+                        showSummary && !isEmpty(summarizedData) && summarizedData.regions[0].services.map((service, index) => (
+                          <Accordion.Item eventKey={index} onClick={() => setSelectedIntanceList(service)}>
+                            <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>{service.serviceName}</Accordion.Header>
+                            <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: 'auto', maxHeight: '20vh' }}>
+                              <ListGroup variant="flush">
+                                {
+                                  (service.instances.map((item, index) => (
+                                    <ListGroup.Item onClick={() => handleSelectService(item)} style={{ backgroundColor: '#c0e2ff', borderRadius: '6px', marginBottom: '5px', cursor: 'pointer', fontSize: '14px' }} key={index}>
+                                      {item["Resource"] || item["Resource Name"]}
+                                    </ListGroup.Item>
+                                  )))
+                                }
+                              </ListGroup>
+                            </Accordion.Body>
+                          </Accordion.Item>
+                        ))
+                      }
+                    </Accordion>
+                    <div className="gutter-20x"></div>
+                  </Card.Body>
+                </Card>
+              </Col>
+              <Col>
+                <Card style={{ width: '100%', backgroundColor: "#f0f8ff" }}>
+                  <Card.Body>
+                    <div className="gutter-20x"></div>
+                    <div style={{ height: '50vh', overflowY: "auto", overflowX: "hidden" }}>
+                      <Table striped bordered hover>
+                        <thead>
+                          <tr>
+                            {
+                              selectedInstanceList?.instances?.length > 0 &&
+                              Object.keys(selectedInstanceList.instances[0]).map((key, i) => {
+                                return <th key={i}>{key}</th>
+                              })
+                            }
+                          </tr>
+                        </thead>
+                        <tbody>
                           {
                             selectedInstanceList?.instances?.length > 0 &&
-                            Object.keys(selectedInstanceList.instances[0]).map((key, i) => {
-                              return <th key={i}>{key}</th>
+                            selectedInstanceList.instances.map((instance, i) => {
+                              return (
+                                <tr key={i} style={{
+                                  height: "30px"
+                                }}>
+                                  {Object.keys(instance).map((key, index) => {
+                                    return <td key={index}>{instance[key]}</td>
+                                  })}
+                                </tr>
+                              )
                             })
                           }
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {
-                          selectedInstanceList?.instances?.length > 0 &&
-                          selectedInstanceList.instances.map((instance, i) => {
-                            return (
-                              <tr key={i} style={{
-                                height: "30px"
-                              }}>
-                                {Object.keys(instance).map((key, index) => {
-                                  return <td key={index}>{instance[key]}</td>
-                                })}
-                              </tr>
-                            )
-                          })
-                        }
-                      </tbody>
-                    </Table>
-                  </div>
-                  <div className="gutter-20x"></div>
-                  <div className='splitter'></div>
+                        </tbody>
+                      </Table>
+                    </div>
+                    <div className="gutter-20x"></div>
+                    <div className='splitter'></div>
 
-                  {selectedInstanceList.instances.length > 0 && validServices.includes((selectedInstanceList.serviceName).toLowerCase()) &&
-                    <Row style={{ fontSize: "14px", fontWeight: "bold", padding: 20, backgroundColor: "white", borderRadius: 6 }}>
-                      <Col>
-                      </Col>
-                      <Col>
-                        <Badge bg="light" style={{ fontSize: "18px", padding: "10px", color: "black" }}>
-                          {'Total Service Cost : $' + calculatePrice(selectedInstanceList)}
-                        </Badge>
-                      </Col>
-                    </Row>
-                  }
+                    {selectedInstanceList.instances.length > 0 && validServices.includes((selectedInstanceList.serviceName).toLowerCase()) &&
+                      <Row style={{ fontSize: "14px", fontWeight: "bold", padding: 20, backgroundColor: "white", borderRadius: 6 }}>
+                        <Col>
+                        </Col>
+                        <Col>
+                          <Badge bg="light" style={{ fontSize: "18px", padding: "10px", color: "black" }}>
+                            {'Total Service Cost : $' + calculatePrice(selectedInstanceList)}
+                          </Badge>
+                        </Col>
+                      </Row>
+                    }
 
-                  <Stack gap={2} className="col-md-5 mx-auto">
-                    <Form>
-                      <Form.Switch type="switch" id="custom-switch" label="Show Summary" onChange={() => {
-                        let newShowSummaryState = !showSummary;
-                        let newSelectedService = {};
-                        let selectedServiceName = selectedInstanceList.serviceName;
-                        if (newShowSummaryState) {
-                          newSelectedService = summarizedData.regions[0].services.find(service => service.serviceName === selectedServiceName);
-                        } else {
-                          newSelectedService = responseData.regions[0].services.find(service => service.serviceName === selectedServiceName);
-                        }
-                        setShowSummary(newShowSummaryState);
-                        setSelectedIntanceList(newSelectedService);
-                      }} />
-                    </Form>
+                    <Stack gap={2} className="col-md-5 mx-auto">
+                      <Form>
+                        <Form.Switch type="switch" id="custom-switch" label="Show Summary" onChange={() => {
+                          let newShowSummaryState = !showSummary;
+                          let newSelectedService = {};
+                          let selectedServiceName = selectedInstanceList.serviceName;
+                          if (newShowSummaryState) {
+                            newSelectedService = summarizedData.regions[0].services.find(service => service.serviceName === selectedServiceName);
+                          } else {
+                            newSelectedService = responseData.regions[0].services.find(service => service.serviceName === selectedServiceName);
+                          }
+                          setShowSummary(newShowSummaryState);
+                          setSelectedIntanceList(newSelectedService);
+                        }} />
+                      </Form>
 
-                    <Button
-                      size="sm"
-                      variant="light"
-                      style={{ marginLeft: "4px" }}
-                      onClick={() => {
-                        const key = 'invoiceData';
-                        localStorage.setItem(key, JSON.stringify(servicesCostList)); // Save to local storage
-                        window.open('/settings/generate-invoice', '_blank'); // Open the new tab
-                      }}
-                    >
-                      Preview Invoice
-                    </Button>
-                  </Stack>
-                  {/* <InvoiceGenerator /> */}
-                  <div className="gutter-10x"></div>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+                      <Button
+                        size="sm"
+                        variant="light"
+                        style={{ marginLeft: "4px" }}
+                        onClick={() => {
+                          const key = 'invoiceData';
+                          localStorage.setItem(key, JSON.stringify(servicesCostList)); // Save to local storage
+                          window.open('/settings/generate-invoice', '_blank'); // Open the new tab
+                        }}
+                      >
+                        Preview Invoice
+                      </Button>
+                    </Stack>
+                    {/* <InvoiceGenerator /> */}
+                    <div className="gutter-10x"></div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>}
         </main>
       </div>
     </Container >
