@@ -29,6 +29,7 @@ const ResourceUsage = () => {
   const [selectedService, setSelectedService] = useState({});
   const [selectedInstanceList, setSelectedIntanceList] = useState({ instances: [] });
   const [servicesCostList, setServicesCostList] = useState([]);
+  const [unitCostList, setUnitCostList] = useState([]);
   const elementRefs = useRef([]);
   // const [listLoadingSpinner, setListLoadingSpinner] = useState(false)
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
@@ -52,7 +53,7 @@ const ResourceUsage = () => {
 
   useEffect(() => console.log(apiError), [apiError]);
 
-  const handelUploadResourceData = (e) => {
+  const handelUploadResourceData = async (e) => {
     setShowSpinner(true)
     // continue if no validation errors
     let formData = new FormData()
@@ -70,12 +71,32 @@ const ResourceUsage = () => {
       // withCredentials: true,
     }
 
+    const responsePayload = await HttpClient.get("/unit-costs")
+      .catch((error) => {
+        if (error.response) {
+          setApiError(
+            error.response.data.message +
+            "[" +
+            error.response.data.message_detail +
+            "]"
+          );
+        } else if (error.request) {
+          setApiError(error.request);
+        } else {
+          setApiError(error.message);
+        }
+      });
+
+    const unitCosts = responsePayload.data.unit_costs;
+    setUnitCostList(unitCosts);
+    console.log("---Unit Costs---");
+
     HttpClient.post('/upload', formData, config)
       .then(responsePayload => {
         setShowSpinner(false);
 
         let data = processECSData(responsePayload.data);
-        let summary = processSummary(JSON.parse(JSON.stringify(data)));
+        let summary = processSummary(JSON.parse(JSON.stringify(data)), unitCosts);
         setSummarizedData(summary);
         setResponseData(data);
 
@@ -196,7 +217,7 @@ const ResourceUsage = () => {
     return data;
   }
 
-  function processSummary(data) {
+  function processSummary(data, unitCosts) {
     const regions = data.regions;
 
     regions.forEach(region => {
@@ -328,14 +349,24 @@ const ResourceUsage = () => {
               summaryEvsSnapshot["Usage Cost"] += parseFloat(instance["Usage Cost"]);
             })
             summaryEvsSnapshot["Avg Duration"] = summaryEvsSnapshot["Avg Duration"] / summaryEvsSnapshot["Size (GB)"]
+            if (summaryEvsSnapshot["Avg Duration"] > 715) {
+              summaryEvsSnapshot["Avg Duration"] = 730;
+            }
 
             summaryEvsSSD["Avg Duration"] = (summaryEvsSSD["Avg Duration"] + summaryEvsSnapshot["Avg Duration"]) / 2
             summaryEvsSSD["Usage Cost"] = summaryEvsSSD["Usage Cost"] + summaryEvsSnapshot["Usage Cost"];
             summaryEvsSSD["Size (GB)"] = summaryEvsSSD["Size (GB)"] + summaryEvsSnapshot["Size (GB)"];
           }
 
+          if (summaryEvsSSD["Avg Duration"] > 715) {
+            summaryEvsSSD["Avg Duration"] = 730;
+          }
+
+          const ssdCost = unitCosts.find(unitCost => unitCost.resource_desc.toLowerCase().includes('ssd'));
+
+          summaryEvsSSD["Usage Cost"] = summaryEvsSSD["Size (GB)"] * summaryEvsSSD["Avg Duration"] * ssdCost.unit_cost_margin;
+          summaryEvsSSD["Usage Cost"] = summaryEvsSSD["Usage Cost"].toFixed(2);
           summaryEvsSSD["Avg Duration"] = summaryEvsSSD["Avg Duration"].toFixed(2)
-          summaryEvsSSD["Usage Cost"] = summaryEvsSSD["Usage Cost"].toFixed(2)
 
           newEvsService.push(summaryEvsSSD);
         }
@@ -354,8 +385,12 @@ const ResourceUsage = () => {
             summaryEvsSata["Avg Duration"] += parseFloat(instance["Metering Value"]);
             summaryEvsSata["Usage Cost"] += parseFloat(instance["Usage Cost"]);
           })
-          summaryEvsSata["Avg Duration"] = (summaryEvsSata["Avg Duration"] / summaryEvsSata["Size (GB)"]).toFixed();
+          
           summaryEvsSata["Usage Cost"] = summaryEvsSata["Usage Cost"].toFixed(2);
+          summaryEvsSata["Avg Duration"] = (summaryEvsSata["Avg Duration"] / summaryEvsSata["Size (GB)"]).toFixed();
+          if (summaryEvsSata["Avg Duration"] > 715) {
+            summaryEvsSata["Avg Duration"] = "730";
+          }
 
           newEvsService.push(summaryEvsSata);
         }
