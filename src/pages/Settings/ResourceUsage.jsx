@@ -183,6 +183,7 @@ const ResourceUsage = () => {
             "Resource Metric": instance["Metering Metric"],
             "Usage": instance["Usage"],
             "Usage Duration": instance["Usage Duration"],
+            "Metering Value": instance["Metering Value"],
             "Usage Cost": instance["Usage Cost"].toFixed(2),
           }))
         })
@@ -291,15 +292,7 @@ const ResourceUsage = () => {
       }
 
       if (evsService) {
-        let evsSsd = evsService.instances.filter(instance => {
-          if (instance["Resource Metric"].toLowerCase().includes('ssd')) {
-            return true;
-          } else if (instance["Resource Metric"].toLowerCase().includes('snapshot')) {
-            return true;
-          } else {
-            return false;
-          }
-        });
+        const evsSsd = evsService.instances.filter(instance => instance["Resource Metric"].toLowerCase().includes('ssd'));
         const evsSata = evsService.instances.filter(instance => instance["Resource Metric"].toLowerCase().includes('sata'));
         let newEvsService = []
 
@@ -311,15 +304,17 @@ const ResourceUsage = () => {
             "Avg Duration": 0,
             "Usage Cost": 0
           }
-          let count = 0
+          // let count = 0;
           evsSsd.forEach(instance => {
-            summaryEvsSSD["Size (GB)"] += parseInt(instance["Usage"])
-            summaryEvsSSD["Avg Duration"] += parseFloat(instance["Usage Duration"])
-            summaryEvsSSD["Usage Cost"] += parseFloat(instance["Usage Cost"])
-            count++;
+            summaryEvsSSD["Size (GB)"] += parseInt(instance["Usage"]);
+            // summaryEvsSSD["Avg Duration"] += parseFloat(instance["Usage Duration"]);
+            summaryEvsSSD["Avg Duration"] += parseFloat(instance["Metering Value"]);
+            summaryEvsSSD["Usage Cost"] += parseFloat(instance["Usage Cost"]);
+            // count++;
           })
-          summaryEvsSSD["Avg Duration"] = (summaryEvsSSD["Avg Duration"] / count).toFixed(2);
-          summaryEvsSSD["Usage Cost"] = summaryEvsSSD["Usage Cost"].toFixed(2)
+          // summaryEvsSSD["Avg Duration"] = (summaryEvsSSD["Avg Duration"] / count).toFixed(2);
+          summaryEvsSSD["Avg Duration"] = (summaryEvsSSD["Avg Duration"] / summaryEvsSSD["Size (GB)"]).toFixed(2);
+          summaryEvsSSD["Usage Cost"] = summaryEvsSSD["Usage Cost"].toFixed(2);
 
           newEvsService.push(summaryEvsSSD);
         }
@@ -332,15 +327,17 @@ const ResourceUsage = () => {
             "Avg Duration": 0,
             "Usage Cost": 0
           }
-          let count = 0
+          // let count = 0;
           evsSata.forEach(instance => {
-            summaryEvsSata["Size (GB)"] += parseInt(instance["Usage"])
-            summaryEvsSata["Avg Duration"] += parseFloat(instance["Usage Duration"])
-            summaryEvsSata["Usage Cost"] += parseFloat(instance["Usage Cost"])
-            count++;
+            summaryEvsSata["Size (GB)"] += parseInt(instance["Usage"]);
+            // summaryEvsSata["Avg Duration"] += parseFloat(instance["Usage Duration"]);
+            summaryEvsSata["Avg Duration"] += parseFloat(instance["Metering Value"]);
+            summaryEvsSata["Usage Cost"] += parseFloat(instance["Usage Cost"]);
+            // count++;
           })
-          summaryEvsSata["Avg Duration"] = (summaryEvsSata["Avg Duration"] / count).toFixed();
-          summaryEvsSata["Usage Cost"] = summaryEvsSata["Usage Cost"].toFixed(2)
+          // summaryEvsSata["Avg Duration"] = (summaryEvsSata["Avg Duration"] / count).toFixed();
+          summaryEvsSata["Avg Duration"] = (summaryEvsSata["Avg Duration"] / summaryEvsSata["Size (GB)"]).toFixed();
+          summaryEvsSata["Usage Cost"] = summaryEvsSata["Usage Cost"].toFixed(2);
 
           newEvsService.push(summaryEvsSata);
         }

@@ -13,6 +13,8 @@ function CreateUser(props) {
         full_name: "",
         email: "",
         organization: "",
+        address: "",
+        ntnNumber: "",
         password: "",
         confirm_pass: "",
         is_active: false,
@@ -122,6 +124,28 @@ function CreateUser(props) {
                         value={formValues.organization}
                         onChange={(e) => handleInputChangeUser("organization", e.target.value)}
                         placeholder="Enter organization name"
+                        style={{ fontSize: "16px" }}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="fgAddress">
+                    <Form.Label>Address</Form.Label>
+                    <Form.Control
+                        size="lg"
+                        type="text"
+                        value={formValues.organization}
+                        onChange={(e) => handleInputChangeUser("address", e.target.value)}
+                        placeholder="Enter address"
+                        style={{ fontSize: "16px" }}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="fgNtnNumber">
+                    <Form.Label>NTN Number</Form.Label>
+                    <Form.Control
+                        size="lg"
+                        type="text"
+                        value={formValues.organization}
+                        onChange={(e) => handleInputChangeUser("ntnNumber", e.target.value)}
+                        placeholder="Enter ntn number"
                         style={{ fontSize: "16px" }}
                     />
                 </Form.Group>
