@@ -103,7 +103,6 @@ export default function ElasticService(props) {
                 <option value="8">8</option>
                 <option value="16">16</option>
                 <option value="32">32</option>
-                <option value="48">48</option>
                 <option value="64">64</option>
               </Form.Select>
             </Form.Group>
@@ -124,6 +123,8 @@ export default function ElasticService(props) {
                 <option value="32">32</option>
                 <option value="48">48</option>
                 <option value="64">64</option>
+                <option value="128">128</option>
+                <option value="256">256</option>
               </Form.Select>
             </Form.Group>
           </Col>
