@@ -119,6 +119,7 @@ const ResourceUsage = () => {
     });
     localStorage.setItem('serviceCostsSummary', JSON.stringify(summary));
     // setServicesSummary(summary); // Uncomment this if required
+    return summary;
   };
 
   const handleSelectService = (item) => {
@@ -521,7 +522,9 @@ const ResourceUsage = () => {
                     <div className="gutter-20x"></div>
                     <div className='splitter'></div>
 
-                    {selectedInstanceList.instances.length > 0 && validServices.includes((selectedInstanceList.serviceName).toLowerCase()) &&
+                    {
+                      selectedInstanceList.instances.length > 0 &&
+                      validServices.includes((selectedInstanceList.serviceName).toLowerCase()) &&
                       <Row style={{ fontSize: "14px", fontWeight: "bold", padding: 20, backgroundColor: "white", borderRadius: 6 }}>
                         <Col>
                         </Col>
@@ -534,20 +537,23 @@ const ResourceUsage = () => {
                     }
 
                     <Stack gap={2} className="col-md-5 mx-auto">
-                      <Form>
-                        <Form.Switch type="switch" id="custom-switch" label="Show Summary" onChange={() => {
-                          let newShowSummaryState = !showSummary;
-                          let newSelectedService = {};
-                          let selectedServiceName = selectedInstanceList.serviceName;
-                          if (newShowSummaryState) {
-                            newSelectedService = summarizedData.regions[0].services.find(service => service.serviceName === selectedServiceName);
-                          } else {
-                            newSelectedService = responseData.regions[0].services.find(service => service.serviceName === selectedServiceName);
-                          }
-                          setShowSummary(newShowSummaryState);
-                          setSelectedIntanceList(newSelectedService);
-                        }} />
-                      </Form>
+                      {
+                        selectedInstanceList?.instances?.length > 0 &&
+                        <Form>
+                          <Form.Switch type="switch" id="custom-switch" label="Show Summary" onChange={() => {
+                            let newShowSummaryState = !showSummary;
+                            let newSelectedService = {};
+                            let selectedServiceName = selectedInstanceList.serviceName;
+                            if (newShowSummaryState) {
+                              newSelectedService = summarizedData.regions[0].services.find(service => service.serviceName === selectedServiceName);
+                            } else {
+                              newSelectedService = responseData.regions[0].services.find(service => service.serviceName === selectedServiceName);
+                            }
+                            setShowSummary(newShowSummaryState);
+                            setSelectedIntanceList(newSelectedService);
+                          }} />
+                        </Form>
+                      }
 
                       <Button
                         size="sm"
