@@ -71,19 +71,19 @@ const ResourceUsage = () => {
     }
 
     let responsePayload = await HttpClient.get("/unit-costs").catch((error) => {
-        if (error.response) {
-          setApiError(
-            error.response.data.message +
-            "[" +
-            error.response.data.message_detail +
-            "]"
-          );
-        } else if (error.request) {
-          setApiError(error.request);
-        } else {
-          setApiError(error.message);
-        }
-      });
+      if (error.response) {
+        setApiError(
+          error.response.data.message +
+          "[" +
+          error.response.data.message_detail +
+          "]"
+        );
+      } else if (error.request) {
+        setApiError(error.request);
+      } else {
+        setApiError(error.message);
+      }
+    });
 
     const unitCosts = responsePayload.data.unit_costs;
 
@@ -99,7 +99,7 @@ const ResourceUsage = () => {
         console.log("----Service Costs -------");
 
         console.log(calculateServiceCosts(data))
-        setServicesCostList(calculateServiceCosts(data));
+        setServicesCostList(calculateServiceCosts(summary));
       })
       .catch(error => {
         setShowSpinner(false)
@@ -127,11 +127,11 @@ const ResourceUsage = () => {
           // Ensure 'Usage Cost' is treated as a number
           return sum + parseFloat(instance['Usage Cost'] || 0);
         }, 0);
-
-        summary.push({
-          serviceName: serviceName,
-          totalCost: totalCost.toFixed(2) // Optionally format to 2 decimal places
-        });
+        if (totalCost !== 0)
+          summary.push({
+            serviceName: serviceName,
+            totalCost: totalCost.toFixed(2) // Optionally format to 2 decimal places
+          });
       });
     });
     localStorage.setItem('serviceCostsSummary', JSON.stringify(summary));
@@ -374,7 +374,7 @@ const ResourceUsage = () => {
             summaryEvsSata["Avg Duration"] += parseFloat(instance["Metering Value"]);
             summaryEvsSata["Usage Cost"] += parseFloat(instance["Usage Cost"]);
           })
-          
+
           summaryEvsSata["Usage Cost"] = summaryEvsSata["Usage Cost"].toFixed(2);
           summaryEvsSata["Avg Duration"] = (summaryEvsSata["Avg Duration"] / summaryEvsSata["Size (GB)"]).toFixed();
           // if (summaryEvsSata["Avg Duration"] > 715) {
