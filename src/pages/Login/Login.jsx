@@ -55,7 +55,7 @@ const Login = () => {
       return
     }
 
-    navigate("/home")
+    navigate("/settings/resource-usage")
 
     // // continue if no validation errors
     // let formData = new FormData()

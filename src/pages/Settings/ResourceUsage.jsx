@@ -716,8 +716,8 @@ const ResourceUsage = () => {
                         </Col>
                       </Row>
                     }
-
-                    <Stack gap={2} className="col-md-5 mx-auto">
+                    <div className="gutter-20x"></div>
+                    <Stack gap={4} className="col-md-5 mx-auto">
                       {
                         selectedInstanceList?.instances?.length > 0 &&
                         <Form>
@@ -739,7 +739,7 @@ const ResourceUsage = () => {
                       <Button
                         size="sm"
                         variant="light"
-                        style={{ marginLeft: "4px" }}
+                        style={{ marginLeft: "4px", backgroundColor: 'rgb(192, 226, 255)' }}
                         onClick={() => {
                           const key = 'invoiceData';
                           localStorage.setItem(key, JSON.stringify(servicesCostList)); // Save to local storage

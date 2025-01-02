@@ -559,3 +559,7 @@ tr:nth-child(even) {
  font-size: 14px;
  font-weight: bold;
 }
+
+.menuitem-active{
+  background-color:rgb(240, 248, 255) ;
+}

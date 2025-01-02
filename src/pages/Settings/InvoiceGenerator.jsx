@@ -12,7 +12,7 @@ const options = {
 
 function InvoiceGenerator() {
   const [items, setItems] = useState([]);
-  const [taxRate, setTaxRate] = useState(18);
+  const [taxRate, setTaxRate] = useState(15);
   const [discount, setDiscount] = useState(0);
   const [notes, setNotes] = useState('It was great doing business with you.');
   const [terms, setTerms] = useState('Prices are inclusive of taxes. Income tax deduction certificate to be shared within 7 days of payment.');
@@ -73,6 +73,7 @@ function InvoiceGenerator() {
   const downloadPdf = () => generatePDF(getTargetElement, options);
 
   useEffect(() => {
+    fetchExchangeRate()
     // Load dynamic data into items on component mount
     const mappedItems = storedData.map(service => ({
       description: service.serviceName,
@@ -94,11 +95,25 @@ function InvoiceGenerator() {
   }, [dollarRate, total, taxRate]);
 
 
+  const fetchExchangeRate = async () => {
+    const API_URL = 'https://open.er-api.com/v6/latest/USD'; // Replace with your API
+    try {
+      const response = await fetch(API_URL);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      setDollarRate(data.rates.PKR.toFixed(2))
+    } catch (error) {
+      console.error('Error fetching exchange rate:', error);
+    }
+  };
+
   return (
     <Container>
       <Row className="my-4">
         <Col md={8}>
-          <ToggleButton
+          {/* <ToggleButton
             id="toggle-show-actions"
             type="checkbox"
             variant="outline-secondary"
@@ -107,7 +122,7 @@ function InvoiceGenerator() {
             onChange={(e) => setShowActions(e.currentTarget.checked)}
           >
             {showActions ? 'Hide Add Items & Actions' : 'Show Add Items & Actions'}
-          </ToggleButton>
+          </ToggleButton> */}
         </Col>
         <Col md={4} className="text-end">
           <Button variant="primary" onClick={downloadPdf}>Download PDF</Button>
