@@ -91,7 +91,7 @@ const ResourceUsage = () => {
       .then(responsePayload => {
         setShowSpinner(false);
 
-        let data = processECSData(responsePayload.data);
+        let data = processECSData(responsePayload.data, unitCosts);
         let summary = processSummary(JSON.parse(JSON.stringify(data)), unitCosts);
         setSummarizedData(summary);
         setResponseData(data);
@@ -150,7 +150,7 @@ const ResourceUsage = () => {
   }, [acceptedFiles])
 
 
-  function processECSData(data) {
+  function processECSData(data, unitCosts) {
     const regions = data.regions;
 
     regions.forEach(region => {
@@ -163,30 +163,43 @@ const ResourceUsage = () => {
         const clusteredInstances = ecsService.instances.clustered || [];
         const dedicatedInstances = ecsService.instances.dedicated || [];
 
+        const cceCost = unitCosts.find(unitCost => unitCost.resource_desc.toLowerCase().includes("cce"));
+        const cpuCost = unitCosts.find(unitCost => unitCost.resource_desc.toLowerCase().includes("cores"));
+        const ramCost = unitCosts.find(unitCost => unitCost.resource_desc.toLowerCase().includes("ram"));
 
         // Transform the data
         const clustered = {
           serviceName: "ECS-cluster",
-          instances: clusteredInstances.map(instance => ({
-            "Resource Name": instance["Resource Name"] || instance["Resource ID"],
-            "Resource Metric": instance["Metering Metric"],
-            "vCPU": instance["vCPUs"],
-            "Memory": instance["Memory"],
-            "Usage Duration": instance["Usage Duration"],
-            "Usage Cost": instance["Usage Cost"].toFixed(2),
-          }))
+          instances: clusteredInstances.map(instance => {
+            const monthlyUnitPrice = (instance["vCPUs"] * cceCost.unit_cost_margin) + (instance["Memory"] * ramCost.unit_cost_margin);
+
+            return {
+              "Resource Name": instance["Resource Name"] || instance["Resource ID"],
+              "Resource Metric": instance["Metering Metric"],
+              "vCPU": instance["vCPUs"],
+              "Memory": instance["Memory"],
+              "Rate (Per Hour)": monthlyUnitPrice.toFixed(5),
+              "Usage Duration": instance["Usage Duration"],
+              "Usage Cost": instance["Usage Cost"].toFixed(2),
+            }
+          })
         };
 
         const dedicated = {
           serviceName: "ECS-dedicated",
-          instances: dedicatedInstances.map(instance => ({
-            "Resource Name": instance["Resource Name"] || instance["Resource ID"],
-            "Resource Metric": instance["Metering Metric"],
-            "vCPU": instance["vCPUs"],
-            "Memory": instance["Memory"],
-            "Usage Duration": instance["Usage Duration"],
-            "Usage Cost": instance["Usage Cost"].toFixed(2),
-          }))
+          instances: dedicatedInstances.map(instance => {
+            const monthlyUnitPrice = (instance["vCPUs"] * cpuCost.unit_cost_margin) + (instance["Memory"] * ramCost.unit_cost_margin);
+
+            return {
+              "Resource Name": instance["Resource Name"] || instance["Resource ID"],
+              "Resource Metric": instance["Metering Metric"],
+              "vCPU": instance["vCPUs"],
+              "Memory": instance["Memory"],
+              "Rate (Per Hour)": monthlyUnitPrice.toFixed(5),
+              "Usage Duration": instance["Usage Duration"],
+              "Usage Cost": instance["Usage Cost"].toFixed(2),
+            }
+          })
         };
 
         // Add the new objects to the services array
@@ -197,14 +210,19 @@ const ResourceUsage = () => {
       for (let service of region.services) {
         newServices.push({
           serviceName: service.serviceName,
-          instances: service.instances.map(instance => ({
-            "Resource Name": instance["Resource Name"] || instance["Resource ID"],
-            "Resource Metric": instance["Metering Metric"],
-            "Usage": instance["Usage"],
-            "Usage Duration": instance["Usage Duration"],
-            "Metering Value": instance["Metering Value"],
-            "Usage Cost": instance["Usage Cost"].toFixed(2),
-          }))
+          instances: service.instances.map(instance => {
+            const monthlyUnitPrice = calculateUnitPrice(instance, service.serviceName, unitCosts);
+
+            return {
+              "Resource Name": instance["Resource Name"] || instance["Resource ID"],
+              "Resource Metric": instance["Metering Metric"],
+              "Usage": instance["Usage"],
+              [monthlyUnitPrice.label]: monthlyUnitPrice.value,
+              "Usage Duration": instance["Usage Duration"],
+              "Metering Value": instance["Metering Value"],
+              "Usage Cost": instance["Usage Cost"].toFixed(2),
+            }
+          })
         })
       }
       region.services = newServices;
@@ -236,12 +254,14 @@ const ResourceUsage = () => {
               "Resource": instance['Resource Metric'],
               "vCPU": instance['vCPU'],
               "Memory": instance['Memory'],
+              totalRate: 0,
               totalDuration: 0,
               totalCost: 0,
               count: 0,
             };
           }
 
+          groupedData[key].totalRate += parseFloat(instance["Rate (Per Hour)"]);
           groupedData[key].totalDuration += parseFloat(instance["Usage Duration"]);
           groupedData[key].totalCost += parseFloat(instance["Usage Cost"]);
           groupedData[key].count++;
@@ -256,6 +276,7 @@ const ResourceUsage = () => {
             "vCPU": group['vCPU'],
             "Memory": group['Memory'],
             "Quantity": group.count,
+            "Rate (Per Hour)": (group.totalRate / group.count).toFixed(2),
             "Avg Duration": (group.totalDuration / group.count).toFixed(2),
             "Usage Cost": group.totalCost.toFixed(2)
           });
@@ -280,12 +301,14 @@ const ResourceUsage = () => {
               "Resource": instance['Resource Metric'],
               "vCPU": instance['vCPU'],
               "Memory": instance['Memory'],
+              totalRate: 0,
               totalDuration: 0,
               totalCost: 0,
               count: 0,
             };
           }
 
+          groupedData[key].totalRate += parseFloat(instance["Rate (Per Hour)"]);
           groupedData[key].totalDuration += parseFloat(instance["Usage Duration"]);
           groupedData[key].totalCost += parseFloat(instance["Usage Cost"]);
           groupedData[key].count++;
@@ -300,6 +323,7 @@ const ResourceUsage = () => {
             "vCPU": group['vCPU'],
             "Memory": group['Memory'],
             "Quantity": group.count,
+            "Rate (Per Hour)": (group.totalRate / group.count).toFixed(5),
             "Avg Duration": (group.totalDuration / group.count).toFixed(2),
             "Usage Cost": group.totalCost.toFixed(2)
           });
@@ -314,8 +338,15 @@ const ResourceUsage = () => {
       }
 
       if (evsService) {
-        const evsSsd = evsService.instances.filter(instance => instance["Resource Metric"].toLowerCase().includes('ssd'));
-        const evsSnapshot = evsService.instances.filter(instance => instance["Resource Metric"].toLowerCase().includes('snapshot'));
+        const evsSsd = evsService.instances.filter(instance => {
+          if(instance["Resource Metric"].toLowerCase().includes('ssd')) {
+            return true;
+          } else if (instance["Resource Metric"].toLowerCase().includes('snapshot')) {
+            return true;
+          }
+
+          return false;
+        });
         const evsSata = evsService.instances.filter(instance => instance["Resource Metric"].toLowerCase().includes('sata'));
         let newEvsService = []
 
@@ -324,38 +355,22 @@ const ResourceUsage = () => {
             "Resource": "EVS SSD",
             "Resource Metric": "SSD",
             "Size (GB)": 0,
+            "Rate (Per GB)": 0,
             "Avg Duration": 0,
             "Usage Cost": 0
           }
 
           evsSsd.forEach(instance => {
             summaryEvsSSD["Size (GB)"] += parseInt(instance["Usage"]);
+            summaryEvsSSD["Rate (Per GB)"] += parseFloat(instance["Rate (Per GB)"]);
             summaryEvsSSD["Avg Duration"] += parseFloat(instance["Metering Value"]);
             summaryEvsSSD["Usage Cost"] += parseFloat(instance["Usage Cost"]);
           })
           summaryEvsSSD["Avg Duration"] = summaryEvsSSD["Avg Duration"] / summaryEvsSSD["Size (GB)"];
-
-          if (evsSnapshot.length > 0) {
-            let summaryEvsSnapshot = {
-              "Size (GB)": 0,
-              "Avg Duration": 0,
-              "Usage Cost": 0
-            }
-
-            evsSnapshot.forEach(instance => {
-              summaryEvsSnapshot["Size (GB)"] += parseInt(instance["Usage"]);
-              summaryEvsSnapshot["Avg Duration"] += parseFloat(instance["Metering Value"]);
-              summaryEvsSnapshot["Usage Cost"] += parseFloat(instance["Usage Cost"]);
-            })
-            summaryEvsSnapshot["Avg Duration"] = summaryEvsSnapshot["Avg Duration"] / summaryEvsSnapshot["Size (GB)"]
-
-            summaryEvsSSD["Avg Duration"] = (summaryEvsSSD["Avg Duration"] + summaryEvsSnapshot["Avg Duration"]) / 2
-            summaryEvsSSD["Usage Cost"] = summaryEvsSSD["Usage Cost"] + summaryEvsSnapshot["Usage Cost"];
-            summaryEvsSSD["Size (GB)"] = summaryEvsSSD["Size (GB)"] + summaryEvsSnapshot["Size (GB)"];
-          }
-
+          
           summaryEvsSSD["Usage Cost"] = summaryEvsSSD["Usage Cost"].toFixed(2);
-          summaryEvsSSD["Avg Duration"] = summaryEvsSSD["Avg Duration"].toFixed(2)
+          summaryEvsSSD["Avg Duration"] = summaryEvsSSD["Avg Duration"].toFixed(2);
+          summaryEvsSSD["Rate (Per GB)"] = (summaryEvsSSD["Rate (Per GB)"] / evsSsd.length).toFixed(7);
 
           newEvsService.push(summaryEvsSSD);
         }
@@ -365,21 +380,21 @@ const ResourceUsage = () => {
             "Resource": "EVS SATA",
             "Resource Metric": "SATA",
             "Size (GB)": 0,
+            "Rate (Per GB)": 0,
             "Avg Duration": 0,
             "Usage Cost": 0
           }
 
           evsSata.forEach(instance => {
             summaryEvsSata["Size (GB)"] += parseInt(instance["Usage"]);
+            summaryEvsSata["Rate (Per GB)"] += parseFloat(instance["Rate (Per GB)"]);
             summaryEvsSata["Avg Duration"] += parseFloat(instance["Metering Value"]);
             summaryEvsSata["Usage Cost"] += parseFloat(instance["Usage Cost"]);
           })
 
           summaryEvsSata["Usage Cost"] = summaryEvsSata["Usage Cost"].toFixed(2);
           summaryEvsSata["Avg Duration"] = (summaryEvsSata["Avg Duration"] / summaryEvsSata["Size (GB)"]).toFixed();
-          // if (summaryEvsSata["Avg Duration"] > 715) {
-          //   summaryEvsSata["Avg Duration"] = "730";
-          // }
+          summaryEvsSata["Rate (Per GB)"] = (summaryEvsSata["Rate (Per GB)"] / evsSata.length).toFixed(7);
 
           newEvsService.push(summaryEvsSata);
         }
@@ -397,18 +412,21 @@ const ResourceUsage = () => {
           "Resource": "EIP",
           "Resource Metric": "Elastic IP",
           "Quantity": 0,
+          "Rate (Per Hour)": 0,
           "Avg Duration": 0,
           "Usage Cost": 0
         }
 
         eipService.instances.forEach(instance => {
           eipServiceSummary["Quantity"] += 1;
+          eipServiceSummary["Rate (Per Hour)"] += parseFloat(instance["Rate (Per Hour)"]);
           eipServiceSummary["Avg Duration"] += parseFloat(instance["Metering Value"]);
           eipServiceSummary["Usage Cost"] += parseFloat(instance["Usage Cost"]);
         })
 
         eipServiceSummary["Usage Cost"] = eipServiceSummary["Usage Cost"].toFixed(2);
         eipServiceSummary["Avg Duration"] = (eipServiceSummary["Avg Duration"] / eipServiceSummary["Quantity"]).toFixed(2);
+        eipServiceSummary["Rate (Per Hour)"] = (eipServiceSummary["Rate (Per Hour)"] / eipServiceSummary["Quantity"]).toFixed(7);
 
         // Add the new objects to the services array
         region.services = region.services.filter(service => service.serviceName.toLowerCase() !== "eip");
@@ -423,18 +441,21 @@ const ResourceUsage = () => {
           "Resource": "Virtual Private Network",
           "Resource Metric": "VPN",
           "Quantity": 0,
+          "Rate (Per Hour)": 0,
           "Avg Duration": 0,
           "Usage Cost": 0
         };
 
         vpnService.instances.forEach(instance => {
           vpnServiceSummary["Quantity"] += 1;
+          vpnServiceSummary["Rate (Per Hour)"] += parseFloat(instance["Rate (Per Hour)"]);
           vpnServiceSummary["Avg Duration"] += parseFloat(instance["Metering Value"]);
           vpnServiceSummary["Usage Cost"] += parseFloat(instance["Usage Cost"]);
         });
 
         vpnServiceSummary["Usage Cost"] = vpnServiceSummary["Usage Cost"].toFixed(2);
         vpnServiceSummary["Avg Duration"] = (vpnServiceSummary["Avg Duration"] / vpnServiceSummary["Quantity"]).toFixed(2);
+        vpnServiceSummary["Rate (Per Hour)"] = (vpnServiceSummary["Rate (Per Hour)"] / vpnServiceSummary["Quantity"]).toFixed(7);
 
         // Add the new objects to the services array
         region.services = region.services.filter(service => service.serviceName.toLowerCase() !== "virtual private network");
@@ -449,6 +470,7 @@ const ResourceUsage = () => {
           "Resource": "Bandwidth",
           "Resource Metric": "Bandwidth",
           "Quantity": 0,
+          "Rate (Per MB)": 0,
           "Duration": 0,
           "Usage Cost": 0
         }
@@ -457,13 +479,14 @@ const ResourceUsage = () => {
 
         // bwService.instances
         bwServiceSummary["Quantity"] = Math.max(...bwService.instances.map(instance => instance['Usage']));
+        bwServiceSummary["Rate (Per MB)"] = bwUnitCost.unit_cost_margin.toFixed(7);
         bwServiceSummary["Duration"] = Math.max(...bwService.instances.map(instance => instance['Usage Duration']));
         bwServiceSummary["Usage Cost"] = (bwServiceSummary["Quantity"] * bwServiceSummary['Duration'] * bwUnitCost.unit_cost_margin).toFixed(2);
 
         // Add the new objects to the services array
         region.services = region.services.filter(service => service.serviceName.toLowerCase() !== "bandwidth");
         newServices.push({
-          serviceName: "All-Bandwidth",
+          serviceName: bwService.serviceName,
           instances: [bwServiceSummary]
         })
       }
@@ -476,19 +499,69 @@ const ResourceUsage = () => {
     return data;
   }
 
-  const validServices = ["ecs", "evs", "eip", "all-bandwidth", 'ecs-cluster', 'ecs-dedicated', 'virtual private network']; // List of valid service names
+  function calculateUnitPrice(instance, serviceName, unitCosts) {
+    let monthlyUnitPrice = {
+      label: "Rate",
+      value: 0
+    };
+
+    if (serviceName.toLowerCase().includes('evs')) {
+      const ssdCost = unitCosts.find(unitCost => unitCost.resource_desc.toLowerCase().includes("ssd"));
+      const sataCost = unitCosts.find(unitCost => unitCost.resource_desc.toLowerCase().includes("hdd"));
+
+      if (instance["Metering Metric"].toLowerCase().includes('ssd') || instance["Metering Metric"].toLowerCase().includes('snapshot')) {
+        monthlyUnitPrice.value = ssdCost.unit_cost_margin.toFixed(7);
+        monthlyUnitPrice.label = "Rate (Per GB)";
+      }
+
+      if (instance["Metering Metric"].toLowerCase().includes('sata')) {
+        monthlyUnitPrice.value = sataCost.unit_cost_margin.toFixed(7);
+        monthlyUnitPrice.label = "Rate (Per GB)";
+      }
+    }
+
+    if (serviceName.toLowerCase().includes('eip')) {
+      const eipCost = unitCosts.find(unitCost => unitCost.resource_desc.toLowerCase().includes("eip"));
+
+      monthlyUnitPrice.value = eipCost.unit_cost_margin.toFixed(7);
+      monthlyUnitPrice.label = "Rate (Per Hour)";
+    }
+
+    if (serviceName.toLowerCase().includes('virtual')) {
+      const vpnCost = unitCosts.find(unitCost => unitCost.resource_desc.toLowerCase().includes("virtual"));
+
+      monthlyUnitPrice.value = vpnCost.unit_cost_margin.toFixed(7);
+      monthlyUnitPrice.label = "Rate (Per Hour)";
+    }
+
+    if (serviceName.toLowerCase().includes('bandwidth')) {
+      const bwCost = unitCosts.find(unitCost => unitCost.resource_desc.toLowerCase().includes("bandwidth"));
+
+      monthlyUnitPrice.value = bwCost.unit_cost_margin.toFixed(7);
+      monthlyUnitPrice.label = "Rate (Per MB)";
+    }
+
+    return monthlyUnitPrice;
+  }
+
+  const validServices = ["ecs", "evs", "eip", "bandwidth", 'ecs-cluster', 'ecs-dedicated', 'virtual private network']; // List of valid service names
 
   const calculatePrice = (seletecdService) => {
     if (!isEmpty(selectedInstanceList)) {
       const serviceName = selectedInstanceList.serviceName?.toLowerCase(); // Safely get the service name in lowercase
       if (validServices.includes(serviceName)) {
         // Calculate the total price for all instances
+        if (serviceName.includes('bandwidth')) {
+          if (selectedInstanceList.instances.length > 1) {
+            return;
+          }
+        }
         const totalPrice = selectedInstanceList.instances.reduce((total, instance) => {
           // Accumulate the price of each instance
           const price = parseFloat(instance["Usage Cost"]) || 0.0; // Default to 0 if no price is provided
           return total + price; // Add price to total
         }, 0);
-        return totalPrice.toFixed(2); // Return the total price
+        return 'Total Service Cost : $' + totalPrice.toFixed(2); // Return the total price
       }
     }
   }
@@ -564,7 +637,7 @@ const ResourceUsage = () => {
                       }
                       {
                         showSummary && !isEmpty(summarizedData) && summarizedData.regions[0].services.map((service, index) => (
-                          <Accordion.Item eventKey={index} onClick={() => setSelectedIntanceList(service)}>
+                          <Accordion.Item key={index} eventKey={index} onClick={() => setSelectedIntanceList(service)}>
                             <Accordion.Header style={{ backgroundColor: "#f0f8ff" }}>{service.serviceName}</Accordion.Header>
                             <Accordion.Body style={{ backgroundColor: "#f0f8ff", overflowY: 'auto', maxHeight: '20vh' }}>
                               <ListGroup variant="flush">
@@ -596,7 +669,11 @@ const ResourceUsage = () => {
                             {
                               selectedInstanceList?.instances?.length > 0 &&
                               Object.keys(selectedInstanceList.instances[0]).map((key, i) => {
-                                return <th key={i}>{key}</th>
+                                if (key !== "Metering Value") {
+                                  return <th key={i}>{key}</th>
+                                } else {
+                                  return null
+                                }
                               })
                             }
                           </tr>
@@ -610,7 +687,11 @@ const ResourceUsage = () => {
                                   height: "30px"
                                 }}>
                                   {Object.keys(instance).map((key, index) => {
-                                    return <td key={index}>{instance[key]}</td>
+                                    if (key !== "Metering Value") {
+                                      return <td key={index}>{instance[key]}</td>
+                                    } else {
+                                      return null
+                                    }
                                   })}
                                 </tr>
                               )
@@ -630,7 +711,7 @@ const ResourceUsage = () => {
                         </Col>
                         <Col>
                           <Badge bg="light" style={{ fontSize: "18px", padding: "10px", color: "black" }}>
-                            {'Total Service Cost : $' + calculatePrice(selectedInstanceList)}
+                            {calculatePrice(selectedInstanceList)?.toString()}
                           </Badge>
                         </Col>
                       </Row>
