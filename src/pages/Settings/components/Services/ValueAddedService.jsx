@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
-import { Col, Row, Form,Button, Spinner } from 'react-bootstrap'
+import React from 'react'
+import { Col, Row, Form, InputGroup } from 'react-bootstrap'
 
 export default function ValueAddedService(props) {
-    const [spinner, showSpinner] = useState(false)
-      // Handle checkbox changes
+  console.log(props.additionalServices);
+  // Handle checkbox changes
   const handleCheckboxChange = (serviceName) => {
     props.setAdditionalServices((prevState) => {
       const exists = prevState.data.some((service) => service.serviceName === serviceName);
@@ -21,7 +21,7 @@ export default function ValueAddedService(props) {
         ...prevState,
         data: [
           ...prevState.data,
-          { serviceName, price: "", qty: "" },
+          { serviceName, price: "", qty: "", id: exists?.id },
         ],
       };
     });
@@ -53,130 +53,122 @@ export default function ValueAddedService(props) {
 
   return (
     <React.Fragment>
- <div className="gutter-10x"></div>
-        <div className="splitter"></div>
-        <div className="gutter-20x"></div>
-        <Row>
-          <Col>
-            <span style={{ fontSize: "16px", fontWeight: "bold" }}>
-              Value Added (Free Services)
-            </span>
-          </Col>
-        </Row>
-        <div className="gutter-20x"></div>
-        <Row style={{ fontSize: "14px", fontWeight: "bold" }}>
-          {/* Column 1 */}
-          <Col lg={6}>
-            {[
-              "elasticLoadBalancer",
-              "natSet",
-              "smnSet",
-              "autoScaling",
-              "vpn",
-            ].map((service) => (
-              <div key={service} style={{ marginBottom: "10px" }}>
-                <Row>
-                  <Col>
-                    <Form.Check
-                      type="checkbox"
-                      label={service
-                        .replace(/([A-Z])/g, " $1")
-                        .replace(/^\w/, (c) => c.toUpperCase())}
-                      checked={props.additionalServices.data.some((s) => s.serviceName === service)}
-                      onChange={() => handleCheckboxChange(service)}
-                    />
-                  </Col>
-                  {props.additionalServices.data.some((s) => s.serviceName === service) && (
-                    <>
-                      <Col>
+      <div className="gutter-10x"></div>
+      <div className="splitter"></div>
+      <div className="gutter-20x"></div>
+      <Row>
+        <Col>
+          <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+            Value Added (Free Services)
+          </span>
+        </Col>
+      </Row>
+      <div className="gutter-20x"></div>
+      <Row style={{ fontSize: "14px", fontWeight: "bold" }}>
+        {/* Column 1 */}
+        <Col lg={6}>
+          {[
+            "elasticLoadBalancer",
+            "natSet",
+            "smnSet",
+            "autoScaling",
+            "vpn",
+          ].map((service) => (
+            <div key={service} style={{ marginBottom: "10px" }}>
+              <Row>
+                <Col>
+                  <Form.Check
+                    type="checkbox"
+                    label={service
+                      .replace(/([A-Z])/g, " $1")
+                      .replace(/^\w/, (c) => c.toUpperCase())}
+                    checked={props.additionalServices.data.some((s) => s.serviceName === service)}
+                    onChange={() => handleCheckboxChange(service)}
+                  />
+                </Col>
+                {props.additionalServices.data.some((s) => s.serviceName === service) && (
+                  <>
+                    <Col>
+                      <InputGroup>
+                        <InputGroup.Text id="basic-addon1" style={{ marginTop: "5px" }}>Price</InputGroup.Text>
                         <Form.Control
-                          type="text"
+                          type="number"
+                          min={0}
                           placeholder="Enter Price"
                           value={
-                            props.additionalServices.data.find((s) => s.serviceName === service)?.price || ""
+                            props.additionalServices.data.find((s) => s.serviceName === service)?.price || 0
                           }
                           onChange={(e) => handlePriceChange(service, e.target.value)}
                           style={{ marginTop: "5px", fontSize: "14px", float: "right" }}
                         />
-                      </Col>
-                      <Col>
+                      </InputGroup>
+                    </Col>
+                    <Col>
+                      <InputGroup>
+                        <InputGroup.Text id="basic-addon1" style={{ marginTop: "5px" }}>Qty</InputGroup.Text>
                         <Form.Control
-                          type="text"
+                          type="number"
+                          min={0}
                           placeholder="Enter Qty"
                           value={
-                            props.additionalServices.data.find((s) => s.serviceName === service)?.qty || ""
+                            props.additionalServices.data.find((s) => s.serviceName === service)?.qty || 0
                           }
                           onChange={(e) => handleQtyChange(service, e.target.value)}
                           style={{ marginTop: "5px", fontSize: "14px", float: "right" }}
                         />
-                      </Col>
-                    </>
-                  )}
-                </Row>
-              </div>
-            ))}
-          </Col>
-          {/* Column 2 */}
-          <Col lg={6}>
-            {[
-              "imageManagementService",
-              "virtualPrivateCloud",
-              "dns",
-              "monitoringService",
-              "securityGroups",
-              "accessControlList",
-            ].map((service) => (
-              <div key={service} style={{ marginBottom: "10px" }}>
-                <Form.Check
-                  type="checkbox"
-                  label={service
-                    .replace(/([A-Z])/g, " $1")
-                    .replace(/^\w/, (c) => c.toUpperCase())}
-                  checked={props.additionalServices.data.some((s) => s.serviceName === service)}
-                  onChange={() => handleCheckboxChange(service)}
-                />
-                {props.additionalServices.data.some((s) => s.serviceName === service) && (
-                  <>
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter Price"
-                      value={
-                        props.additionalServices.data.find((s) => s.serviceName === service)?.price || ""
-                      }
-                      onChange={(e) => handlePriceChange(service, e.target.value)}
-                      style={{ marginTop: "5px", fontSize: "14px" }}
-                    />
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter Qty"
-                      value={
-                        props.additionalServices.data.find((s) => s.serviceName === service)?.qty || ""
-                      }
-                      onChange={(e) => handleQtyChange(service, e.target.value)}
-                      style={{ marginTop: "5px", fontSize: "14px" }}
-                    />
+                      </InputGroup>
+                    </Col>
                   </>
                 )}
-              </div>
-            ))}
-          </Col>
-        </Row>
-        <div className="d-grid gap-2">
-          <Button
-            size="lg"
-            type="submit"
-            style={{ fontSize: "16px", borderRadius: "20px", backgroundColor: "#2887d4" }}>
-            {
-              spinner ?
-                <div>
-                  <Spinner style={{ marginRight: 10, marginTop: 5 }} animation="border" size="sm" variant="light" role="status" />
-                  Creating User ...
-                </div>
-                :
-                <div>Create</div>
-            }
-          </Button>
-        </div>
+              </Row>
+            </div>
+          ))}
+        </Col>
+        {/* Column 2 */}
+        <Col lg={6}>
+          {[
+            "imageManagementService",
+            "virtualPrivateCloud",
+            "dns",
+            "monitoringService",
+            "securityGroups",
+            "accessControlList",
+          ].map((service) => (
+            <div key={service} style={{ marginBottom: "10px" }}>
+              <Form.Check
+                type="checkbox"
+                label={service
+                  .replace(/([A-Z])/g, " $1")
+                  .replace(/^\w/, (c) => c.toUpperCase())}
+                checked={props.additionalServices.data.some((s) => s.serviceName === service)}
+                onChange={() => handleCheckboxChange(service)}
+              />
+              {props.additionalServices.data.some((s) => s.serviceName === service) && (
+                <>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter Price"
+                    value={
+                      props.additionalServices.data.find((s) => s.serviceName === service)?.price || ""
+                    }
+                    onChange={(e) => handlePriceChange(service, e.target.value)}
+                    style={{ marginTop: "5px", fontSize: "14px" }}
+                  />
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter Qty"
+                    value={
+                      props.additionalServices.data.find((s) => s.serviceName === service)?.qty || ""
+                    }
+                    onChange={(e) => handleQtyChange(service, e.target.value)}
+                    style={{ marginTop: "5px", fontSize: "14px" }}
+                  />
+                </>
+              )}
+            </div>
+          ))}
+        </Col>
+      </Row>
     </React.Fragment>
   )
 }

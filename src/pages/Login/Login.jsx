@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom'
 //
 import HttpClient from '../../api/HttpClient'
 import AppHeader from '../../components/AppHeader'
+import { toast } from 'react-toastify'
 //
 const showPassword = <i className="las la-eye" style={{ cursor: 'pointer' }}></i>;
 const hidePassword = <i className="las la-eye-slash" style={{ cursor: 'pointer' }}></i>;
@@ -29,7 +30,7 @@ const Login = () => {
   const [passwordShown, setPasswordShown] = useState(false)
   const [apiError, setApiError] = useState('')
 
-  const [rememberMe, setRememberMe] = useState(false);
+  // const [rememberMe, setRememberMe] = useState(false);
 
 
   useEffect(() => {
@@ -55,33 +56,37 @@ const Login = () => {
       return
     }
 
-    navigate("/settings/resource-usage")
 
     // // continue if no validation errors
-    // let formData = new FormData()
-    // formData.append('email', email)
-    // formData.append('password', password)
-    // formData.append('remember_me', rememberMe)
+    let loginData = {
+      email: email,
+      password: password,
+      // rememberMe: rememberMe
+    }
 
-    // HttpClient.post('auth/login', formData)
-    //   .then(responsePayload => {
-    //     showSpinner(false)
-    //     navigate("/settings/home")
-    //   })
-    //   .catch(error => {
-    //     showSpinner(false)
-    //     if (error.response) {
-    //       setApiError(error.response.data.message)
-    //     } else if (error.request) {
-    //       setApiError(error.request)
-    //     } else {
-    //       setApiError(error.message)
-    //     }
+    HttpClient.post(
+      'users/login',
+      loginData
+    ).then(responsePayload => {
+      showSpinner(false);
+      toast.success(responsePayload.data.message);
+      localStorage.setItem('user', JSON.stringify(responsePayload.data.data));
+      navigate("/settings/resource-usage");
+    }).catch(error => {
+      showSpinner(false);
+      if (error.response) {
+        setApiError(error.response.data.message);
+        toast.error(error.response.data.message);
+      } else if (error.request) {
+        setApiError(error.request)
+      } else {
+        setApiError(error.message)
+      }
 
-    //     // reset the password on any error
-    //     setPassword('')
-    //     passwordRef.current.value = ''
-    //   })
+      // reset the password on any error
+      // setPassword('')
+      // passwordRef.current.value = ''
+    })
   }
 
   // utilities functions
@@ -193,14 +198,14 @@ const Login = () => {
                     <p className="error-msg">{validationErrors.password}</p>
                   }
                 </Form.Group>
-                <label>
+                {/* <label>
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={() => setRememberMe(!rememberMe)}
                   />
                   <span style={{ paddingLeft: "10px", fontSize: "14px" }}>Remember me</span>
-                </label>
+                </label> */}
                 <div className="gutter-40x"></div>
                 <div className="d-grid gap-2">
                   <Button

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Col, Row, Form, Button } from 'react-bootstrap';
 
 export default function SecurityService(props) {
@@ -83,7 +83,6 @@ export default function SecurityService(props) {
   const calculateTotalMonthlyPrice = () => {
     return props.securityServices.reduce((sum, row) => {
       const price = parseFloat(row.monthlyPrice); // Ensure monthlyPrice is a number
-      console.log(price + " ")
       return sum + price;
     }, 0); // Start with a sum of 0
   };

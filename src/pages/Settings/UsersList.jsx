@@ -18,6 +18,14 @@ const UsersList = () => {
   const [apiError, setApiError] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSliderOpen, setIsSliderOpen] = useState(false);
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  useEffect(() => {
+    if (!user || !user.flags.Admin) {
+      window.location.href = "/settings/resource-usage";
+      return;
+    }
+  }, [user]);
 
   useEffect(() => {
     document.title = "Users Manage | Khazana";
@@ -42,6 +50,10 @@ const UsersList = () => {
       .catch((error) => {
         setLoading(false);
         if (error.response) {
+          if(error.response.status === 401) {
+            window.location.href = "/settings/resource-usage";
+            return;
+          }
           setApiError(error.response.data.message);
         } else if (error.request) {
           setApiError(error.request);
@@ -55,7 +67,7 @@ const UsersList = () => {
     fetchUsersList();
   };
 
-  return (
+  return usersList.length > 0 && (
     <Container fluid style={{ paddingRight: "0", paddingLeft: "0" }}>
       <div style={{ display: "flex", height: "100vh" }}>
         <AppHeader

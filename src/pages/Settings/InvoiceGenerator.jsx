@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Table, Button, Form, Image, ToggleButton } from 'react-bootstrap';
-import generatePDF, { Options } from 'react-to-pdf';
+import { Container, Row, Col, Table, Button, Form, Image } from 'react-bootstrap';
+import generatePDF from 'react-to-pdf';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const options = {
@@ -16,6 +16,7 @@ function InvoiceGenerator() {
   const [discount, setDiscount] = useState(0);
   const [notes, setNotes] = useState('It was great doing business with you.');
   const [terms, setTerms] = useState('Prices are inclusive of taxes. Income tax deduction certificate to be shared within 7 days of payment.');
+  // eslint-disable-next-line no-unused-vars
   const [showActions, setShowActions] = useState(false); // Toggle state
   const [invoiceDate] = useState(new Date().toLocaleDateString('en-GB')); // Get current date in dd/mm/yyyy format
   const [dueDate, setDueDate] = useState('');
@@ -81,6 +82,7 @@ function InvoiceGenerator() {
       amount: parseFloat(service.totalCost) || 0,
     }));
     setItems(mappedItems);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const totalInPKR = total * dollarRate; // Calculating total in PKR

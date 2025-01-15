@@ -1,11 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from 'react';
 import { Col, Row, Form, Button } from 'react-bootstrap';
-import isEmpty from '../../../../utils/isEmpty';
-
 
 
 export default function ElasticService(props) {
-
   const storedData = JSON.parse(localStorage.getItem("unitCost"));
   let vCpus_Price = 0
   let ramPrice = 0
@@ -14,18 +12,14 @@ export default function ElasticService(props) {
   }
 
   useEffect(() => {
+    console.log("Elastic Service: ", props.elasticServices);
     if (storedData.length !== 0) {
       vCpus_Price = getObjectByResourceDesc(storedData, "vCores")
       ramPrice = getObjectByResourceDesc(storedData, "RAM (GB)")
     }
   }, [storedData])
 
-  // Constants for unit cost margins
-  const UNIT_COSTS = {
-    vCPUs: vCpus_Price, // unit_cost_margin for vCPUs
-    RAM: ramPrice,    // unit_cost_margin for RAM (GB)
-  };
-  // Handle input changes for a specific row
+
   const handleInputChange = (index, field, value) => {
     const updatedRows = [...props.elasticServices];
     updatedRows[index][field] = value;
@@ -61,7 +55,7 @@ export default function ElasticService(props) {
 
   // Calculate the total monthly price
   const calculateTotalMonthlyPrice = () => {
-    return props.elasticServices.reduce((sum, row) => sum + parseInt(row.monthlyPrice), 0);
+    return props.elasticServices.reduce((sum, row) => sum + parseFloat(row.rate * row.quantity), 0).toFixed(2);
   };
 
   return (
@@ -159,7 +153,7 @@ export default function ElasticService(props) {
                 size="lg"
                 type="text"
                 disabled={true}
-                value={row.monthlyPrice}
+                value={(row.rate * row.quantity).toFixed(2)}
                 readOnly
                 placeholder="Monthly Rate"
                 style={{ fontSize: "16px" }}

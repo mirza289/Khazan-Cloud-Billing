@@ -3,17 +3,7 @@ import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { Row, Col, Button, } from 'react-bootstrap'
 import Spinner from 'react-bootstrap/Spinner'
-
-import { propTypes } from 'react-bootstrap/esm/Image'
-import {
-  useTable,
-  usePagination,
-  useSortBy,
-  useFlexLayout,
-  useResizeColumns,
-  useRowSelect,
-  useGlobalFilter
-} from 'react-table'
+import { useTable, usePagination, useSortBy, useFlexLayout, useResizeColumns, useRowSelect, useGlobalFilter } from 'react-table'
 import styled from 'styled-components'
 
 const Styles = styled.div`
@@ -179,9 +169,7 @@ function Table({ columns, data, showSpinnerProp, hiddenColumnsProps, prefix, hei
     canPreviousPage,
     canNextPage,
     pageOptions,
-    gotoPage,
     nextPage,
-    pageCount,
     previousPage,
     selectedFlatRows,
     setPageSize,
@@ -190,7 +178,6 @@ function Table({ columns, data, showSpinnerProp, hiddenColumnsProps, prefix, hei
     state: {
       pageIndex,
       pageSize,
-      selectedRowIds
     },
   } = useTable(
     {
@@ -248,6 +235,7 @@ function Table({ columns, data, showSpinnerProp, hiddenColumnsProps, prefix, hei
       rowProps(selectedFlatRows)
       setRowlength(selectedFlatRows.length)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFlatRows]);
   // Render the UI for your table
   return (
@@ -305,7 +293,7 @@ function Table({ columns, data, showSpinnerProp, hiddenColumnsProps, prefix, hei
               showSpinnerProp ?
                 <span style={{ paddingLeft: "5px" }}>
                   <Spinner
-                    style={{ marginRight: 10, marginTop: 5, borderBottomWidth: '3px', padding:'0px' }}
+                    style={{ marginRight: 10, marginTop: 5, borderBottomWidth: '3px', padding: '0px' }}
                     animation="border"
                     size="sm"
                     variant="dark"
@@ -356,7 +344,7 @@ function Table({ columns, data, showSpinnerProp, hiddenColumnsProps, prefix, hei
             variant="link"
             onClick={() => previousPage()}
             disabled={!canPreviousPage}>
-            <i className="las la-angle-left" style={{fontSize:"18px", color:'black'}}></i>
+            <i className="las la-angle-left" style={{ fontSize: "18px", color: 'black' }}></i>
           </Button>
 
           <span className='pagination-text'>
@@ -369,7 +357,7 @@ function Table({ columns, data, showSpinnerProp, hiddenColumnsProps, prefix, hei
             variant="link"
             onClick={() => nextPage()}
             disabled={!canNextPage}>
-            <i className="las la-angle-right" style={{fontSize:"18px", color:'black'}}></i>
+            <i className="las la-angle-right" style={{ fontSize: "18px", color: 'black' }}></i>
           </Button>
         </Col>
         <Col style={{ textAlign: "right" }}>

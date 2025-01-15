@@ -32,6 +32,14 @@ const ResourceUsage = () => {
   const elementRefs = useRef([]);
   // const [listLoadingSpinner, setListLoadingSpinner] = useState(false)
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  useEffect(() => {
+    if (!user) {
+      window.location.href = "/";
+      return;
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!isEmpty(selectedService) && elementRefs.current) {
@@ -113,8 +121,6 @@ const ResourceUsage = () => {
 
       })
   }
-
-  // const [servicesSummary, setServicesSummary] = useState([]);
 
   // Function to calculate total costs for each service
   const calculateServiceCosts = (data) => {
@@ -339,7 +345,7 @@ const ResourceUsage = () => {
 
       if (evsService) {
         const evsSsd = evsService.instances.filter(instance => {
-          if(instance["Resource Metric"].toLowerCase().includes('ssd')) {
+          if (instance["Resource Metric"].toLowerCase().includes('ssd')) {
             return true;
           } else if (instance["Resource Metric"].toLowerCase().includes('snapshot')) {
             return true;
@@ -367,7 +373,7 @@ const ResourceUsage = () => {
             summaryEvsSSD["Usage Cost"] += parseFloat(instance["Usage Cost"]);
           })
           summaryEvsSSD["Avg Duration"] = summaryEvsSSD["Avg Duration"] / summaryEvsSSD["Size (GB)"];
-          
+
           summaryEvsSSD["Usage Cost"] = summaryEvsSSD["Usage Cost"].toFixed(2);
           summaryEvsSSD["Avg Duration"] = summaryEvsSSD["Avg Duration"].toFixed(2);
           summaryEvsSSD["Rate (Per GB)"] = (summaryEvsSSD["Rate (Per GB)"] / evsSsd.length).toFixed(7);
@@ -566,7 +572,7 @@ const ResourceUsage = () => {
     }
   }
 
-  return (
+  return user && (
     <Container fluid style={{ paddingRight: "0", paddingLeft: "0" }}>
       <AppHeader />
       <div style={{ display: "flex", height: "98vh" }}>

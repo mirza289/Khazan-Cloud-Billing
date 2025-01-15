@@ -1,11 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { Col, Container, Row } from 'react-bootstrap'
-import Button from 'react-bootstrap/Button'
-import Spinner from 'react-bootstrap/Spinner'
+import React, { useState, useEffect } from 'react'
+import { Container, Button } from 'react-bootstrap'
 import Form from 'react-bootstrap/Form'
-import InputGroup from 'react-bootstrap/InputGroup'
 import Alert from 'react-bootstrap/Alert'
-import { useNavigate } from 'react-router-dom'
 //
 import HttpClient from '../../api/HttpClient'
 import { toast } from 'react-toastify'
@@ -18,304 +14,178 @@ import SecurityService from './components/Services/SecurityService'
 import DatabaseService from './components/Services/DatabaseService'
 import NetworkService from './components/Services/NetworkService'
 import ValueAddedService from './components/Services/ValueAddedService'
-//
-const showPassword = <i className="las la-eye" style={{ cursor: "pointer" }}></i>
-const hidePassword = <i className="las la-eye-slash" style={{ cursor: "pointer" }}></i>
+
 
 const CreatePurchaseOrder = (props) => {
-  const navigate = useNavigate()
-  const passwordRef = useRef(null)
-  //
-  const [apiError, setApiError] = useState('')
-  const [spinner, showSpinner] = useState(false)
-  const [validationErrors, setValidationErrors] = useState({})
-  const [passwordShown, setPasswordShown] = useState(false)
-  //
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [userLevel, setUserLevel] = useState(0)
-  const [selectedRoles, setSelectedRoles] = useState([])
-  const [formValues, setFormValues] = useState({
-    name: "",
-    email: "",
-    ntnNumber: "",
-    address: "",
-  });
-
-  useEffect(() => {
-    if (props.source === "user-update") {
-      getUserRecord()
-    }
-  }, [])
-
-
-  useEffect(() => {
-    // Fetch data from local storage
-    const storedData = JSON.parse(localStorage.getItem("unitCost"));
-    console.log(`Data fetched: ${JSON.stringify(storedData)}`)
-  }, [])
-
-  const handleInputChangeUser = (field, value) => {
-    setFormValues((prevState) => ({
-      ...prevState,
-      [field]: value,
-    }));
-
-    // Clear validation error for the field being updated
-    if (validationErrors[field]) {
-      setValidationErrors((prevState) => ({
-        ...prevState,
-        [field]: "",
-      }));
-    }
-  }
-
-  // handle create user
-  const handleCreatePurchaseOrder = (e) => {
-    e.preventDefault()
-    setApiError('')
-    setValidationErrors({})
-    showSpinner(true)
-
-    let ElasticService = {
-      'serviceName': "elasticService",
-      'data': elasticServices
-    }
-    let StorageService = {
-      'serviceName': "storageService",
-      'data': storageService
-    }
-    let DrService = {
-      'serviceName': "drService",
-      'data': drServices
-    }
-    let ContainerServiceCCE = {
-      'serviceName': "containerServices",
-      'data': containerServices
-    }
-    let ContainerServiceWorker = {
-      'serviceName': "containerServiceWorker",
-      'data': containerSpecialServices
-    }
-    let SecurityProtection = {
-      'serviceName': "securityServices",
-      'data': securityServices
-    }
-    let DatabaseServices = {
-      'serviceName': "databaseServices",
-      'data': databaseServices
-    }
-    let NetworkServices = {
-      'serviceName': "networkServices",
-      'data': networkServices
-    }
-
-
-    let services = [
-      ElasticService,
-      StorageService,
-      DrService,
-      ContainerServiceCCE,
-      ContainerServiceWorker,
-      SecurityProtection,
-      DatabaseServices,
-      NetworkServices,
-      additionalServices
-    ]
-
-
-    let UserPurchaseOrder = {
-      "user-info": formValues,
-      "services": services
-    }
-
-    // perform form validation
-    // const validationErrors = formValidation()
-    // const noErrors = Object.keys(validationErrors).length === 0;
-    // if (!noErrors) {
-    //   setValidationErrors(validationErrors)
-    //   showSpinner(false)
-    //   return
-    // }
-
-    HttpClient.post('/po/add', UserPurchaseOrder)
-      .then(responsePayload => {
-        toast.success("PO recorded successfully")
-        showSpinner(false)
-        // reset the form
-        // setFirstName('')
-        // setLastName('')
-        // setEmail('')
-        // setPassword('')
-        // passwordRef.current.value = ''
-        // props.updateSliderState({
-        //   isPaneOpen: false,
-        // })
-
-      })
-      .catch(error => {
-        showSpinner(false)
-        if (error.response) {
-          setApiError(error.response.data.message)
-        } else if (error.request) {
-          setApiError(error.request)
-        } else {
-          setApiError(error.message)
-        }
-
-        // reset the password on any error
-        setPassword('')
-        passwordRef.current.value = ''
-      })
-  }
-
-
-  //
-  const formValidation = () => {
-    const validationErrors = {}
-
-    // validate full name
-    if (firstName.length === 0) {
-      validationErrors.firstName = 'First name is required'
-    }
-    else if (firstName.length > 100) {
-      validationErrors.firstName = 'First Name is too long (maximum is 100 characters)'
-    }
-    else if (!/^[a-zA-Z" " ]+$/.test(firstName)) {
-      validationErrors.firstName = 'First name must be letters only'
-    }
-
-    // validate last name
-    if (lastName.length === 0) {
-      validationErrors.lastName = 'Last name is required'
-    }
-    else if (lastName.length > 100) {
-      validationErrors.lastName = 'Last Name is too long (maximum is 100 characters)'
-    }
-    else if (!/^[a-zA-Z" " ]+$/.test(lastName)) {
-      validationErrors.lastName = 'Last name must be letters only'
-    }
-
-    // validate email
-    if (email.length === 0) {
-      validationErrors.email = 'Email address is required'
-    }
-    else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
-      validationErrors.email = 'Email address is invalid'
-    }
-
-    return validationErrors
-  }
-
-  const togglePasswordVisiblity = () => {
-    setPasswordShown(passwordShown ? false : true);
-  }
-
-  const handleRoleChange = (e) => {
-    const role = e.target.value
-    if (e.target.checked) {
-      setSelectedRoles([...selectedRoles, role])
-    } else {
-      setSelectedRoles(selectedRoles.filter((selectedRole) => selectedRole !== role))
-    }
-  }
-
+  const [userId, setUserId] = useState(0);
+  const [apiError, setApiError] = useState('');
+  const [newPo, setNewPo] = useState(false);
+  // services data state
   const [elasticServices, setElasticServices] = useState([]);
-
-  // Handle input changes for a specific row
-  const handleInputChange = (index, field, value) => {
-    const updatedRows = [...elasticServices];
-    updatedRows[index][field] = value;
-    setElasticServices(updatedRows);
-  };
-
-  // Add a new row
-  const addRow = () => {
-    setElasticServices([
-      ...elasticServices,
-      { vCPUs: 0, ram: 0, quantity: 0, rate: 0, monthlyPrice: 0 },
-    ]);
-  };
-
-  // Remove a row
-  const removeRow = (index) => {
-    const updatedRows = elasticServices.filter((_, i) => i !== index);
-    setElasticServices(updatedRows);
-  };
-
-  //// handle storage states 
-
-  // State to manage elasticServices, renamed to storageService
   const [storageService, setStorageService] = useState([]);
-
-
-  //// DR Services 
-
-
-  // State to manage DR services
   const [drServices, setDrServices] = useState([]);
-
-  // State to manage Container Services
   const [containerServices, setContainerServices] = useState([]);
-
-
   const [containerSpecialServices, setContainerSpecialServices] = useState([]);
-
-  //////////////////////////////////////////////////////////////////////////////
-  // State to manage Security and Protection Services
   const [securityServices, setSecurityServices] = useState([]);
-
-
-  ///  database 
   const [databaseServices, setDatabaseServices] = useState([]);
-
-  /// network Services 
-
   const [networkServices, setNetworkServices] = useState([]);
-
-  /// value edit fields 
   const [additionalServices, setAdditionalServices] = useState({
-    serviceName: "additionalServices",
+    serviceName: "valueAddedServices",
     data: [], // Array to hold selected services with price and qty
   });
 
-
   useEffect(() => {
-    console.log(additionalServices)
-  }, [additionalServices])
-
-  /// fetch the user data 
-  const getUserRecord = () => {
+    console.log("User ID: ", props.userId);
+    setUserId(props.userId);
     HttpClient.get('po/get/' + props.userId)
       .then(responsePayload => {
-        let response = responsePayload.data.data
-        setFormValues(response["user-info"])
+        let response = responsePayload.data.data;
+
+        if (response.services.length === 0) {
+          setNewPo(true);
+          return;
+        }
 
         for (let index = 0; index < response.services.length; index++) {
           if (response.services[index].serviceName === 'elasticService')
-            setElasticServices(response.services[index].data)
+            setElasticServices(response.services[index].data);
+
           if (response.services[index].serviceName === 'storageService')
-            setStorageService(response.services[index].data)
+            setStorageService(response.services[index].data);
+
           if (response.services[index].serviceName === 'drService')
-            setDrServices(response.services[index].data)
+            setDrServices(response.services[index].data);
+
           if (response.services[index].serviceName === 'containerServices')
-            setContainerServices(response.services[index].data)
+            setContainerServices(response.services[index].data);
+
           if (response.services[index].serviceName === 'containerServiceWorker')
-            setContainerSpecialServices(response.services[index].data)
+            setContainerSpecialServices(response.services[index].data);
+
           if (response.services[index].serviceName === 'securityServices')
-            setSecurityServices(response.services[index].data)
+            setSecurityServices(response.services[index].data);
+
           if (response.services[index].serviceName === 'databaseServices')
-            setDatabaseServices(response.services[index].data)
+            setDatabaseServices(response.services[index].data);
+
           if (response.services[index].serviceName === 'networkServices')
-            setNetworkServices(response.services[index].data)
+            setNetworkServices(response.services[index].data);
+
+          if (response.services[index].serviceName === 'valueAddedServices') {
+            setAdditionalServices({
+              serviceName: "valueAddedServices",
+              data: response.services[index].data
+            });
+          }
         }
       })
       .catch(error => {
-        // in case of any error take the user to login page as this is unauthorized
-        // navigate("/")
+        if (error.response) {
+          setApiError(error.response.data.message);
+        } else if (error.request) {
+          setApiError(error.request);
+        } else {
+          setApiError(error.message);
+        }
       })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // handle create user
+  const handlePurchaseOrder = (e) => {
+    e.preventDefault();
+    setApiError('');
+
+    if (
+      elasticServices.length === 0 &&
+      storageService.length === 0 &&
+      drServices.length === 0 &&
+      containerServices.length === 0 &&
+      containerSpecialServices.length === 0 &&
+      securityServices.length === 0 &&
+      databaseServices.length === 0 &&
+      networkServices.length === 0 &&
+      additionalServices.data.length === 0
+    ) {
+      toast.error("Please add at least one service");
+      return;
+    }
+
+    let services = [];
+
+    if (elasticServices.length > 0) {
+      services.push({
+        'serviceName': "elasticService",
+        'data': elasticServices
+      });
+    }
+    if (storageService.length > 0) {
+      services.push({
+        'serviceName': "storageService",
+        'data': storageService
+      });
+    }
+    if (drServices.length > 0) {
+      services.push({
+        'serviceName': "drService",
+        'data': drServices
+      })
+    }
+    if (containerServices.length > 0) {
+      services.push({
+        'serviceName': "containerServices",
+        'data': containerServices
+      })
+    }
+    if (containerSpecialServices.length > 0) {
+      services.push({
+        'serviceName': "containerServiceWorker",
+        'data': containerSpecialServices
+      })
+    }
+    if (securityServices.length > 0) {
+      services.push({
+        'serviceName': "securityServices",
+        'data': securityServices
+      })
+    }
+    if (databaseServices.length > 0) {
+      services.push({
+        'serviceName': "databaseServices",
+        'data': databaseServices
+      })
+    }
+    if (networkServices.length > 0) {
+      services.push({
+        'serviceName': "networkServices",
+        'data': networkServices
+      })
+    }
+    if (additionalServices.data.length > 0) {
+      services.push(additionalServices);
+    }
+
+    let UserPurchaseOrder = {
+      "userId": userId,
+      "services": services,
+    }
+
+    HttpClient.post(
+      '/po/' + (newPo ? 'create' : 'update'),
+      UserPurchaseOrder // data
+    ).then(responsePayload => {
+      toast.success("PO recorded successfully");
+      console.log(responsePayload);
+      props.setReload((prev) => !prev);
+    }).catch(error => {
+      if (error.response) {
+        setApiError(error.response.data.message);
+      } else if (error.request) {
+        setApiError(error.request);
+      } else {
+        setApiError(error.message);
+      }
+    })
   }
 
   return (
@@ -328,56 +198,7 @@ const CreatePurchaseOrder = (props) => {
           <div className="gutter-10x"></div>
         </>
       }
-      <Form onSubmit={handleCreatePurchaseOrder}>
-        <Row><Col><span style={{ font: "16px", fontWeight: 'bold' }}>User Info</span></Col></Row>
-        <div className='gutter-20x' ></div>
-        <Form.Group className="mb-3" controlId="fgFirstName">
-          <Form.Label>Name</Form.Label>
-          <Form.Control
-            size="lg"
-            type="text"
-            value={formValues.name}
-            onChange={(e) => handleInputChangeUser("name", e.target.value)}
-            placeholder="Enter first name"
-            style={{ fontSize: "16px" }}
-          />
-          {validationErrors.firstName && <p className="error-msg">{validationErrors.firstName}</p>}
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="fgEmail">
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            size="lg"
-            type="email"
-            value={formValues.email}
-            onChange={(e) => handleInputChangeUser("email", e.target.value)}
-            placeholder="Enter email"
-            style={{ fontSize: "16px" }}
-          />
-          {validationErrors.email && <p className="error-msg">{validationErrors.email}</p>}
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="fgNtnNumber">
-          <Form.Label>NTN Number</Form.Label>
-          <Form.Control
-            size="lg"
-            type="text"
-            value={formValues.ntnNumber}
-            onChange={(e) => handleInputChangeUser("ntnNumber", e.target.value)}
-            placeholder="Enter NTN"
-            style={{ fontSize: "16px" }}
-          />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="fgAddress">
-          <Form.Label>Address</Form.Label>
-          <Form.Control
-            size="lg"
-            type="text"
-            value={formValues.address}
-            onChange={(e) => handleInputChangeUser("address", e.target.value)}
-            placeholder="Enter Address"
-            style={{ fontSize: "16px" }}
-          />
-        </Form.Group>
-
+      <Form onSubmit={handlePurchaseOrder}>
 
         {/* -----------------------------------------------------Elastic Cloud Server--------------------------------------------------------*/}
 
@@ -401,12 +222,10 @@ const CreatePurchaseOrder = (props) => {
 
         {/* --------------------------------------------------------Container Services---------------------------------------------------------*/}
 
-
         <ContainerService
           containerServices={containerServices}
           setContainerServices={setContainerServices}
         />
-
 
         {/* --------------------------------------------------------Container Services (Worker Nodes Details) ---------------------------------------------------------*/}
 
@@ -423,10 +242,12 @@ const CreatePurchaseOrder = (props) => {
         />
 
         {/* -------------------------------------------------------- Database Services ---------------------------------------------------------*/}
+
         <DatabaseService
           databaseServices={databaseServices}
           setDatabaseServices={setDatabaseServices}
         />
+
         {/* -------------------------------------------------------- Network Services ---------------------------------------------------------*/}
 
         <NetworkService
@@ -441,6 +262,11 @@ const CreatePurchaseOrder = (props) => {
           setAdditionalServices={setAdditionalServices}
         />
 
+        <div className="d-grid gap-2">
+          <Button size="lg" type="submit" style={{ fontSize: "16px", borderRadius: "20px", backgroundColor: "#2887d4" }}>
+            {newPo ? (<div>Create</div>) : (<div>Update</div>)}
+          </Button>
+        </div>
 
       </Form>
     </Container>

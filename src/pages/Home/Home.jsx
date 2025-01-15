@@ -52,39 +52,6 @@ const Home = () => {
       <AppHeader />
       <div style={{ display: "flex", height: "98vh" }}>
         <SidebarMenu />
-        {/* <Sidebar collapsed={collapsed}>
-          <div style={{ height: "90vh"}}>
-            <div className="gutter-20x"></div>
-            <div style={{ paddingLeft: "20px" }}>
-              <h4><b>Khazana Cloud </b></h4>
-            </div>
-            <div className="gutter-40x"></div>
-            <div className="gutter-40x"></div>
-            <Menu>
-              <MenuItem> 
-                <Link to="/home" style={{ textDecoration: "none", color: "#212529" }}>
-                  <i className="lar la-user" style={{ fontSize: "22px" }}></i> Users List
-                </Link>
-              </MenuItem>
-              <MenuItem> 
-                <Link to="/home" style={{ textDecoration: "none", color: "#212529" }}>
-                  <i className="las la-cash-register" style={{ fontSize: "22px" }}></i> Pay-order List
-                </Link>
-              </MenuItem>
-              <MenuItem> 
-                <Link to="/home" style={{ textDecoration: "none", color: "#212529" }}>
-                  <i className="las la-money-bill" style={{ fontSize: "22px" }}></i> Billing Calculation
-                </Link>
-              </MenuItem>
-            </Menu>
-            <Menu>
-            <MenuItem 
-              onClick={handleLogout}>
-                <i className="las la-sign-out-alt" style={{ fontSize: "22px" }}></i> Logout
-            </MenuItem>
-          </Menu>
-          </div>
-        </Sidebar> */}
         <main style={{ width: "100%" }}> 
           <Navbar>
             <Container >
