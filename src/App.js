@@ -9,6 +9,7 @@ import PurchaseOrderList from './pages/Settings/PurchaseOrderList'
 import ManagePrice from './pages/Settings/ManagePrice'
 import InvoiceGenerator from './pages/Settings/InvoiceGenerator'
 import UsersList from './pages/Settings/UsersList'
+import Calculator from './pages/PriceCalculator/Calculator'
 // import Auth from './pages/Login/Auth'
 // import Signup from './pages/Signup/Signup'
 // import SurveyList from './pages/Survey/SurveyList/SurveyList'
@@ -27,7 +28,7 @@ function App() {
         <Route exact path="settings/po-list" element={<PurchaseOrderList />} />
         <Route exact path="settings/prices" element={<ManagePrice />} />
         <Route exact path="settings/generate-invoice" element={<InvoiceGenerator />} />
-
+        <Route exact path="/calculator" element={<Calculator />} />
       </Routes>
     </Router>
   )
