@@ -7,7 +7,7 @@ import axios from 'axios'
 const HttpClient = axios.create({
   baseURL: "http://103.164.9.58:5000",
   // baseURL: "http://127.0.0.1:5000",
-  // withCredentials: true,
+  withCredentials: true,
   headers: {
     // 'Access-Control-Allow-Credentials': true,
     'Access-Control-Allow-Origin': '*',
